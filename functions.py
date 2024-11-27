@@ -61,7 +61,7 @@ testtext = [
 # print([replaceDelimiters(token) for token in re.split(r"\b",testtext) if token!=""])
 
 
-# testtext = "The world is a     vampoire, and I love gobbbobagabboh"
+# testtext = "The world is a       vampoire, and I love gobbbobagabboh"
 # print(split("hello$there.mr Bubbles.it's{always^been!a)pleasure"))
 # print(split("a b~c`d!e@f#g$h%i^j&k*l(m)n-o_p=q+r|s\\t}u]v{w[x:y;z\"A?B/C>D.E<F,G"))
 # print(delimiters)
