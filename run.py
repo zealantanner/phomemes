@@ -10,7 +10,6 @@ text = split(inputText)
 convertedText = p.ipa_list(text)
 # print(p.cmu_to_ipa(text))
 # throw(p.find_stress(text))
-# bub = catch()
 # print(p.convert(p.get_all(text)[0]))
 
 print(p.ipa_list(text))
