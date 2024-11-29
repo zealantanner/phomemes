@@ -71,7 +71,7 @@ testtext = [
 def cut_string_in_half(string):
     return [string[:len(string)//2], string[len(string)//2:]]
     
-def zigzag_split_and_check(string):
+def zigzag_check(string):
 	length = len(string)
 	mid = length // 2
 	offsets = [0]
@@ -82,13 +82,11 @@ def zigzag_split_and_check(string):
 
 	offsets = sorted(set(offsets), key=abs)
 	results = []
-	# results.append((left, right))
 
 	for offset in offsets:
 		left = string[:mid + offset]
 		right = string[mid + offset:]
 		print(f"Checking: {left}|{right}")
-		# print(f"offset: {offset}")
 		if is_word(left):
 			results.append(left)
 			print(f"Valid word: \"{left}\"")
@@ -97,9 +95,40 @@ def zigzag_split_and_check(string):
 				print(f"Valid word: \"{right}\"")
 				break
 			else:
-				results.append(zigzag_split_and_check(right))
+				results.append(zigzag_check(right))
 			break
 	return flatten(results)
+
+
+def back_to_front_check(string):
+	length = len(string)
+	mid = length // 2
+	offsets = [0]
+
+	for i in range(1, mid + 1):
+		offsets.append(i)
+		offsets.append(-i)
+
+	offsets = sorted(set(offsets), key=abs)
+	results = []
+
+	for offset in offsets:
+		left = string[:offset]
+		right = string[offset:]
+		print(f"Checking: {left}|{right}")
+		if is_word(left):
+			results.append(left)
+			print(f"Valid word: \"{left}\"")
+			if is_word(right):
+				results.append(right)
+				print(f"Valid word: \"{right}\"")
+				break
+			else:
+				results.append(zigzag_check(right))
+			break
+	return flatten(results)
+
+
 
 
 # def fix_broken_word(word:str):
@@ -135,7 +164,8 @@ def convert_to_pronouncable(text:str):
 		if(is_delimiter(word) or is_word(word)):
 			newText.append(word)
 		else:
-			newText.append((zigzag_split_and_check(word)))
+			# newText.append((back_to_front_check(word)))
+			newText.append((zigzag_check(word)))
 	print(text)
 	return flatten(newText)
 
@@ -157,4 +187,34 @@ def convert_to_pronouncable(text:str):
 # print(replaceDelimiters(text3))
 # print(p.isin_cmu(text3))
 # print(p.ipa_list(text3))
-print(convert_to_pronouncable(input("Enter some text: ")))
+# print(convert_to_pronouncable(input("Enter some text: ")))
+
+allText = open("allText.txt", 'r')
+# yourResult = [line.split(',') for line in allText.readlines()]
+lines = allText.readlines()
+lines = [re.split("\t", line)[0] for line in lines]
+for i, line in enumerate(lines):
+	print(f"{i}:\"{line}\"")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+inputText = input("Enter some text: \n(or nothing for testtext)")
+if (not inputText == "`"):
+	if not (inputText == ""):
+		print(convert_to_pronouncable(inputText))
+	else:
+		print("Choose a number:")
+		for i, text in enumerate(testtext):
+			print(f"[{i}]: \"{text}\"")
+		print(convert_to_pronouncable(testtext[int(input())]))
