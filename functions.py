@@ -55,6 +55,7 @@ testtext = [
 	"IaskedasimilarquestionhereandtheanswergivendoesuseanyimportsorcomprehensionsItdoeshaveaforloopthoughAnyparticularlyreasonforthatrequirement",
 	"neighbourhood vs neighborhood In sem justo, commodo ut, suscipit at, pharetra vitae, orci. Duis sapien nunc, commodo et, interdum suscipit, sollicitudin et, dolor. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Aliquam id dolor. Class aptent taciti sociosqu ad litora",
 	"ThatsoneofthetopresultswhenIlookupwiitank",
+	"applebeesgrillandbarmenu",
 ]
 
 # l=re.split(r"\b",testtext)
@@ -105,7 +106,7 @@ def back_to_front_check(string):
 	offsets = [0]
 
 	for i in range(1, length):
-		offsets.insert(0,i)
+		offsets.append(i)
 
 	# offsets = sorted(set(offsets))
 	results = []
@@ -123,6 +124,33 @@ def back_to_front_check(string):
 				break
 			else:
 				results.append(back_to_front_check(right))
+			break
+	return flatten(results)
+
+
+def front_to_back_right_first_check(string):
+	length = len(string)
+	offsets = [0]
+
+	for i in range(1, length):
+		offsets.append(i)
+
+	# offsets = sorted(set(offsets))
+	results = []
+
+	for offset in offsets:
+		left = string[:offset]
+		right = string[offset:]
+		print(f"Checking: {left}|{right}")
+		if is_word(right):
+			results.insert(0,right)
+			print(f"Valid word: \"{right}\"")
+			if is_word(left):
+				results.insert(0,left)
+				print(f"Valid word: \"{left}\"")
+				break
+			else:
+				results.insert(0,front_to_back_right_first_check(left))
 			break
 	return flatten(results)
 
@@ -154,16 +182,26 @@ def back_to_front_check(string):
 
 
 
-def convert_to_pronouncable(text:str):
+def convert_to_pronounceable(text:str, method:int = 0):
 	t = text
 	t = replace_delimiters(t)
+
+	match method:
+		case 1:
+			check = zigzag_check
+		case 2:
+			check = back_to_front_check
+		case 3:
+			check = front_to_back_right_first_check
+		case _:
+			check = back_to_front_check
+
 	newText = []
 	for word in t:
 		if(is_delimiter(word) or is_word(word)):
 			newText.append(word)
 		else:
-			newText.append((back_to_front_check(word)))
-			# newText.append((zigzag_check(word)))
+			newText.append((check(word)))
 	print(text)
 	return flatten(newText)
 
@@ -181,11 +219,11 @@ def convert_to_pronouncable(text:str):
 # 		print(the, " = ", p.isin_cmu(the))
 # print(["asdf", cut_string_in_half("text3")])
 # print(zigzag_split_and_check(testtext[8]))
-# print(convert_to_pronouncable(testtext[8]))
+# print(convert_to_pronounceable(testtext[8]))
 # print(replaceDelimiters(text3))
 # print(p.isin_cmu(text3))
 # print(p.ipa_list(text3))
-# print(convert_to_pronouncable(input("Enter some text: ")))
+# print(convert_to_pronounceable(input("Enter some text: ")))
 
 
 
@@ -196,16 +234,25 @@ def convert_to_pronouncable(text:str):
 
 
 
-
-
-
-
-inputText = input("Enter some text: \n(or nothing for testtext)")
-if (not inputText == "`"):
-	if not (inputText == ""):
-		print(convert_to_pronouncable(inputText))
-	else:
-		print("Choose a number:")
-		for i, text in enumerate(testtext):
-			print(f"[{i}]: \"{text}\"")
-		print(convert_to_pronouncable(testtext[int(input())]))
+method = int(input("""Choose your method:
+[1]: zigzag_check
+[2]: back_to_front_check
+[3]: front_to_back_right_first_check
+(nothing for default)
+"""))
+match method:
+	case 1|2|3:
+		None
+	case _:
+		method = 0
+		
+print(f"chose {method}")
+inputText = input("Enter some text: \n(nothing for testtext)")
+# method = (method == 1) ?"asdf":"fdas")
+if not (inputText == ""):
+	print(convert_to_pronounceable(inputText, method))
+else:
+	print("Choose a number:")
+	for i, text in enumerate(testtext):
+		print(f"[{i}]: \"{text}\"")
+	print(convert_to_pronounceable(testtext[int(input())], method))
