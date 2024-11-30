@@ -102,14 +102,12 @@ def zigzag_check(string):
 
 def back_to_front_check(string):
 	length = len(string)
-	mid = length // 2
 	offsets = [0]
 
-	for i in range(1, mid + 1):
-		offsets.append(i)
-		offsets.append(-i)
+	for i in range(1, length):
+		offsets.insert(0,i)
 
-	offsets = sorted(set(offsets), key=abs)
+	# offsets = sorted(set(offsets))
 	results = []
 
 	for offset in offsets:
@@ -124,7 +122,7 @@ def back_to_front_check(string):
 				print(f"Valid word: \"{right}\"")
 				break
 			else:
-				results.append(zigzag_check(right))
+				results.append(back_to_front_check(right))
 			break
 	return flatten(results)
 
@@ -164,8 +162,8 @@ def convert_to_pronouncable(text:str):
 		if(is_delimiter(word) or is_word(word)):
 			newText.append(word)
 		else:
-			# newText.append((back_to_front_check(word)))
-			newText.append((zigzag_check(word)))
+			newText.append((back_to_front_check(word)))
+			# newText.append((zigzag_check(word)))
 	print(text)
 	return flatten(newText)
 
@@ -188,13 +186,6 @@ def convert_to_pronouncable(text:str):
 # print(p.isin_cmu(text3))
 # print(p.ipa_list(text3))
 # print(convert_to_pronouncable(input("Enter some text: ")))
-
-allText = open("allText.txt", 'r')
-# yourResult = [line.split(',') for line in allText.readlines()]
-lines = allText.readlines()
-lines = [re.split("\t", line)[0] for line in lines]
-for i, line in enumerate(lines):
-	print(f"{i}:\"{line}\"")
 
 
 
