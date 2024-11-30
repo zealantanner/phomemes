@@ -156,7 +156,10 @@ def front_to_back_check(string):
 	return flatten(results)
 
 def hopeless_check(string):
-	
+	results = [ch for ch in string]
+	return flatten(results)
+
+
 
 
 # def fix_broken_word(word:str):
@@ -242,20 +245,21 @@ Choose your method:
 [1]: zigzag
 [2]: back to front
 [3]: front to back
-(nothing for default)
+[4]: hopeless
+(Enter for default)
 """)
 if(method==""):
 	method = 0
 else:
 	method = int(method)
 	match method:
-		case 1|2|3:
+		case 1|2|3|4:
 			None
 		case _:
 			method = 0
 		
-print(f"chose {method}")
-inputText = input("Enter some text: \n(nothing for testtext)")
+# print(f"chose {method}")
+inputText = input("Enter some text: \n(Enter to choose)")
 if not (inputText == ""):
 	print(convert_to_pronounceable(inputText, method))
 else:
