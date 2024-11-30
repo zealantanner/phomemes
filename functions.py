@@ -46,13 +46,15 @@ def is_word(s):
 	return (p.isin_cmu(s) and len(s)>0 and not is_delimiter(s))
 
 testtext = [
+	"electriccompany",
+	"begladyournoseisonyourface",
 	"Once applebananacherroy there     was a ????????????\\|(so-called) rock. it.,was not! in fact, a big rock.",
 	"applebananacherry",
 	"applesorangesandbananas",
 	"appleorangebanana",
 	"a",
 	"abe",
-	"IaskedasimilarquestionhereandtheanswergivendoesuseanyimportsorcomprehensionsItdoeshaveaforloopthoughAnyparticularlyreasonforthatrequirement",
+	"Iaskedasimilar questionhereand theanswergiven doesuseany importsorcomprehensions Itdoeshave aforloop thoughAnyparticularly reasonforthatrequirement",
 	"neighbourhood vs neighborhood In sem justo, commodo ut, suscipit at, pharetra vitae, orci. Duis sapien nunc, commodo et, interdum suscipit, sollicitudin et, dolor. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Aliquam id dolor. Class aptent taciti sociosqu ad litora",
 	"ThatsoneofthetopresultswhenIlookupwiitank",
 	"applebeesgrillandbarmenu",
@@ -72,6 +74,7 @@ testtext = [
 def cut_string_in_half(string):
     return [string[:len(string)//2], string[len(string)//2:]]
     
+
 def zigzag_check(string):
 	length = len(string)
 	mid = length // 2
@@ -106,9 +109,8 @@ def back_to_front_check(string):
 	offsets = [0]
 
 	for i in range(1, length):
-		offsets.append(i)
+		offsets.insert(0,i)
 
-	# offsets = sorted(set(offsets))
 	results = []
 
 	for offset in offsets:
@@ -128,14 +130,13 @@ def back_to_front_check(string):
 	return flatten(results)
 
 
-def front_to_back_right_first_check(string):
+def front_to_back_check(string):
 	length = len(string)
 	offsets = [0]
 
 	for i in range(1, length):
 		offsets.append(i)
 
-	# offsets = sorted(set(offsets))
 	results = []
 
 	for offset in offsets:
@@ -150,11 +151,12 @@ def front_to_back_right_first_check(string):
 				print(f"Valid word: \"{left}\"")
 				break
 			else:
-				results.insert(0,front_to_back_right_first_check(left))
+				results.insert(0,front_to_back_check(left))
 			break
 	return flatten(results)
 
-
+def hopeless_check(string):
+	
 
 
 # def fix_broken_word(word:str):
@@ -192,7 +194,9 @@ def convert_to_pronounceable(text:str, method:int = 0):
 		case 2:
 			check = back_to_front_check
 		case 3:
-			check = front_to_back_right_first_check
+			check = front_to_back_check
+		case 4:
+			check = hopeless_check
 		case _:
 			check = back_to_front_check
 
@@ -201,11 +205,10 @@ def convert_to_pronounceable(text:str, method:int = 0):
 		if(is_delimiter(word) or is_word(word)):
 			newText.append(word)
 		else:
-			newText.append((check(word)))
+			newText.append(check(word))
 	print(text)
 	return flatten(newText)
 
-#to do: the split, check, zig, check, zag, check
 
 # print(testtext)
 # print(special_split(testtext))
@@ -234,25 +237,32 @@ def convert_to_pronounceable(text:str, method:int = 0):
 
 
 
-method = int(input("""Choose your method:
-[1]: zigzag_check
-[2]: back_to_front_check
-[3]: front_to_back_right_first_check
+method = input("""
+Choose your method:
+[1]: zigzag
+[2]: back to front
+[3]: front to back
 (nothing for default)
-"""))
-match method:
-	case 1|2|3:
-		None
-	case _:
-		method = 0
+""")
+if(method==""):
+	method = 0
+else:
+	method = int(method)
+	match method:
+		case 1|2|3:
+			None
+		case _:
+			method = 0
 		
 print(f"chose {method}")
 inputText = input("Enter some text: \n(nothing for testtext)")
-# method = (method == 1) ?"asdf":"fdas")
 if not (inputText == ""):
 	print(convert_to_pronounceable(inputText, method))
 else:
 	print("Choose a number:")
 	for i, text in enumerate(testtext):
-		print(f"[{i}]: \"{text}\"")
-	print(convert_to_pronounceable(testtext[int(input())], method))
+		print(f"[{1+i}]: \"{text}\"")
+	userInput = input()
+	if(userInput == ""):
+		userInput = 0
+	print(convert_to_pronounceable(testtext[int(userInput)-1], method))
