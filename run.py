@@ -3,35 +3,47 @@ import re
 from functions import *
 
 
-inputText = "The world is a vampoire, and I love gobbbobagabboh"
-text = split(inputText) 
-
-
-convertedText = p.ipa_list(text)
+# convertedText = p.ipa_list(text)
 # print(p.cmu_to_ipa(text))
 # throw(p.find_stress(text))
 # print(p.convert(p.get_all(text)[0]))
 
-print(p.ipa_list(text))
+# print(p.ipa_list(text))
 # print(p.convert(p.get_top(text)))
 # print(p.syllable_count(text))
 # print(p.apply_punct(text))
-print(p.isin_cmu(text))
-first_half  = ""
-second_half = ""
 
 
-def fix_broken_words():
-	for i in convertedText:
-		if('*' in i[0]):
-			s = cut_string_in_half(i[0])
-			print(s)
-			print("hello there buddy")
 
 
-		# if('*' in i[0]):
-			print("this word doesn't parse")
-
-		print(first_half)
-		print(second_half)
-		print(i)
+method = input("""
+Choose your method:
+[1]: zigzag
+[2]: back to front
+[3]: front to back
+[4]: hopeless
+(Enter for default)
+""")
+if(method==""):
+	method = 0
+else:
+	method = int(method)
+	match method:
+		case 1|2|3|4:
+			None
+		case _:
+			method = 0
+		
+# print(f"chose {method}")
+inputText = input("Enter some text: \n(Enter to choose)")
+if not (inputText == ""):
+	print(convert_to_pronounceable(inputText, method))
+else:
+	print("Choose a number:")
+	for i, text in enumerate(testtext):
+		print(f"[{1+i}]: \"{text}\"")
+	print("(Enter for 1)")
+	userInput = input()
+	if(userInput == ""):
+		userInput = 1
+	print(convert_to_pronounceable(testtext[int(userInput)-1], method))

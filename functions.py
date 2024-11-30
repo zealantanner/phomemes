@@ -240,33 +240,3 @@ def convert_to_pronounceable(text:str, method:int = 0):
 
 
 
-method = input("""
-Choose your method:
-[1]: zigzag
-[2]: back to front
-[3]: front to back
-[4]: hopeless
-(Enter for default)
-""")
-if(method==""):
-	method = 0
-else:
-	method = int(method)
-	match method:
-		case 1|2|3|4:
-			None
-		case _:
-			method = 0
-		
-# print(f"chose {method}")
-inputText = input("Enter some text: \n(Enter to choose)")
-if not (inputText == ""):
-	print(convert_to_pronounceable(inputText, method))
-else:
-	print("Choose a number:")
-	for i, text in enumerate(testtext):
-		print(f"[{1+i}]: \"{text}\"")
-	userInput = input()
-	if(userInput == ""):
-		userInput = 0
-	print(convert_to_pronounceable(testtext[int(userInput)-1], method))
