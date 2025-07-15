@@ -6,30 +6,37 @@ from num2words import num2words
 # periodPauseDelimiters = ".!&?\n"
 # commaPauseDelimiters  = ",~*()=+\\:;\""
 # spacePauseDelimiters  = " -_></"
-periodPauseDelimiters = [".","!","?","‽","\n"]
-commaPauseDelimiters = [",","~","*","(",")",":",";"]
+periodPauseDelimiters = [".","!","?","\n"]
+commaPauseDelimiters = [",","~","*","—","(",")",":",";"]
 spacePauseDelimiters = [" ","-","_","/","\\"]
 pauseDelimiters = periodPauseDelimiters + commaPauseDelimiters + spacePauseDelimiters
-print(pauseDelimiters)
+# print(pauseDelimiters)
+
+# class Pause:
+#     def __init__(self):
+#         # self.
+#         pass
 
 specialGroupDict = {
     " misc.": " miscellaneous",
     " etc.": " et cetera",
-    ".com": "dot com",
-    ".org": "dot org",
-    ".net": "dot net",
-    ".edu": "dot ee dee you",
-    ".gov": "dot guv",
-    " 1st": " first",
-    " 2nd": " second",
-    " 3rd": " third",
-    " 4th": " fourth",
-    " 5th": " fifth",
-    " 6th": " sixth",
-    " 7th": " seventh",
-    " 8th": " eighth",
-    " 9th": " ninth",
-    " 10th": " tenth",
+    ".com": " dot com",
+    ".org": " dot org",
+    ".net": " dot net",
+    ".edu": " dot ee dee you",
+    ".gov": " dot guv",
+    "1st": " first ",
+    "2nd": " second ",
+    "3rd": " third ",
+    "4th": " fourth ",
+    "5th": " fifth ",
+    "6th": " sixth ",
+    "7th": " seventh ",
+    "8th": " eighth ",
+    "9th": " ninth ",
+    "10th": " tenth ",
+    "°F": " degrees fahrenheit ",
+    "°C": " degrees celsius ",
 }
 
 replaceTime = [
@@ -37,23 +44,23 @@ replaceTime = [
     [r"([1-9]|1[0-2]):00( ?[AaPp][Mm])?",
         lambda x: num2words(re.search(r"([1-9]|1[0-2])+?(?=:)",x).group())
             + " oh clock "
-            + (" ay em" if re.search(r"[Aa][Mm]",x) else "")
-            + (" pee em" if re.search(r"[Pp][Mm]",x) else "")
+            + (" ay em " if re.search(r"[Aa][Mm]",x) else "")
+            + (" pee em " if re.search(r"[Pp][Mm]",x) else "")
     ],
     # times that end in 04 like 12:04 or 3:07
     [r"([1-9]|1[0-2]):(0[1-9])( ?[AaPp][Mm])?",
         lambda x: num2words(re.search(r"([1-9]|1[0-2])+?(?=:)",x).group())
             + " oh "
             + num2words(re.search(r"(?<=:0)([1-9])",x).group())
-            + (" ay em" if re.search(r"[Aa][Mm]",x) else "")
-            + (" pee em" if re.search(r"[Pp][Mm]",x) else "")
+            + (" ay em " if re.search(r"[Aa][Mm]",x) else "")
+            + (" pee em " if re.search(r"[Pp][Mm]",x) else "")
     ],
     # all other valid times
     [r"([1-9]|1[0-2]):([1-5][0-9]|[1-5][1-9])( ?[AaPp][Mm])?",
         lambda x: num2words(re.search(r"([1-9]|1[0-2])+?(?=:)",x).group()) + " "
             + num2words(re.search(r"(?<=:)([1-5][0-9]|[0-5][1-9])",x).group())
-            + (" ay em" if re.search(r"[Aa][Mm]",x) else "")
-            + (" pee em" if re.search(r"[Pp][Mm]",x) else "")
+            + (" ay em " if re.search(r"[Aa][Mm]",x) else "")
+            + (" pee em " if re.search(r"[Pp][Mm]",x) else "")
     ],
     # end of websites, like .com
     # [r""

@@ -6,13 +6,46 @@ from constants import *
 # commaPauseDelimiters  = ",~*()=+\\:;\""
 # spacePauseDelimiters  = " -_></"
 
+class Delimiter:
+    def __init__(self, chars):
+        self.chars = chars
+        self.string = "".join(chars)
+        self.reg = re.escape(self.string)
+    
+    def delimit(self, others):
+        print("~1",self.chars)
+        print("~2",others)
+        return r"[" + self.reg + Delimiter(others).reg + r"]*[" + self.reg + r"*]+[" + self.reg + Delimiter(others).reg + r"]*"
+
+    def sub(self, repl, string ,count: int = 0):
+        return re.sub(self.reg, repl, string, count)
+    # def __str__()
+
+class Pause:
+    def __init__(self, type:str=" "):
+        self.type = type
+        self.is_space:bool = False
+        self.is_comma:bool = False
+        self.is_period:bool = False
+        self.is_question:bool = False
+        self.is_exclamation:bool = False
+        match type:
+            case " ": self.is_space = True
+            case ",": self.is_comma = True
+            case ".": self.is_period = True
+            case "?": self.is_question = True
+            case "!": self.is_exclamation = True
+        pass
+    def __str__(self):
+        return self
+
+    
 
 delimiters = periodPauseDelimiters+commaPauseDelimiters+spacePauseDelimiters
-# print(delimiters)
-# print(delimiters[4],delimiters[12])
-def split(string:str, delimiters=delimiters, maxsplit=0):
-    regex_pattern = '|'.join(map(re.escape, delimiters))
-    return re.split(regex_pattern, string, maxsplit)
+
+# def split(string:str, delimiters=pauseDelimiters, maxsplit=0):
+#     regex_pattern = '|'.join(map(re.escape, delimiters))
+#     return re.split(regex_pattern, string, maxsplit)
 
 def flatten(S):
     if S == []:
@@ -20,62 +53,53 @@ def flatten(S):
     if isinstance(S[0], list):
         return flatten(S[0]) + flatten(S[1:])
     return S[:1] + flatten(S[1:])
-    
 
-
-
-
-
-# def replace_delimiters1(token:str):
-#     period= re.escape(periodPauseDelimiters)
-#     comma = re.escape(commaPauseDelimiters)
-#     space = re.escape(spacePauseDelimiters)
-    
-#     periodDelimiters = r"[^" + period + "]*[" + period + "]+[^" + period + "]*"
-#     commaDelimiters  = r"[^" + comma  + "]*[" + comma  + "]+[^" + comma  + "]*"
-#     spaceDelimiters  = r"[^" + space  + "]*[" + space  + "]+[^" + space  + "]*"
-    
-#     # token = token.lstrip(re.escape(delimiters))
-#     token = re.sub(periodDelimiters,".",token)
-#     token = re.sub(commaDelimiters,",",token)
-#     token = re.sub(spaceDelimiters," ",token)
-#     return token
 
 def condense_delimiters(text:str):
     period = re.escape("".join(periodPauseDelimiters))
     comma = re.escape("".join(commaPauseDelimiters))
     space = re.escape("".join(spacePauseDelimiters))
-    # periodDelimiters = rf"[\!\?\.\?\‽\n*]+"
     # periodDelimiters = rf"[\ \,\.]*[\.*]+[\ \,\.]*"
-    periodDelimiters = r"[" + space + comma + period + r"]*[" + period + r"*]+[" + space + comma + period + r"]*"
-    commaDelimiters = r"[" + space + comma + r"]*[" + comma + r"*]+[" + space + comma + r"]*"
-    spaceDelimiters = r"[" + space + r"]*[" + space + r"*]+[" + space + r"]*"
+    # exclamationDelimiters = 
+    # questionDelimiters =
+    periodDelimiters1 = Delimiter(periodPauseDelimiters)
+    print(1,periodDelimiters1.delimit(space + comma))
+    periodDelimiters2 = r"[" + space + comma + period + r"]*[" + period + r"*]+[" + space + comma + period + r"]*"
+    print(2,periodDelimiters2)
+    # commaDelimiters = r"[" + space + comma + r"]*[" + comma + r"*]+[" + space + comma + r"]*"
+    # spaceDelimiters = r"[" + space + r"]*[" + space + r"*]+[" + space + r"]*"
 
 
-    text = re.sub(periodDelimiters, ".", text)
-    text = re.sub(commaDelimiters, ",", text)
-    text = re.sub(spaceDelimiters, " ", text)
+    # text = re.sub(periodDelimiters, ".", text)
+    # text = re.sub(commaDelimiters, ",", text)
+    # text = re.sub(spaceDelimiters, " ", text)
     # print(periodPauseDelimiters)
     # print(periodDelimiters)
     # print(text)
     return text
 
+print(condense_delimiters("the?.re  .,,   .  wa,     ,,,    ,s a ???????.?????\\|(so-called) ro"))
+
 # print(condense_delimiters("the?.re  .,,   .  wa,     ,,,    ,s a ???????.?????\\|(so-called) ro"))
 
 
-def replace_delimiters(text:str):
-    text = text.lstrip(re.escape(delimiters))
-    return [condense_delimiters(token) for token in re.split(r"\b",text) if token!=""]
+# def replace_delimiters(text:str):
+#     text = text.lstrip(re.escape(delimiters))
+#     return [condense_delimiters(token) for token in re.split(r"\b",text) if token!=""]
 # apply
 
+def replace_specials(text:str):
+    for x in specialGroupDict:pass
+
+
 def replace_times(text:str):
+    # loop over all 3 checkers
     for x in replaceTime:
         if(re.search(x[0],text)):
-            # print(re.sub(x[0], x[1](text), text))
             text = re.sub(x[0], x[1](text), text)
+            # print("hi ",text)
             replace_times(text)
-        else:
-            return text
+    return text
 
 
 
@@ -83,30 +107,62 @@ def convert_nums_to_words(text:str):
     newtext = ""
     for x in re.findall(r"[0-9]+|[^0-9]+",text):
         if(re.search(r"[0-9]+", x)):
-            print(num2words(x))
+            # print(num2words(x))
             newtext = "".join([newtext, " ", num2words(x), ""])
         else:
-            print(x)
+            # print(x)
             newtext = "".join([newtext, x])
     return newtext
 
 def replace_unknowns(text:str): 
     for x in unknownDict:
-        if(re.search(x, text)):
-            text = re.sub(x, unknownDict[x],text)
-        replace_unknowns(text)
+        text = re.sub(re.escape(x), unknownDict[x], text)
+        # if(re.search(re.escape(x), text)):
+        # text = re.sub(x, unknownDict[x],text)
+        # replace_unknowns(text)
     return text
 
 
+
+def replace_delimiters(text:str):
+    text = text.strip("".join(delimiters))
+    text = condense_delimiters(text)
+    return re.split(r"( |,|\.)", text)
+    # return [condense_delimiters(token) for token in re.split(r"\b",text) if token!=""]
+
+
+def remove_etc(text:str):
+    text = re.sub(r"[^0-9a-zA-Z" + re.escape("".join(pauseDelimiters)) + r"]", " ", text)
+    return text
+
+
+print(replace_delimiters("asdf.asdf,fdsa asdfd"))
+
+
+
+# print(replace_unknowns("zealan@gmail@.com"))
+
 def unconfuse(text:str):
+    print(0,text)
+    text = replace_specials(text)
+    print(1,text)
     text = replace_times(text)
+    print(2,text)
     text = replace_unknowns(text)
+    print(3,text)
     text = convert_nums_to_words(text)
+    print(4,text)
+    text = remove_etc(text)
+    print(5,text)
+    text = condense_delimiters(text)
+    print(6,text)
+    text = replace_delimiters(text)
+    print(7,text)
     return text
     
 # order is: specialgroupdict, unknownDict, numbers to words, Delimiter
 
-
+print(unconfuse("apple@sauce 12:30 am12:00 2:03pm"))
 
 def is_delimiter(text:str):
     return any(elem in text for elem in delimiters)
@@ -120,7 +176,7 @@ def is_word(s):
 testtext = [
     "electriccompany",
     "begladyournoseisonyourface",
-    "Once 1:20 pm @ #sussyland appleb 12:00 am ananacherroy there 12:04 Pm     was a ????????????\\|(so-called) rock. it.,was not! in fact, a big rock.",
+    "Once. 1:20 pm @ #sussyland appleb 12:00 am ananacherroy there 12:04 Pm     was a ????????????\\|(so-called) rock. it.,was not! in fact, a big rock.",
     "applebananacherry",
     "applesorangesandbananas",
     "appleorangebanana",
