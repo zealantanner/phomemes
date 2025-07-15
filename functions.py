@@ -1,10 +1,28 @@
 import eng_to_ipa as p 
 import re
 
-periodPauseDelimiters = ".!&?\n"
-commaPauseDelimiters  = ",~*()=+\\:;\""
-spacePauseDelimiters  = " -_></"
+# spacePauseDelimiters  = " -_></"
+# commaPauseDelimiters  = ",~*()=+\\:;\""
+# periodPauseDelimiters = ".!&?\n"
+
+spacePauseDelimiters = [" ","-","_",">","<","/"]
+commaPauseDelimiters = [",","~","*","(",")","=","+","\\",":",";"]
+periodPauseDelimiters = [".","!","?","\n"]
+
+weirdwordDict = {
+	"@": "at",
+	"#": "hashtag",
+	"%": "percent",
+	"&": "and",
+	"¢": "cent"
+	"$": "dollar",
+	"£": "pound"
+	"¥": "yen",
+	"°": "degrees"
+}
+
 delimiters = periodPauseDelimiters+commaPauseDelimiters+spacePauseDelimiters
+print(delimiters[4],delimiters[12])
 def split(string:str, delimiters=delimiters, maxsplit=0):
     regex_pattern = '|'.join(map(re.escape, delimiters))
     return re.split(regex_pattern, string, maxsplit)
@@ -14,6 +32,7 @@ def flatten(S):
 	if isinstance(S[0], list):
 		return flatten(S[0]) + flatten(S[1:])
 	return S[:1] + flatten(S[1:])
+	
 
 
 
