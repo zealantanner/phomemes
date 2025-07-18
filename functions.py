@@ -22,7 +22,7 @@ class Delimiter:
     # def __str__()
 
 class Pause:
-    def __init__(self, type:str=" "):
+    def __init__(self, type:str="."):
         self.type = type
         self.is_space:bool = False
         self.is_comma:bool = False

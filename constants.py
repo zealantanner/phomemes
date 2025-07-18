@@ -42,14 +42,16 @@ specialGroupDict = {
 replaceTime = [
     # times that end in 00
     [r"([1-9]|1[0-2]):00( ?[AaPp][Mm])?",
-        lambda x: num2words(re.search(r"([1-9]|1[0-2])+?(?=:)",x).group())
+        lambda x:
+            num2words(re.search(r"([1-9]|1[0-2])+?(?=:)",x).group())
             + " oh clock "
             + (" ay em " if re.search(r"[Aa][Mm]",x) else "")
             + (" pee em " if re.search(r"[Pp][Mm]",x) else "")
     ],
     # times that end in 04 like 12:04 or 3:07
     [r"([1-9]|1[0-2]):(0[1-9])( ?[AaPp][Mm])?",
-        lambda x: num2words(re.search(r"([1-9]|1[0-2])+?(?=:)",x).group())
+        lambda x:
+            num2words(re.search(r"([1-9]|1[0-2])+?(?=:)",x).group())
             + " oh "
             + num2words(re.search(r"(?<=:0)([1-9])",x).group())
             + (" ay em " if re.search(r"[Aa][Mm]",x) else "")
@@ -57,7 +59,8 @@ replaceTime = [
     ],
     # all other valid times
     [r"([1-9]|1[0-2]):([1-5][0-9]|[1-5][1-9])( ?[AaPp][Mm])?",
-        lambda x: num2words(re.search(r"([1-9]|1[0-2])+?(?=:)",x).group()) + " "
+        lambda x:
+            num2words(re.search(r"([1-9]|1[0-2])+?(?=:)",x).group()) + " "
             + num2words(re.search(r"(?<=:)([1-5][0-9]|[0-5][1-9])",x).group())
             + (" ay em " if re.search(r"[Aa][Mm]",x) else "")
             + (" pee em " if re.search(r"[Pp][Mm]",x) else "")
