@@ -1,6 +1,6 @@
 import eng_to_ipa as p 
 import re
-from constants import *
+from replaceList import *
 
 # periodPauseDelimiters = ".!&?\n"
 # commaPauseDelimiters  = ",~*()=+\\:;\""
@@ -92,27 +92,30 @@ def condense_delimiters(text:str):
 
 def replace_unknowns(text:str):
     for unknownSymbol in unknownDict:
-        if(re.search(re.escape(unknownSymbol), text)):
-            text = re.sub(re.escape(unknownSymbol), unknownDict[unknownSymbol], text)
-            replace_unknowns(text)
+        search = re.search(re.escape(unknownSymbol), text)
+        if(search):
+            text = re.sub(search.group(), unknownDict[unknownSymbol], text)
+            text = replace_unknowns(text)
     return text
 
 def replace_specials(text:str):
     for special in specialGroupDict:
-        if(re.search(re.escape(special), text)):
-            text = re.sub(re.escape(special), specialGroupDict[special], text)
-            replace_specials(text)
+        search = re.search(re.escape(special), text)
+        if(search):
+            text = re.sub(search.group(), specialGroupDict[special], text)
+            text = replace_specials(text)
     return text
 
 
 def replace_patterns(text:str):
     # loop over every pattern in order
-    for x in replacePatterns:
-        search = re.search(x[0],text)
+    for pattern in replacePatterns:
+        search = re.search(pattern[0],text)
         if(search):
-            text = re.sub(x[0], x[1](text), text)
-            # print(x[0],"\n", text,"\n",search)
-            replace_patterns(text)
+            print(f"replaced \"{search.group()}\" with \"{pattern[1](text)}\"")
+            text = re.sub(pattern[0], pattern[1](text), text)
+            print(text)
+            text = replace_patterns(text)
     return text
 
 
@@ -167,7 +170,7 @@ def unconfuse(text:str):
     return text
     
 # order is: specialgroupdict, unknownDict, numbers to words, Delimiter
-temp = "1-1-100.23 12:30 am12:00 2:03pm misc."
+temp = "1-1-100.23 12:30     am12:00 2:03pm misc."
 print(temp)
 print(unconfuse(temp))
 

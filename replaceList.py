@@ -39,22 +39,32 @@ specialGroupDict = {
     "°C": " degrees celsius ",
 }
 
+class Pattern:
+    def __init__(self, regex, description):
+        f"{description}"
+        self.description = description
+        self.regex = regex
+        pass
+# what does pattern class do?
+# 
+
 replacePatterns = [
     # takes care of am or pm
-    [r"(?i)((?<=(?<!\d)[1-9]:[0-5][0-9])|(?<=(?<!\d)1[0-2]:[0-5][0-9])) *am(?![a-z])",
-        lambda x: " ay em "
+    [r"(?i)((?<=(?<!\d)[1-9]:[0-5]\d)|(?<=(?<!\d)1[0-2]:[0-5]\d)) *am(?![a-z])",
+        lambda x:(" ay em ")
     ],
-    [r"(?i)((?<=(?<!\d)[1-9]:[0-5][0-9])|(?<=(?<!\d)1[0-2]:[0-5][0-9])) *pm(?![a-z])",
-        lambda x: " pee em "
+    [r"(?i)((?<=(?<!\d)[1-9]:[0-5]\d)|(?<=(?<!\d)1[0-2]:[0-5]\d)) *pm(?![a-z])",
+        lambda x:(" pee em "),
+
     ],
     # times that end in 00
     # needs to select and replace :00 with " oh clock "
-    # [r"((?<=[1-9])|(?<=\D1[0-2])):[0-5][0-9]( ?(?![a-zA-Z0-9]))/i",
-    #     lambda x:(
-    #         num2words(re.search(r"([1-9]|1[0-2])+?(?=:)",x).group())
-    #         + " oh clock "
-    #     )            
-    # ],
+    [r"((?<=(?<!\d)[1-9])|(?<=(?<!\d)1[0-2])):00(?!\d)",
+        lambda x:(
+            # num2words(re.search(r"([1-9]|1[0-2])+?(?=:)",x).group())
+            + " oh clock "
+        )            
+    ],
     # times that end in 04 like 12:04 or 3:07
     # needs to select and replace :0 with " oh "
     # [r"([1-9]|1[0-2]):(0[1-9])",
