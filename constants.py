@@ -7,7 +7,7 @@ from num2words import num2words
 # commaPauseDelimiters  = ",~*()=+\\:;\""
 # spacePauseDelimiters  = " -_></"
 periodPauseDelimiters = [".","!","?","\n"]
-commaPauseDelimiters = [",","~","*","—","(",")",":",";"]
+commaPauseDelimiters = [",","~","—","(",")",":",";"]
 spacePauseDelimiters = [" ","-","_","/","\\"]
 pauseDelimiters = periodPauseDelimiters + commaPauseDelimiters + spacePauseDelimiters
 # print(pauseDelimiters)
@@ -39,36 +39,75 @@ specialGroupDict = {
     "°C": " degrees celsius ",
 }
 
-replaceTime = [
+replacePatterns = [
+    # takes care of am or pm
+    [r"(?i)((?<=(?<!\d)[1-9]:[0-5][0-9])|(?<=(?<!\d)1[0-2]:[0-5][0-9])) *am(?![a-z])",
+        lambda x: " ay em "
+    ],
+    [r"(?i)((?<=(?<!\d)[1-9]:[0-5][0-9])|(?<=(?<!\d)1[0-2]:[0-5][0-9])) *pm(?![a-z])",
+        lambda x: " pee em "
+    ],
     # times that end in 00
-    [r"([1-9]|1[0-2]):00( ?[AaPp][Mm])?",
-        lambda x:
-            num2words(re.search(r"([1-9]|1[0-2])+?(?=:)",x).group())
-            + " oh clock "
-            + (" ay em " if re.search(r"[Aa][Mm]",x) else "")
-            + (" pee em " if re.search(r"[Pp][Mm]",x) else "")
-    ],
+    # needs to select and replace :00 with " oh clock "
+    # [r"((?<=[1-9])|(?<=\D1[0-2])):[0-5][0-9]( ?(?![a-zA-Z0-9]))/i",
+    #     lambda x:(
+    #         num2words(re.search(r"([1-9]|1[0-2])+?(?=:)",x).group())
+    #         + " oh clock "
+    #     )            
+    # ],
     # times that end in 04 like 12:04 or 3:07
-    [r"([1-9]|1[0-2]):(0[1-9])( ?[AaPp][Mm])?",
-        lambda x:
-            num2words(re.search(r"([1-9]|1[0-2])+?(?=:)",x).group())
-            + " oh "
-            + num2words(re.search(r"(?<=:0)([1-9])",x).group())
-            + (" ay em " if re.search(r"[Aa][Mm]",x) else "")
-            + (" pee em " if re.search(r"[Pp][Mm]",x) else "")
-    ],
+    # needs to select and replace :0 with " oh "
+    # [r"([1-9]|1[0-2]):(0[1-9])",
+    #     lambda x:(
+    #         num2words(re.search(r"([1-9]|1[0-2])+?(?=:)",x).group())
+    #         + " oh "
+    #         + num2words(re.search(r"(?<=:0)([1-9])",x).group())
+    #     )            
+    # ],
     # all other valid times
-    [r"([1-9]|1[0-2]):([1-5][0-9]|[1-5][1-9])( ?[AaPp][Mm])?",
-        lambda x:
-            num2words(re.search(r"([1-9]|1[0-2])+?(?=:)",x).group()) + " "
-            + num2words(re.search(r"(?<=:)([1-5][0-9]|[0-5][1-9])",x).group())
-            + (" ay em " if re.search(r"[Aa][Mm]",x) else "")
-            + (" pee em " if re.search(r"[Pp][Mm]",x) else "")
+    # selects the : in a time
+    # [r"([1-9]|1[0-2]):([1-5][0-9]|[1-5][1-9])",
+    #     lambda x:(
+    #         num2words(re.search(r"([1-9]|1[0-2])+?(?=:)",x).group())
+    #         + " "
+    #         + num2words(re.search(r"(?<=:)([1-5][0-9]|[0-5][1-9])",x).group())
+    #     )            
+    # ],
+    # dash minus
+    [r"-(?=[0-9])+",
+        lambda x:(
+            (" minus " if re.search(r"(?<=-)[0-9]+",x).group() else "")
+        )            
     ],
-    # end of websites, like .com
-    # [r""
+    # decimals, make the . in 13.35 or in 13.35.47.57 to dot
+    [r"(?<=[0-9])+\.(?=[0-9])+",
+        lambda x:(
+            # (" minus " if re.search(r"[0-9]+(?=\.)",x).group() else "")
+            (" point " if re.search(r"(?<=[0-9])\.(?=[0-9])",x) else " ")
+        )
+    ],
+    # ([0-9]+)(\.[0-9]+)+
+    # numbers with decimals, 12.34
+    # negative numbers -1123.45
+        # but not using - as minus like this 123-324
+    # multiple points 12.43.5
+    # x = [n for n in range(10)]
 
-    # ]
+    # ------------
+
+    # prices: the symbol is pronounced before
+    
+    # "$": " dollar ",
+    # $400.23: 400 dollars and 23 cents
+    # $3: 3 dollars
+    #
+
+    # "£": " pound ",
+    # "€": " euro ",
+    # "¥": " yen ",
+    # cent is the only one that goes before
+    # "¢": " cent ",
+
 ]
 
 
@@ -93,7 +132,7 @@ unknownDict = {
     "#": " hashtag ",
     "%": " percent ",
     "&": " and ",
-    "^": " caret ",
+    "*": " asterisk ",
 
     ">": " is greater than ",
     "<": " is less than ",
@@ -106,14 +145,9 @@ unknownDict = {
     "∞": " infinity ",
     "π": " pi ",
 
-    "¢": " cent ",
-    "$": " dollar ",
-    "£": " pound ",
-    "€": " euro ",
-    "¥": " yen ",
     
     "°": " degrees ",
-    "…": ". . .",
+    "…": ".",
     "⁺": "+",
     "₊": "+",
     "⁻": "-",
@@ -149,7 +183,6 @@ unknownDict = {
     "⏨": "10",
     
     
-
 
     "ₐ": "a",
     "ª": "a",

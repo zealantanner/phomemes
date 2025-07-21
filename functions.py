@@ -78,7 +78,7 @@ def condense_delimiters(text:str):
     # print(text)
     return text
 
-print(condense_delimiters("the?.re  .,,   .  wa,     ,,,    ,s a ???????.?????\\|(so-called) ro"))
+# print(condense_delimiters("the?.re  .,,   .  wa,     ,,,    ,s a ???????.?????\\|(so-called) ro"))
 
 # print(condense_delimiters("the?.re  .,,   .  wa,     ,,,    ,s a ???????.?????\\|(so-called) ro"))
 
@@ -88,19 +88,32 @@ print(condense_delimiters("the?.re  .,,   .  wa,     ,,,    ,s a ???????.?????\\
 #     return [condense_delimiters(token) for token in re.split(r"\b",text) if token!=""]
 # apply
 
-def replace_specials(text:str):
-    for x in specialGroupDict:pass
 
 
-def replace_times(text:str):
-    # loop over all 3 checkers
-    for x in replaceTime:
-        if(re.search(x[0],text)):
-            text = re.sub(x[0], x[1](text), text)
-            # print("hi ",text)
-            replace_times(text)
+def replace_unknowns(text:str):
+    for unknownSymbol in unknownDict:
+        if(re.search(re.escape(unknownSymbol), text)):
+            text = re.sub(re.escape(unknownSymbol), unknownDict[unknownSymbol], text)
+            replace_unknowns(text)
     return text
 
+def replace_specials(text:str):
+    for special in specialGroupDict:
+        if(re.search(re.escape(special), text)):
+            text = re.sub(re.escape(special), specialGroupDict[special], text)
+            replace_specials(text)
+    return text
+
+
+def replace_patterns(text:str):
+    # loop over every pattern in order
+    for x in replacePatterns:
+        search = re.search(x[0],text)
+        if(search):
+            text = re.sub(x[0], x[1](text), text)
+            # print(x[0],"\n", text,"\n",search)
+            replace_patterns(text)
+    return text
 
 
 def convert_nums_to_words(text:str):
@@ -114,13 +127,6 @@ def convert_nums_to_words(text:str):
             newtext = "".join([newtext, x])
     return newtext
 
-def replace_unknowns(text:str): 
-    for x in unknownDict:
-        text = re.sub(re.escape(x), unknownDict[x], text)
-        # if(re.search(re.escape(x), text)):
-        # text = re.sub(x, unknownDict[x],text)
-        # replace_unknowns(text)
-    return text
 
 
 
@@ -133,36 +139,39 @@ def replace_delimiters(text:str):
 
 def remove_etc(text:str):
     text = re.sub(r"[^0-9a-zA-Z" + re.escape("".join(pauseDelimiters)) + r"]", " ", text)
+    # check if anything in any of the lists matches and if so return error
     return text
 
 
-print(replace_delimiters("asdf.asdf,fdsa asdfd"))
+# print(replace_delimiters("asdf.asdf,fdsa asdfd"))
 
 
 
 # print(replace_unknowns("zealan@gmail@.com"))
 
 def unconfuse(text:str):
-    print(0,text)
-    text = replace_specials(text)
-    print(1,text)
-    text = replace_times(text)
-    print(2,text)
-    text = replace_unknowns(text)
-    print(3,text)
-    text = convert_nums_to_words(text)
-    print(4,text)
-    text = remove_etc(text)
-    print(5,text)
-    text = condense_delimiters(text)
-    print(6,text)
-    text = replace_delimiters(text)
-    print(7,text)
+    order_to_run = [
+        replace_unknowns,
+        replace_specials,
+        replace_patterns,
+        # convert_nums_to_words,
+        # remove_etc,
+        # condense_delimiters,
+        # replace_delimiters,
+        ]
+    for function in order_to_run:
+        # print(f"{function(text)=}")
+        print(f"{function.__code__.co_name}(text)=\t{function(text)}")
+
+        text = function(text)
     return text
     
 # order is: specialgroupdict, unknownDict, numbers to words, Delimiter
+temp = "1-1-100.23 12:30 am12:00 2:03pm misc."
+print(temp)
+print(unconfuse(temp))
 
-print(unconfuse("apple@sauce 12:30 am12:00 2:03pm"))
+
 
 def is_delimiter(text:str):
     return any(elem in text for elem in delimiters)
@@ -366,7 +375,7 @@ def convert_to_pronounceable(text:str, method:int = 0):
 
 
 
-print(unconfuse(testtext[2]))
+# print(unconfuse(testtext[2]))
 
 
 
