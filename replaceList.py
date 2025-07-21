@@ -43,7 +43,7 @@ specialGroupDict = {
 }
 
 class Pattern:
-    def __init__(self, desc:str, reg:str, replfunc):
+    def __init__(self, desc:str, reg:str, replfunc=lambda x: " "):
         self.desc = desc
         self.reg = reg
         self.replfunc = replfunc
@@ -101,7 +101,7 @@ replacePatterns = [
     Pattern("$ to dollar",
         r"\$(\d+)(\.\d{2})?",
         lambda x:(
-                re.search(x)
+                re.search(r"\$(\d+)(\.\d{2})?",)
             )
     ),
     
