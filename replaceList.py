@@ -18,8 +18,8 @@ pauseDelimiters = periodPauseDelimiters + commaPauseDelimiters + spacePauseDelim
 #         pass
 
 specialGroupDict = {
-    " misc.": " miscellaneous",
-    " etc.": " et cetera",
+    " misc.": " miscellaneous ",
+    " etc.": " et cetera ",
     ".com": " dot com",
     ".org": " dot org",
     ".net": " dot net",
@@ -37,64 +37,116 @@ specialGroupDict = {
     "10th": " tenth ",
     "°F": " degrees fahrenheit ",
     "°C": " degrees celsius ",
+    "°K": " degrees kelvin ",
+    "°": " degrees ",
+
 }
 
 class Pattern:
-    def __init__(self, regex, description):
-        f"{description}"
-        self.description = description
-        self.regex = regex
-        pass
+    def __init__(self, desc:str, reg:str, replfunc):
+        self.desc = desc
+        self.reg = reg
+        self.replfunc = replfunc
+
 # what does pattern class do?
 # 
+asdf = Pattern("cool",r"[0-9]", lambda x:"rad")
 
 replacePatterns = [
-    # takes care of am or pm
+    Pattern("am for times",
+        r"(?i)((?<=(?<![\d#])[1-9]:[0-5]\d)|(?<=(?<![\d#])1[0-2]:[0-5]\d)) *am(?![a-z])",
+        lambda x:(" ay em ")
+    ),
+    Pattern("pm for times",
+        r"(?i)((?<=(?<![\d#])[1-9]:[0-5]\d)|(?<=(?<![\d#])1[0-2]:[0-5]\d)) *pm(?![a-z])",
+        lambda x:(" pee em ")
+    ),
+    Pattern("times that end in 00",
+        r"((?<=(?<![\d#])[1-9])|(?<=(?<![\d#])1[0-2])):00(?!\d)",
+        lambda x:(" oh clock ")
+    ),
+    Pattern("times that end in 0[1-9]",
+        r"((?<=(?<![\d#])[1-9])|(?<=(?<![\d#])1[0-2])):0(?=[1-9](?!\d))",
+        lambda x:(" oh ")
+    ),
+    Pattern("times that end in [1-5][0-9]",
+        r"((?<=(?<![\d#])[1-9])|(?<=(?<![\d#])1[0-2])):(?=[1-5][0-9](?!\d))",
+        lambda x:(" ")
+    ),
+# ---------------------------------------------------------
+    Pattern("dashes that should be minus",
+        r"-(?=[0-9])+",
+        lambda x:(" minus ")
+    ),
+    Pattern("decimals to point",
+        r"(?<=[0-9])+\.(?=[0-9])+",
+        lambda x:(" point ")
+    ),
+# ---------------------------------------------------------
+    # "#" can be hashtag or number
+    Pattern("# to hashtag",
+        r"#(?! *\d *)",
+        lambda x:(" hashtag ")
+    ),
+    Pattern("# to number",
+        r"#(?= *\d)",
+        lambda x:(" number ")
+    ),
+# ---------------------------------------------------------
+    # for prices: (the symbol is pronounced before)
+    # Pattern("$ to singular dollar",
+    #     r"#(?! *\d *)",
+    #     lambda x:(" dollar ")
+    # ),
+    Pattern("$ to dollar",
+        r"\$(\d+)(\.\d{2})?",
+        lambda x:(
+                re.search(x)
+            )
+    ),
+    
+    # "$": " dollar ",
+    # $400.23: 400 dollars and 23 cents
+    # $3: 3 dollars
+    #
+
+    # "£": " pound ",
+    # "€": " euro ",
+    # "¥": " yen ",
+    # cent is the only one that goes before
+    # "¢": " cent ",
+
+    # x = [n for n in range(10)]
+]
+
+replacePatternsOld = [
+    # am for times
     [r"(?i)((?<=(?<!\d)[1-9]:[0-5]\d)|(?<=(?<!\d)1[0-2]:[0-5]\d)) *am(?![a-z])",
         lambda x:(" ay em ")
     ],
+    # pm for times
     [r"(?i)((?<=(?<!\d)[1-9]:[0-5]\d)|(?<=(?<!\d)1[0-2]:[0-5]\d)) *pm(?![a-z])",
-        lambda x:(" pee em "),
-
+        lambda x:(" pee em ")
     ],
     # times that end in 00
-    # needs to select and replace :00 with " oh clock "
     [r"((?<=(?<!\d)[1-9])|(?<=(?<!\d)1[0-2])):00(?!\d)",
-        lambda x:(
-            # num2words(re.search(r"([1-9]|1[0-2])+?(?=:)",x).group())
-            + " oh clock "
-        )            
+        lambda x:(" oh clock ")
     ],
-    # times that end in 04 like 12:04 or 3:07
-    # needs to select and replace :0 with " oh "
-    # [r"([1-9]|1[0-2]):(0[1-9])",
-    #     lambda x:(
-    #         num2words(re.search(r"([1-9]|1[0-2])+?(?=:)",x).group())
-    #         + " oh "
-    #         + num2words(re.search(r"(?<=:0)([1-9])",x).group())
-    #     )            
-    # ],
-    # all other valid times
-    # selects the : in a time
-    # [r"([1-9]|1[0-2]):([1-5][0-9]|[1-5][1-9])",
-    #     lambda x:(
-    #         num2words(re.search(r"([1-9]|1[0-2])+?(?=:)",x).group())
-    #         + " "
-    #         + num2words(re.search(r"(?<=:)([1-5][0-9]|[0-5][1-9])",x).group())
-    #     )            
-    # ],
+    # times that end in 0[1-9]
+    [r"((?<=(?<!\d)[1-9])|(?<=(?<!\d)1[0-2])):0(?=[1-9](?!\d))",
+        lambda x:(" oh ")
+    ],
+    # times that end in [1-5][0-9]
+    [r"((?<=(?<!\d)[1-9])|(?<=(?<!\d)1[0-2])):(?=[1-5][0-9](?!\d))",
+        lambda x:(" ")
+    ],
     # dash minus
     [r"-(?=[0-9])+",
-        lambda x:(
-            (" minus " if re.search(r"(?<=-)[0-9]+",x).group() else "")
-        )            
+        lambda x:(" minus ") 
     ],
     # decimals, make the . in 13.35 or in 13.35.47.57 to dot
     [r"(?<=[0-9])+\.(?=[0-9])+",
-        lambda x:(
-            # (" minus " if re.search(r"[0-9]+(?=\.)",x).group() else "")
-            (" point " if re.search(r"(?<=[0-9])\.(?=[0-9])",x) else " ")
-        )
+        lambda x:(" point ")
     ],
     # ([0-9]+)(\.[0-9]+)+
     # numbers with decimals, 12.34
@@ -102,6 +154,10 @@ replacePatterns = [
         # but not using - as minus like this 123-324
     # multiple points 12.43.5
     # x = [n for n in range(10)]
+
+    # ------------
+    # # can be hashtag or number
+
 
     # ------------
 
@@ -139,7 +195,6 @@ replacePatterns = [
 
 unknownDict = {
     "@": " at ",
-    "#": " hashtag ",
     "%": " percent ",
     "&": " and ",
     "*": " asterisk ",
@@ -156,7 +211,6 @@ unknownDict = {
     "π": " pi ",
 
     
-    "°": " degrees ",
     "…": ".",
     "⁺": "+",
     "₊": "+",
