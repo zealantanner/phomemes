@@ -6,9 +6,9 @@ from num2words import num2words
 # periodPauseDelimiters = ".!&?\n"
 # commaPauseDelimiters  = ",~*()=+\\:;\""
 # spacePauseDelimiters  = " -_></"
-periodPauseDelimiters = [".","!","?","\n"]
-commaPauseDelimiters = [",","~","—","(",")",":",";"]
-spacePauseDelimiters = [" ","-","_","/","\\"]
+periodPauseDelimiters = (".","!","?","\n")
+commaPauseDelimiters = (",","~","—","(",")",":",";")
+spacePauseDelimiters = (" ","-","_","/","\\")
 pauseDelimiters = periodPauseDelimiters + commaPauseDelimiters + spacePauseDelimiters
 # print(pauseDelimiters)
 
@@ -25,6 +25,7 @@ specialGroupDict = {
     ".net": " dot net",
     ".edu": " dot ee dee you",
     ".gov": " dot guv",
+    # can use num2words ordinal for 1st 2nd 3rd etc
     "1st": " first ",
     "2nd": " second ",
     "3rd": " third ",
@@ -43,54 +44,64 @@ specialGroupDict = {
 }
 
 class Pattern:
-    def __init__(self, desc:str, reg:str, replfunc=lambda x: " "):
+    def __init__(self, desc:str, reg:str,flags=None,replFunc=lambda text,reg:""):
         self.desc = desc
-        self.reg = reg
-        self.replfunc = replfunc
+        self.reg = re.compile(reg,flags)
+        self.replFunc = replFunc
 
-# what does pattern class do?
-# 
-asdf = Pattern("cool",r"[0-9]", lambda x:"rad")
+thing = Pattern("am pattern",r"am",flags=re.IGNORECASE | re.VERBOSE)
+print(re.compile(thing.reg),"for aM for the")
 
-replacePatterns = [
+# re.search()
+# re.compile(r"1",re.VERBOSE)
+replacePatterns = (
+    # Pattern("All valid times",
+    #     r"""(?i)
+    #     ^
+    #     $
+    #     """
+    #     ,
+    #     lambda text,reg:"",
+    #     (re.IGNORECASE | re.VERBOSE)
+    # ),
     Pattern("am for times",
         r"(?i)((?<=(?<![\d#])[1-9]:[0-5]\d)|(?<=(?<![\d#])1[0-2]:[0-5]\d)) *am(?![a-z])",
-        lambda x:(" ay em ")
+        lambda *_:(" ay em ")
     ),
     Pattern("pm for times",
         r"(?i)((?<=(?<![\d#])[1-9]:[0-5]\d)|(?<=(?<![\d#])1[0-2]:[0-5]\d)) *pm(?![a-z])",
-        lambda x:(" pee em ")
+        lambda *_:(" pee em ")
     ),
     Pattern("times that end in 00",
         r"((?<=(?<![\d#])[1-9])|(?<=(?<![\d#])1[0-2])):00(?!\d)",
-        lambda x:(" oh clock ")
+        lambda *_:(" oh clock ")
     ),
     Pattern("times that end in 0[1-9]",
         r"((?<=(?<![\d#])[1-9])|(?<=(?<![\d#])1[0-2])):0(?=[1-9](?!\d))",
-        lambda x:(" oh ")
+        lambda *_:(" oh ")
     ),
     Pattern("times that end in [1-5][0-9]",
         r"((?<=(?<![\d#])[1-9])|(?<=(?<![\d#])1[0-2])):(?=[1-5][0-9](?!\d))",
-        lambda x:(" ")
+        lambda *_:(" ")
     ),
 # ---------------------------------------------------------
     Pattern("dashes that should be minus",
         r"-(?=[0-9])+",
-        lambda x:(" minus ")
-    ),
-    Pattern("decimals to point",
+        lambda *_:(" minus ")
+    ), # can be done with num2words "cardinal"
+    Pattern("decimals to point for values",
         r"(?<=[0-9])+\.(?=[0-9])+",
-        lambda x:(" point ")
-    ),
+        lambda text,reg:(" point ")
+    ), # can be done with num2words "cardinal"
 # ---------------------------------------------------------
     # "#" can be hashtag or number
     Pattern("# to hashtag",
         r"#(?! *\d *)",
-        lambda x:(" hashtag ")
+        lambda *_:(" hashtag ")
     ),
     Pattern("# to number",
         r"#(?= *\d)",
-        lambda x:(" number ")
+        lambda *_:(" number ")
     ),
 # ---------------------------------------------------------
     # for prices: (the symbol is pronounced before)
@@ -98,12 +109,12 @@ replacePatterns = [
     #     r"#(?! *\d *)",
     #     lambda x:(" dollar ")
     # ),
-    Pattern("$ to dollar",
-        r"\$(\d+)(\.\d{2})?",
-        lambda x:(
-                re.search(r"\$(\d+)(\.\d{2})?",)
-            )
-    ),
+    # Pattern("$ to dollar",
+    #     r"\$(\d+)(\.\d{2})?",
+    #     lambda text,reg:(
+    #             re.search(r"\$(\d+)(\.\d{2})?",text,)
+    #         )
+    # ),
     
     # "$": " dollar ",
     # $400.23: 400 dollars and 23 cents
@@ -117,7 +128,7 @@ replacePatterns = [
     # "¢": " cent ",
 
     # x = [n for n in range(10)]
-]
+)
 
 replacePatternsOld = [
     # am for times

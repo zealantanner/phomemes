@@ -126,8 +126,8 @@ def replace_patterns(text:str):
     for pattern in replacePatterns:
         search = re.search(pattern.reg,text)
         if(search):
-            print(f"replaced \"{search.group()}\" with \"{pattern.replfunc(text)}\" using \"{pattern.desc}\"")
-            text = re.sub(pattern.reg, pattern.replfunc(text), text)
+            print(f"replaced \"{search.group()}\" with \"{pattern.replfunc(text,pattern.reg)}\" using \"{pattern.desc}\"")
+            text = re.sub(pattern.reg, pattern.replfunc(text,pattern.reg), text)
             print(text)
             text = replace_patterns(text)
     return text
@@ -204,7 +204,7 @@ def is_word(s):
 testtext = [
     "electriccompany",
     "begladyournoseisonyourface",
-    "$100 $12.34 $1 $1.01 Once. 1:20 pm @ #sussyland #12 #12:03 appleb 12:00 am ananacherroy there 12:04 Pm     was a ????????????\\|(so-called) rock. it.,was not! in fact, a big rock.",
+    "$100 $12.34 $1 $1.01 Once. 1:20 pm @ #sussyland #12 #12:03 appleb 12:00 am.com 1st 10th etc. ananacherroy there 12:04 Pm     was a ????????????\\|(so-called) rock. it.,was not! in fact, a big rock.",
     "applebananacherry",
     "applesorangesandbananas",
     "appleorangebanana",
@@ -220,7 +220,15 @@ testtext = [
 ]
 
 print(unconfuse(testtext[2]))
-print(num2words(1))
+print("cardinal:\t", num2words("-12.31",False, "en", "cardinal"))
+print("ordinal:\t", num2words("1231",False, "en", "ordinal"))
+print("ordinal:\t", num2words("1232",False, "en", "ordinal"))
+print("ordinal:\t", num2words("1233",False, "en", "ordinal"))
+print("ordinal:\t", num2words("1230",False, "en", "ordinal"))
+# print("ordinal_num:\t", num2words("121",False, "en", "ordinal_num"))
+# print("year:\t", num2words("2025",False, "en", "year"))
+print("currency:\t", num2words("-12.31",False, "en", "currency"))
+
 
 # l=re.split(r"\b",testtext)
 # print([replaceDelimiters(token) for token in re.split(r"\b",testtext) if token!=""])
