@@ -48,6 +48,7 @@ class c:
     MAGENTA = '\033[35m'
     CYAN = '\033[36m'
     WHITE = '\033[37m'
+    BLUEBACK = '\033[44m'
     UNDERLINE = '\033[4m'
     RESET = '\033[0m'
 
@@ -107,8 +108,8 @@ def replace_unknowns(text:str):
         search = re.search(re.escape(unknownSymbol), text)
         if(search):
             print(f"replaced \"{search.group()}\" with \"{unknownDict[unknownSymbol]}\"")
+            print(f"{re.split(search.group(), text,1)[0]}{c.BLUEBACK}{unknownDict[unknownSymbol]}{c.RESET}{re.split(search.group(), text,1)[-1]}")
             text = re.sub(search.group(), unknownDict[unknownSymbol], text)
-            print(text)
             text = replace_unknowns(text)
     return text
 
@@ -117,42 +118,23 @@ def replace_specials(text:str):
         search = re.search(re.escape(special), text)
         if(search):
             print(f"replaced \"{search.group()}\" with \"{specialGroupDict[special]}\"")
+            print(f"{re.split(search.group(), text,1)[0]}{c.BLUEBACK}{specialGroupDict[special]}{c.RESET}{re.split(search.group(), text,1)[-1]}")
             text = re.sub(search.group(), specialGroupDict[special], text)
-            print("\x1b[6;30;42m" + text + "\x1b[0m")
             text = replace_specials(text)
     return text
 
 
-# def replace_patterns(text:str):
-#     # loop over every pattern in order
-#     for pattern in replacePatterns:
-#         search = re.search(pattern[0],text)
-#         if(search):
-#             print(f"replaced \"{search.group()}\" with \"{pattern[1](text)}\"")
-#             text = re.sub(pattern[0], pattern[1](text), text)
-#             print(text)
-#             text = replace_patterns(text)
-#     return text
 def replace_patterns(text:str):
     # loop over every pattern in order
     for pattern in replacePatterns:
         search = re.search(pattern.reg,text)
         if(search):
-            # print(f"\"{search}\"")
-            # print(f"\"{search.group}\"")
-            # print(f"\"{search.group()}\"")
-            # print(f"\"{search.group(0)}\"")
-            # print(f"\"{search.group(1)}\"")
-            # print(f"\"{search.group(2)}\"")
-            # print(f"\"{search.group(3)}\"")
             print(f"replaced \"{search.group()}\" with \"{pattern.replFunc(text)}\" using \"{pattern.desc}\"")
+            print(f"{re.split(pattern.reg, text,1)[0]}{c.BLUEBACK}{pattern.replFunc(text)}{c.RESET}{re.split(pattern.reg, text,1)[-1]}")
             text = re.sub(pattern.reg, pattern.replFunc(text), text,1)
-            print(f"{c.BLUE}{text}{c.RESET}")
             text = replace_patterns(text)
     return text
 
-
-print()
 
 
 def convert_nums_to_words(text:str):
@@ -239,7 +221,7 @@ testtext = [
     "come @ me b1ro #gamer 100% m&m gimme a yummy ^",
     "go to #gamer@beans.com to win ä bïg tree... if not, that's ok",
     "1:00 1-1-100.23 12:30     am12:00 2:03pm misc.",
-    "12:00 am 3:59 a 2:324 pm 13:03 Pm 1:00 am 3:59 Pm x3:09 pm 3:09 pme x3:09 pme 3:59"
+    "12:00 am 3:59 a 2:324 pm 13:03 Pm 1:00 am  % 3:59 Pm x3:09 pm 3:09 pme x3:09 pme 3:59 °F"
 ]
 
 print(unconfuse(testtext[15]))
