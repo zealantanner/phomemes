@@ -134,8 +134,8 @@ def replace_patterns(text:str):
             print(search.group(1))
             print(search.group(2))
             print(search.group(3))
-            print(f"replaced \"{search.group()}\" with \"{pattern.replFunc(pattern.reg,text)}\" using \"{pattern.desc}\"")
-            text = re.sub(pattern.reg, pattern.replFunc(pattern.reg,text), text)
+            print(f"replaced \"{search.group()}\" with \"{pattern.replFunc(text)}\" using \"{pattern.desc}\"")
+            text = re.sub(pattern.reg, pattern.replFunc(text), text)
             print(text)
             text = replace_patterns(text)
     return text
