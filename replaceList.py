@@ -83,9 +83,9 @@ replacePatterns = (
             ( (" oh " + num2words(re.search(reg,text).group(2))) if int(re.search(reg,text).group(2))>0 else
             ( (" oh clock ") if int(re.search(reg,text).group(2))==0 else None)))
             +
-            (
-                (" ay em ") if re.search(r"am",str(re.search(reg,text).group(3)),re.I) else
-                ((" pee em ") if re.search(r"pm",str(re.search(reg,text).group(3)),re.I) else " ")
+            ((
+                (" ay em ") if re.search(reg,text).group(3).lower()=="am" else
+                ((" pee em ") if re.search(reg,text).group(3).lower()=="pm" else " "))
             if re.search(reg,text).group(3) else " "
             )
         )

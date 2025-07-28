@@ -38,6 +38,18 @@ class Pause:
         pass
     def __str__(self):
         return self
+    
+class c:
+    BLACK = '\033[30m'
+    RED = '\033[31m'
+    GREEN = '\033[32m'
+    YELLOW = '\033[33m'
+    BLUE = '\033[34m'
+    MAGENTA = '\033[35m'
+    CYAN = '\033[36m'
+    WHITE = '\033[37m'
+    UNDERLINE = '\033[4m'
+    RESET = '\033[0m'
 
     
 
@@ -106,7 +118,7 @@ def replace_specials(text:str):
         if(search):
             print(f"replaced \"{search.group()}\" with \"{specialGroupDict[special]}\"")
             text = re.sub(search.group(), specialGroupDict[special], text)
-            print(text)
+            print("\x1b[6;30;42m" + text + "\x1b[0m")
             text = replace_specials(text)
     return text
 
@@ -135,7 +147,7 @@ def replace_patterns(text:str):
             # print(f"\"{search.group(3)}\"")
             print(f"replaced \"{search.group()}\" with \"{pattern.replFunc(text)}\" using \"{pattern.desc}\"")
             text = re.sub(pattern.reg, pattern.replFunc(text), text,1)
-            print(text)
+            print(f"{c.BLUE}{text}{c.RESET}")
             text = replace_patterns(text)
     return text
 
