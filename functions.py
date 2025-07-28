@@ -122,23 +122,25 @@ def replace_specials(text:str):
 #             text = replace_patterns(text)
 #     return text
 def replace_patterns(text:str):
-    print("replace")
     # loop over every pattern in order
     for pattern in replacePatterns:
         search = re.search(pattern.reg,text)
         if(search):
-            print(search)
-            print(search.group)
-            print(search.group())
-            print(search.group(0))
-            print(search.group(1))
-            print(search.group(2))
-            print(search.group(3))
+            # print(f"\"{search}\"")
+            # print(f"\"{search.group}\"")
+            # print(f"\"{search.group()}\"")
+            # print(f"\"{search.group(0)}\"")
+            # print(f"\"{search.group(1)}\"")
+            # print(f"\"{search.group(2)}\"")
+            # print(f"\"{search.group(3)}\"")
             print(f"replaced \"{search.group()}\" with \"{pattern.replFunc(text)}\" using \"{pattern.desc}\"")
-            text = re.sub(pattern.reg, pattern.replFunc(text), text)
+            text = re.sub(pattern.reg, pattern.replFunc(text), text,1)
             print(text)
             text = replace_patterns(text)
     return text
+
+
+print()
 
 
 def convert_nums_to_words(text:str):
@@ -189,7 +191,7 @@ def unconfuse(text:str):
     print(text)
     for function in order_to_run:
         # print(f"{function(text)=}")
-        print(f"\n{function.__code__.co_name}()")
+        print(f"\t{function.__code__.co_name}()")
 
         text = function(text)
     return text
@@ -225,7 +227,7 @@ testtext = [
     "come @ me b1ro #gamer 100% m&m gimme a yummy ^",
     "go to #gamer@beans.com to win ä bïg tree... if not, that's ok",
     "1:00 1-1-100.23 12:30     am12:00 2:03pm misc.",
-    "12:00 am 3:59 2:324 pm 13:03 Pm 1:00 am 3:59 Pm x3:09 pm 3:09 pme x3:09 pme 3:59"
+    "12:00 am 3:59 a 2:324 pm 13:03 Pm 1:00 am 3:59 Pm x3:09 pm 3:09 pme x3:09 pme 3:59"
 ]
 
 print(unconfuse(testtext[15]))

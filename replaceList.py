@@ -77,17 +77,17 @@ replacePatterns = (
             """,
             flags=re.I | re.X),
         lambda reg,text:(
-            (num2words(re.search(reg,text).group(1)))
+            (" " + num2words(re.search(reg,text).group(1)))
             +
             ( (" " + num2words(re.search(reg,text).group(2))) if int(re.search(reg,text).group(2))>9 else
             ( (" oh " + num2words(re.search(reg,text).group(2))) if int(re.search(reg,text).group(2))>0 else
             ( (" oh clock ") if int(re.search(reg,text).group(2))==0 else None)))
             +
-            (("ay em ") if re.search(r"am",re.search(reg,text).group(3),re.I) else
-            (("pee em ") if re.search(r"pm",re.search(reg,text).group(3),re.I) else " ")) 
-            # ((" oh clock ") if re.search(r"(?<=-)[0-9]+",x).group() else None)
-            
-
+            (
+                (" ay em ") if re.search(r"am",str(re.search(reg,text).group(3)),re.I) else
+                ((" pee em ") if re.search(r"pm",str(re.search(reg,text).group(3)),re.I) else " ")
+            if re.search(reg,text).group(3) else " "
+            )
         )
     ),
     # (" minus " if re.search(r"(?<=-)[0-9]+",x).group() else None)
