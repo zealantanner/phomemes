@@ -2,6 +2,79 @@ import re
 from contextlib import suppress
 from num2words import num2words
 
+class c:
+    '''Colors class:
+    Reset all colors with colors.reset
+    Two subclasses fg for foreground and bg for background.
+    Use as colors.subclass.colorname.
+    i.e. colors.fg.red or colors.bg.green
+    Also, the generic bold, disable, underline, reverse, strikethrough,
+    and invisible work with the main class
+    i.e. colors.bold
+    '''
+    reset='\033[0m'
+    bold='\033[01m'
+    disable='\033[02m'
+    underline='\033[04m'
+    reverse='\033[07m'
+    strikethrough='\033[09m'
+    invisible='\033[08m'
+    class fg:
+        black='\033[30m'
+        red='\033[31m'
+        green='\033[32m'
+        orange='\033[33m'
+        blue='\033[34m'
+        purple='\033[35m'
+        cyan='\033[36m'
+        lightgrey='\033[37m'
+        darkgrey='\033[90m'
+        lightred='\033[91m'
+        lightgreen='\033[92m'
+        yellow='\033[93m'
+        lightblue='\033[94m'
+        pink='\033[95m'
+        lightcyan='\033[96m'
+    class bg:
+        black='\033[40m'
+        red='\033[41m'
+        green='\033[42m'
+        orange='\033[43m'
+        blue='\033[44m'
+        purple='\033[45m'
+        cyan='\033[46m'
+        lightgrey='\033[47m'
+    def color(text:str, color):
+        return f"{color}{text}{c.reset}"
+
+class Pattern:
+    def __init__(self, desc:str, reg:str, replFunc):
+        self.desc = desc
+        self.reg = reg
+        self.replFunc = lambda text: replFunc(reg,text)
+    def __str__(self):
+        return self.reg
+        # self.search = re.search()
+    # def search(self,text):
+    #     return re.search(self.reg,text)
+    def sub(self, text:str, count: int = 0, flags = 0):
+        return re.sub(self.reg,self.replFunc(text),text,count,flags)
+    def colorsub(self, text:str, count: int = 0, flags = 0):
+        # return f"{re.split(self.reg, text,1)[0]}{c.bg.blue}{self.replFunc(text)}{c.reset}{re.split(self.reg, text,1)[-1]}"
+        return f"{re.split(self.reg, text,1)[0]}{c.color(self.replFunc(text),c.bg.blue)}{re.split(self.reg, text,1)[-1]}"
+    
+    def to_Patterns(dict:dict):
+        array = []
+        for thing in dict:
+            array.append(
+                Pattern(f"{c.color(thing,c.bg.blue)} to {c.color(dict[thing],c.bg.blue)}",
+                    thing,
+                    lambda *_:dict[thing]
+                )
+            )
+        return tuple(array)
+
+
 
 # periodPauseDelimiters = ".!&?\n"
 # commaPauseDelimiters  = ",~*()=+\\:;\""
@@ -17,7 +90,9 @@ pauseDelimiters = periodPauseDelimiters + commaPauseDelimiters + spacePauseDelim
 #         # self.
 #         pass
 
-specialGroupDict = {
+
+
+specialGroupDict = Pattern.to_Patterns({
     " misc.": " miscellaneous ",
     " etc.": " et cetera ",
     ".com": " dot com",
@@ -40,26 +115,19 @@ specialGroupDict = {
     "°C": " degrees celsius ",
     "°K": " degrees kelvin ",
     "°": " degrees ",
+})
+# tempSpecialGroup = {}
+# for item in specialGroupDict:
 
-}
 
-class Pattern:
-    def __init__(self, desc:str, reg:str, replFunc):
-        self.desc = desc
-        self.reg = reg
-        self.replFunc = lambda text: replFunc(reg,text)
-        # self.search = re.search()
-    # def search(self,text):
-    #     return re.search(self.reg,text)
+
+
+
+
+print(num2words("1",False,"en","ordinal"))
         
 
-
-
-# re.search()
-# re.compile(r"1",re.VERBOSE)
-
-
-
+print(Pattern("asdf",r"asdf",lambda *_:"|||||||").colorsub("jjjjjjjjjjjjjjijijijijijsdfasdf3iojiqoirejq"))
 
 replacePatterns = (
     Pattern("replace all valid times",
@@ -91,27 +159,13 @@ replacePatterns = (
         )
     ),
     # (" minus " if re.search(r"(?<=-)[0-9]+",x).group() else None)
+# ---------------------------------------------------------
+    # Pattern("ordinal numbers, (like 1st 2nd 3rd)",
+    #     ,
+    #     lambda 
+    # ),
 
-    # Pattern("am for times",
-    #     r"(?i)((?<=(?<![\d#])[1-9]:[0-5]\d)|(?<=(?<![\d#])1[0-2]:[0-5]\d)) *am(?![a-z])",
-    #     lambda *_:(" ay em ")
-    # ),
-    # Pattern("pm for times",
-    #     r"(?i)((?<=(?<![\d#])[1-9]:[0-5]\d)|(?<=(?<![\d#])1[0-2]:[0-5]\d)) *pm(?![a-z])",
-    #     lambda *_:(" pee em ")
-    # ),
-    # Pattern("times that end in 00",
-    #     r"((?<=(?<![\d#])[1-9])|(?<=(?<![\d#])1[0-2])):00(?!\d)",
-    #     lambda *_:(" oh clock ")
-    # ),
-    # Pattern("times that end in 0[1-9]",
-    #     r"((?<=(?<![\d#])[1-9])|(?<=(?<![\d#])1[0-2])):0(?=[1-9](?!\d))",
-    #     lambda *_:(" oh ")
-    # ),
-    # Pattern("times that end in [1-5][0-9]",
-    #     r"((?<=(?<![\d#])[1-9])|(?<=(?<![\d#])1[0-2])):(?=[1-5][0-9](?!\d))",
-    #     lambda *_:(" ")
-    # ),
+
 # ---------------------------------------------------------
     Pattern("dashes that should be minus",
         r"-(?=[0-9])+",
