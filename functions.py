@@ -122,12 +122,20 @@ def replace_specials(text:str):
 #             text = replace_patterns(text)
 #     return text
 def replace_patterns(text:str):
+    print("replace")
     # loop over every pattern in order
     for pattern in replacePatterns:
         search = re.search(pattern.reg,text)
         if(search):
-            print(f"replaced \"{search.group()}\" with \"{pattern.replfunc(text,pattern.reg)}\" using \"{pattern.desc}\"")
-            text = re.sub(pattern.reg, pattern.replfunc(text,pattern.reg), text)
+            print(search)
+            print(search.group)
+            print(search.group())
+            print(search.group(0))
+            print(search.group(1))
+            print(search.group(2))
+            print(search.group(3))
+            print(f"replaced \"{search.group()}\" with \"{pattern.replFunc(pattern.reg,text)}\" using \"{pattern.desc}\"")
+            text = re.sub(pattern.reg, pattern.replFunc(pattern.reg,text), text)
             print(text)
             text = replace_patterns(text)
     return text
@@ -217,17 +225,18 @@ testtext = [
     "come @ me b1ro #gamer 100% m&m gimme a yummy ^",
     "go to #gamer@beans.com to win ä bïg tree... if not, that's ok",
     "1:00 1-1-100.23 12:30     am12:00 2:03pm misc.",
+    "12:00 am 3:59 2:324 pm 13:03 Pm 1:00 am 3:59 Pm x3:09 pm 3:09 pme x3:09 pme 3:59"
 ]
 
-print(unconfuse(testtext[2]))
-print("cardinal:\t", num2words("-12.31",False, "en", "cardinal"))
-print("ordinal:\t", num2words("1231",False, "en", "ordinal"))
-print("ordinal:\t", num2words("1232",False, "en", "ordinal"))
-print("ordinal:\t", num2words("1233",False, "en", "ordinal"))
-print("ordinal:\t", num2words("1230",False, "en", "ordinal"))
-# print("ordinal_num:\t", num2words("121",False, "en", "ordinal_num"))
-# print("year:\t", num2words("2025",False, "en", "year"))
-print("currency:\t", num2words("-12.31",False, "en", "currency"))
+print(unconfuse(testtext[15]))
+# print("cardinal:\t", num2words("-12.31", False, "en", "cardinal"))
+# print("ordinal:\t", num2words("1231", False, "en", "ordinal"))
+# print("ordinal:\t", num2words("1232", False, "en", "ordinal"))
+# print("ordinal:\t", num2words("1233", False, "en", "ordinal"))
+# print("ordinal:\t", num2words("1230", False, "en", "ordinal"))
+# # print("ordinal_num:\t", num2words("121", False, "en", "ordinal_num"))
+# # print("year:\t", num2words("2025", False, "en", "year"))
+# print("currency:\t", num2words("-12.31", False, "en", "currency"))
 
 
 # l=re.split(r"\b",testtext)
@@ -243,7 +252,6 @@ print("currency:\t", num2words("-12.31",False, "en", "currency"))
 
 def cut_string_in_half(string):
     return [string[:len(string)//2], string[len(string)//2:]]
-    
 
 def zigzag_check(string):
     length = len(string)
@@ -273,7 +281,6 @@ def zigzag_check(string):
             break
     return flatten(results)
 
-
 def back_to_front_check(string):
     length = len(string)
     offsets = [0]
@@ -298,7 +305,6 @@ def back_to_front_check(string):
                 results.append(back_to_front_check(right))
             break
     return flatten(results)
-
 
 def front_to_back_check(string):
     length = len(string)

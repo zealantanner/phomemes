@@ -44,46 +44,74 @@ specialGroupDict = {
 }
 
 class Pattern:
-    def __init__(self, desc:str, reg:str,flags=None,replFunc=lambda text,reg:""):
+    def __init__(self, desc:str, reg:str, replFunc):
         self.desc = desc
-        self.reg = re.compile(reg,flags)
-        self.replFunc = replFunc
+        self.reg = reg
+        self.replFunc = lambda text: replFunc(reg,text)
+        # self.search = re.search()
+    # def search(self,text):
+    #     return re.search(self.reg,text)
+        
 
-thing = Pattern("am pattern",r"am",flags=re.IGNORECASE | re.VERBOSE)
-print(re.compile(thing.reg),"for aM for the")
+
 
 # re.search()
 # re.compile(r"1",re.VERBOSE)
+
+
+
+
 replacePatterns = (
-    # Pattern("All valid times",
-    #     r"""(?i)
-    #     ^
-    #     $
-    #     """
-    #     ,
-    #     lambda text,reg:"",
-    #     (re.IGNORECASE | re.VERBOSE)
+    Pattern("replace all valid times",
+        re.compile(
+            r"""
+                (?<![\d])      # no extra numbers behind
+                ([1-9]|1[0-2]) # 1-12 (1-9 or 10-12)
+                :
+                ([0-5]\d       # 00-59
+                    (?!\d))    # but no numbers after
+                \ *            # zero or more spaces
+                ([ap]m         # am or pm
+                    (?![a-z])  # but no letters after
+                )?             # selects am/pm if it's there
+            """,
+            flags=re.I | re.X),
+        lambda reg,text:(
+            (num2words(re.search(reg,text).group(1)))
+            +
+            ( (" " + num2words(re.search(reg,text).group(2))) if int(re.search(reg,text).group(2))>9 else
+            ( (" oh " + num2words(re.search(reg,text).group(2))) if int(re.search(reg,text).group(2))>0 else
+            ( (" oh clock ") if int(re.search(reg,text).group(2))==0 else None)))
+            +
+            (("ay em ") if re.search(r"am",re.search(reg,text).group(3),re.I) else
+            (("pee em ") if re.search(r"pm",re.search(reg,text).group(3),re.I) else " ")) 
+            # ((" oh clock ") if re.search(r"(?<=-)[0-9]+",x).group() else None)
+            
+
+        )
+    ),
+    # (" minus " if re.search(r"(?<=-)[0-9]+",x).group() else None)
+
+    # Pattern("am for times",
+    #     r"(?i)((?<=(?<![\d#])[1-9]:[0-5]\d)|(?<=(?<![\d#])1[0-2]:[0-5]\d)) *am(?![a-z])",
+    #     lambda *_:(" ay em ")
     # ),
-    Pattern("am for times",
-        r"(?i)((?<=(?<![\d#])[1-9]:[0-5]\d)|(?<=(?<![\d#])1[0-2]:[0-5]\d)) *am(?![a-z])",
-        lambda *_:(" ay em ")
-    ),
-    Pattern("pm for times",
-        r"(?i)((?<=(?<![\d#])[1-9]:[0-5]\d)|(?<=(?<![\d#])1[0-2]:[0-5]\d)) *pm(?![a-z])",
-        lambda *_:(" pee em ")
-    ),
-    Pattern("times that end in 00",
-        r"((?<=(?<![\d#])[1-9])|(?<=(?<![\d#])1[0-2])):00(?!\d)",
-        lambda *_:(" oh clock ")
-    ),
-    Pattern("times that end in 0[1-9]",
-        r"((?<=(?<![\d#])[1-9])|(?<=(?<![\d#])1[0-2])):0(?=[1-9](?!\d))",
-        lambda *_:(" oh ")
-    ),
-    Pattern("times that end in [1-5][0-9]",
-        r"((?<=(?<![\d#])[1-9])|(?<=(?<![\d#])1[0-2])):(?=[1-5][0-9](?!\d))",
-        lambda *_:(" ")
-    ),
+    # Pattern("pm for times",
+    #     r"(?i)((?<=(?<![\d#])[1-9]:[0-5]\d)|(?<=(?<![\d#])1[0-2]:[0-5]\d)) *pm(?![a-z])",
+    #     lambda *_:(" pee em ")
+    # ),
+    # Pattern("times that end in 00",
+    #     r"((?<=(?<![\d#])[1-9])|(?<=(?<![\d#])1[0-2])):00(?!\d)",
+    #     lambda *_:(" oh clock ")
+    # ),
+    # Pattern("times that end in 0[1-9]",
+    #     r"((?<=(?<![\d#])[1-9])|(?<=(?<![\d#])1[0-2])):0(?=[1-9](?!\d))",
+    #     lambda *_:(" oh ")
+    # ),
+    # Pattern("times that end in [1-5][0-9]",
+    #     r"((?<=(?<![\d#])[1-9])|(?<=(?<![\d#])1[0-2])):(?=[1-5][0-9](?!\d))",
+    #     lambda *_:(" ")
+    # ),
 # ---------------------------------------------------------
     Pattern("dashes that should be minus",
         r"-(?=[0-9])+",
@@ -111,7 +139,7 @@ replacePatterns = (
     # ),
     # Pattern("$ to dollar",
     #     r"\$(\d+)(\.\d{2})?",
-    #     lambda text,reg:(
+    #     lambda reg,text:(
     #             re.search(r"\$(\d+)(\.\d{2})?",text,)
     #         )
     # ),
