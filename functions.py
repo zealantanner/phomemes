@@ -91,22 +91,25 @@ def condense_delimiters(text:str):
 
 
 
-def replace_unknowns(text:str):
+def replace_unknowns(text:str) -> str:
     for unknownSymbol in unknownDict:
-        search = re.search(re.escape(unknownSymbol), text)
+        search = re.search(unknownSymbol.reg, text)
         if(search):
             print(f"replaced \"{search.group()}\" with \"{unknownDict[unknownSymbol]}\"")
-            print(f"{re.split(search.group(), text,1)[0]}{c.bg.blue}{unknownDict[unknownSymbol]}{c.reset}{re.split(search.group(), text,1)[-1]}")
-            text = re.sub(search.group(), unknownDict[unknownSymbol], text)
+            print(f"{unknownSymbol.colorsub}")
+            # print(f"{re.split(search.group(), text,1)[0]}{colors.bg.blue}{unknownDict[unknownSymbol]}{colors.reset}{re.split(search.group(), text,1)[-1]}")
+            # text = re.sub(search.group(), unknownDict[unknownSymbol], text)
+            text = unknownSymbol.sub(text)
             text = replace_unknowns(text)
     return text
 
+
 def replace_specials(text:str):
     for special in specialGroupDict:
-        search = re.search(re.escape(special), text)
+        search = re.search(special.reg, text)
         if(search):
             print(f"replaced \"{search.group()}\" with \"{specialGroupDict[special]}\"")
-            print(f"{re.split(search.group(), text,1)[0]}{c.bg.blue}{specialGroupDict[special]}{c.reset}{re.split(search.group(), text,1)[-1]}")
+            print(f"{re.split(search.group(), text,1)[0]}{colors.bg.blue}{specialGroupDict[special]}{colors.reset}{re.split(search.group(), text,1)[-1]}")
             text = re.sub(search.group(), specialGroupDict[special], text)
             text = replace_specials(text)
     return text
@@ -118,7 +121,8 @@ def replace_patterns(text:str):
         search = re.search(pattern.reg,text)
         if(search):
             print(f"replaced \"{search.group()}\" with \"{pattern.replFunc(text)}\" using \"{pattern.desc}\"")
-            print(f"{re.split(pattern.reg, text,1)[0]}{c.bg.blue}{pattern.replFunc(text)}{c.reset}{re.split(pattern.reg, text,1)[-1]}")
+            print(f"{re.split(pattern.reg, text,1)[0]}{colors.bg.blue}{pattern.replFunc(text)}{colors.reset}{re.split(pattern.reg, text,1)[-1]}")
+            print(pattern.colorsub(text))
             text = re.sub(pattern.reg, pattern.replFunc(text), text,1)
             text = replace_patterns(text)
     return text

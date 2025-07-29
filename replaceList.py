@@ -2,12 +2,12 @@ import re
 from contextlib import suppress
 from num2words import num2words
 
-class c:
+class colors:
     '''Colors class:
-    Reset all colors with colors.reset
-    Two subclasses fg for foreground and bg for background.
-    Use as colors.subclass.colorname.
-    i.e. colors.fg.red or colors.bg.green
+    Reset all colors with colors.reset\n
+    Two subclasses: fg = foreground and bg = background.\n
+    Use as colors.subclass.colorname.\n
+    i.e. colors.fg.red or colors.bg.green\n
     Also, the generic bold, disable, underline, reverse, strikethrough,
     and invisible work with the main class
     i.e. colors.bold
@@ -45,29 +45,28 @@ class c:
         cyan='\033[46m'
         lightgrey='\033[47m'
     def color(text:str, color):
-        return f"{color}{text}{c.reset}"
+        return f"{color}{text}{colors.reset}"
 
 class Pattern:
     def __init__(self, desc:str, reg:str, replFunc):
         self.desc = desc
         self.reg = reg
         self.replFunc = lambda text: replFunc(reg,text)
-    def __str__(self):
-        return self.reg
         # self.search = re.search()
     # def search(self,text):
     #     return re.search(self.reg,text)
-    def sub(self, text:str, count: int = 0, flags = 0):
+    def sub(self, text:str, count: int = 0, flags = 0) -> str:
         return re.sub(self.reg,self.replFunc(text),text,count,flags)
-    def colorsub(self, text:str, count: int = 0, flags = 0):
-        # return f"{re.split(self.reg, text,1)[0]}{c.bg.blue}{self.replFunc(text)}{c.reset}{re.split(self.reg, text,1)[-1]}"
-        return f"{re.split(self.reg, text,1)[0]}{c.color(self.replFunc(text),c.bg.blue)}{re.split(self.reg, text,1)[-1]}"
+    def colorsub(self, text:str):
+        # return f"{re.split(self.reg, text,1)[0]}{c.color(self.replFunc(text),c.bg.blue)}{re.split(self.reg, text,1)[-1]}"
+        array = text.partition(self.reg)
+        return f"{array[0]}{colors.color(self.replFunc(text),colors.bg.blue)}{array[2]}"
     
     def to_Patterns(dict:dict):
         array = []
         for thing in dict:
             array.append(
-                Pattern(f"{c.color(thing,c.bg.blue)} to {c.color(dict[thing],c.bg.blue)}",
+                Pattern(f"{colors.color(thing,colors.bg.red)} to {colors.color(dict[thing],colors.bg.blue)}",
                     thing,
                     lambda *_:dict[thing]
                 )
@@ -118,7 +117,7 @@ specialGroupDict = Pattern.to_Patterns({
 })
 # tempSpecialGroup = {}
 # for item in specialGroupDict:
-
+#     print(item)
 
 
 
@@ -128,6 +127,24 @@ print(num2words("1",False,"en","ordinal"))
         
 
 print(Pattern("asdf",r"asdf",lambda *_:"|||||||").colorsub("jjjjjjjjjjjjjjijijijijijsdfasdf3iojiqoirejq"))
+
+class Replacing:
+    def time(reg, text):
+        'Replaces valid times'
+        search = re.search(reg,text)
+        parts = [""]
+        parts.append(num2words(search.group(1)))
+        if int(search.group(2))<10: parts.append("oh")
+        if int(search.group(2))==0: parts.append("clock")
+        parts.append(num2words(search.group(2)))
+        if search.group(3):
+            match re.search(reg,text).group(3).lower():
+                case "am": parts.append("ay em")
+                case "pm": parts.append("pee em")
+        parts.append("")
+        return " ".join(parts)
+
+
 
 replacePatterns = (
     Pattern("replace all valid times",
@@ -144,20 +161,22 @@ replacePatterns = (
                 )?             # selects am/pm if it's there
             """,
             flags=re.I | re.X),
-        lambda reg,text:(
-            (" " + num2words(re.search(reg,text).group(1)))
-            +
-            ( (" " + num2words(re.search(reg,text).group(2))) if int(re.search(reg,text).group(2))>9 else
-            ( (" oh " + num2words(re.search(reg,text).group(2))) if int(re.search(reg,text).group(2))>0 else
-            ( (" oh clock ") if int(re.search(reg,text).group(2))==0 else None)))
-            +
-            ((
-                (" ay em ") if re.search(reg,text).group(3).lower()=="am" else
-                ((" pee em ") if re.search(reg,text).group(3).lower()=="pm" else " "))
-            if re.search(reg,text).group(3) else " "
-            )
-        )
+            lambda reg, text: Replacing.time(reg, text)
+        # lambda reg,text:(
+        #     (" " + num2words(re.search(reg,text).group(1)))
+        #     +
+        #     ( (" " + num2words(re.search(reg,text).group(2))) if int(re.search(reg,text).group(2))>9 else
+        #     ( (" oh " + num2words(re.search(reg,text).group(2))) if int(re.search(reg,text).group(2))>0 else
+        #     ( (" oh clock ") if int(re.search(reg,text).group(2))==0 else None)))
+        #     +
+        #     ((
+        #         (" ay em ") if re.search(reg,text).group(3).lower()=="am" else
+        #         ((" pee em ") if re.search(reg,text).group(3).lower()=="pm" else " "))
+        #     if re.search(reg,text).group(3) else " "
+        #     )
+        # )
     ),
+    
     # (" minus " if re.search(r"(?<=-)[0-9]+",x).group() else None)
 # ---------------------------------------------------------
     # Pattern("ordinal numbers, (like 1st 2nd 3rd)",
@@ -286,7 +305,7 @@ replacePatternsOld = [
 
 
 
-unknownDict = {
+unknownDict = Pattern.to_Patterns({
     "@": " at ",
     "%": " percent ",
     "&": " and ",
@@ -359,6 +378,9 @@ unknownDict = {
     "Æ": "ae",
     "æ": "ae",
 
+    "Ç": "c",
+    "ç": "c",
+
     "ₑ": "e",
     "È": "e",
     "è": "e",
@@ -415,8 +437,6 @@ unknownDict = {
     "ₚ": "p",
 
     "ₛ": "s",
-    "Ç": "s",
-    "ç": "s",
     "Š": "s",
     "š": "s",
 
@@ -474,7 +494,4 @@ unknownDict = {
     "↓": " down ",
     "←": " left ",
     "→": " right ",
-}
-
-
-testtext = "come @ me b1ro #gamer 100% m&m gimme a yummy ^"
+})
