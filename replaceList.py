@@ -72,6 +72,21 @@ class Pattern:
                 )
             )
         return tuple(array)
+    class Replacing:
+        def time(reg, text):
+            'Replaces valid times'
+            search = re.search(reg,text)
+            parts = [""]
+            parts.append(num2words(search.group(1)))
+            if int(search.group(2))<10: parts.append("oh")
+            if int(search.group(2))==0: parts.append("clock")
+            parts.append(num2words(search.group(2)))
+            if search.group(3):
+                match re.search(reg,text).group(3).lower():
+                    case "am": parts.append("ay em")
+                    case "pm": parts.append("pee em")
+            parts.append("")
+            return " ".join(parts)
 
 
 
@@ -128,21 +143,7 @@ print(num2words("1",False,"en","ordinal"))
 
 print(Pattern("asdf",r"asdf",lambda *_:"|||||||").colorsub("jjjjjjjjjjjjjjijijijijijsdfasdf3iojiqoirejq"))
 
-class Replacing:
-    def time(reg, text):
-        'Replaces valid times'
-        search = re.search(reg,text)
-        parts = [""]
-        parts.append(num2words(search.group(1)))
-        if int(search.group(2))<10: parts.append("oh")
-        if int(search.group(2))==0: parts.append("clock")
-        parts.append(num2words(search.group(2)))
-        if search.group(3):
-            match re.search(reg,text).group(3).lower():
-                case "am": parts.append("ay em")
-                case "pm": parts.append("pee em")
-        parts.append("")
-        return " ".join(parts)
+
 
 
 
@@ -161,7 +162,7 @@ replacePatterns = (
                 )?             # selects am/pm if it's there
             """,
             flags=re.I | re.X),
-            lambda reg, text: Replacing.time(reg, text)
+            lambda reg, text: Pattern.Replacing.time(reg, text)
         # lambda reg,text:(
         #     (" " + num2words(re.search(reg,text).group(1)))
         #     +
