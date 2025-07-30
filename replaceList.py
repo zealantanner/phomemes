@@ -73,6 +73,10 @@ class Pattern:
             )
         return tuple(array)
     class Replacing:
+        # def __init__(self, reg, text):
+        #     self.reg = reg
+        #     self.text = text
+        #     self.search = re.search(reg,text)
         def time(self, reg, text):
             'Replaces valid times'
             search = re.search(reg,text)
@@ -88,6 +92,10 @@ class Pattern:
             parts.append("")
             return " ".join(parts)
         # can I use self.search?
+        # class number:
+        def ordinal_number(self, reg, text):
+            # search = self.search
+            return 
         def currency(self, reg, text, currency="$"):
             pass
 
@@ -103,7 +111,7 @@ replacePatterns = (
         re.compile(
             r"""
                 (?<![\d])      # no extra numbers behind
-                ([1-9]|1[0-2]) # 1-12 (1-9 or 10-12)
+                ([1-9]|1[0-2]) # 1-12 (1-9 10-12)
                 :
                 ([0-5]\d       # 00-59
                     (?!\d))    # but no numbers after
@@ -113,14 +121,27 @@ replacePatterns = (
                 )?             # selects am/pm if it's there
             """,
             flags=re.I | re.X),
-        lambda reg, text: Pattern.Replacing.time(reg, text)
+        lambda reg, text: Pattern.Replacing(reg, text).time(reg, text)
     ),
 # ---------------------------------------------------------
-    # Pattern("ordinal numbers, (like 1st 2nd 3rd)",
-    #     ,
-    #     lambda 
-    # ),
-    # num2words("1",False,"en","ordinal")
+    Pattern("ordinal numbers, (like 1st 2nd 3rd)",
+        re.compile(
+            r"""
+                \d*            # 0-any numbers
+                (              # group
+                    (?<!1)         # not 11st 12nd 13rd
+                    (1st|2nd|3rd)  # 1st 2nd 3rd
+                |              # or
+                    [04-9]th       # 0th 4th-9th
+                |              # or
+                    1[1-3]th       # 11th 12th 13th
+                )
+                (?![a-z])      # no letters after
+            """,
+            flags=re.I | re.X),
+        lambda reg, text: Pattern.Replacing.ordinal(reg, text)
+    ),
+    num2words("1",False,"en","ordinal")
 # ---------------------------------------------------------
     Pattern("dashes that should be minus",
         r"-(?=[0-9])+",
@@ -165,29 +186,34 @@ replacePatterns = (
 )
 
 specialGroupDict = Pattern.to_Patterns({
-    " misc.": " miscellaneous ",
-    " etc.": " et cetera ",
+    # for abbrevations instead of just space and teh beginning, look for:
+        # space, start of string, 
+    " misc.": " miscellaneous.",
+    " etc.": " et cetera.",
+    
     ".com": " dot com",
     ".org": " dot org",
     ".net": " dot net",
     ".edu": " dot ee dee you",
     ".gov": " dot guv",
     # can use num2words ordinal for 1st 2nd 3rd etc
-    "1st": " first ",
-    "2nd": " second ",
-    "3rd": " third ",
-    "4th": " fourth ",
-    "5th": " fifth ",
-    "6th": " sixth ",
-    "7th": " seventh ",
-    "8th": " eighth ",
-    "9th": " ninth ",
-    "10th": " tenth ",
+    # "1st": " first ",
+    # "2nd": " second ",
+    # "3rd": " third ",
+    # "4th": " fourth ",
+    # "5th": " fifth ",
+    # "6th": " sixth ",
+    # "7th": " seventh ",
+    # "8th": " eighth ",
+    # "9th": " ninth ",
+    # "10th": " tenth ",
     # make degrees into a function that checks for °[FCK]
     "°F": " degrees fahrenheit ",
     "°C": " degrees celsius ",
     "°K": " degrees kelvin ",
     "°": " degrees ",
+    # 
+    # ""
 })
 
 
