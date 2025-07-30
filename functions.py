@@ -70,6 +70,9 @@ def condense_delimiters(text:str):
     # commaDelimiters = r"[" + space + comma + r"]*[" + comma + r"*]+[" + space + comma + r"]*"
     # spaceDelimiters = r"[" + space + r"]*[" + space + r"*]+[" + space + r"]*"
 
+    # exclamaitionDelimiters
+    # questionDelimiters
+    exclamation
 
     # text = re.sub(periodDelimiters, ".", text)
     # text = re.sub(commaDelimiters, ",", text)
@@ -89,42 +92,14 @@ def condense_delimiters(text:str):
 #     return [condense_delimiters(token) for token in re.split(r"\b",text) if token!=""]
 # apply
 
-
-
-def replace_unknowns(text:str) -> str:
-    for unknownSymbol in unknownDict:
-        search = re.search(unknownSymbol.reg, text)
-        if(unknownSymbol(text)):
-            print(f"replaced \"{search.group()}\" with \"{unknownDict[unknownSymbol]}\"")
-            print(f"{unknownSymbol.colorsub}")
-            # print(f"{re.split(search.group(), text,1)[0]}{colors.bg.blue}{unknownDict[unknownSymbol]}{colors.reset}{re.split(search.group(), text,1)[-1]}")
-            # text = re.sub(search.group(), unknownDict[unknownSymbol], text)
-            text = unknownSymbol.sub(text)
-            text = replace_unknowns(text)
-    return text
-
-
-def replace_specials(text:str):
-    for special in specialGroupDict:
-        search = re.search(special.reg, text)
-        if(search):
-            print(f"replaced \"{search.group()}\" with \"{specialGroupDict[special]}\"")
-            print(f"{re.split(search.group(), text,1)[0]}{colors.bg.blue}{specialGroupDict[special]}{colors.reset}{re.split(search.group(), text,1)[-1]}")
-            text = re.sub(search.group(), specialGroupDict[special], text)
-            text = replace_specials(text)
-    return text
-
-
-def replace_patterns(text:str):
-    # loop over every pattern in order
-    for pattern in replacePatterns:
+def replace_patterns(text:str,patternlist) -> str:
+    for pattern in patternlist:
         search = re.search(pattern.reg,text)
         if(search):
-            print(f"replaced \"{search.group()}\" with \"{pattern.replFunc(text)}\" using \"{pattern.desc}\"")
-            print(f"{re.split(pattern.reg, text,1)[0]}{colors.bg.blue}{pattern.replFunc(text)}{colors.reset}{re.split(pattern.reg, text,1)[-1]}")
-            print(pattern.colorsub(text))
-            text = re.sub(pattern.reg, pattern.replFunc(text), text,1)
-            text = replace_patterns(text)
+            print(f"replaced \"{colors.color(search.group(),colors.bg.red)}\" with \"{colors.color(pattern.replFunc(text),colors.bg.blue)}\" using \"{pattern.desc}\"")
+            print(f"{pattern.colorsub(text,1)}")
+            text = pattern.sub(text,1)
+            text = replace_patterns(text,patternlist)
     return text
 
 
@@ -139,8 +114,6 @@ def convert_nums_to_words(text:str):
             # print(x)
             newtext = "".join([newtext, x])
     return newtext
-
-
 
 
 def replace_delimiters(text:str):
@@ -165,16 +138,19 @@ def remove_etc(text:str):
 # print(replace_unknowns("zealan@gmail@.com"))
 
 def unconfuse(text:str):
+    def replace_with_patterns(text): return replace_patterns(text,replacePatterns)
     order_to_run = [
-        replace_unknowns,
-        replace_specials,
-        replace_patterns,
+        replace_with_patterns,
+        # replace_unknowns,
+        # replace_specials,
+        # replace_patterns,
         # convert_nums_to_words,
         # remove_etc,
         # condense_delimiters,
         # replace_delimiters,
         ]
     print(text)
+
     for function in order_to_run:
         # print(f"{function(text)=}")
         print(f"\t{function.__code__.co_name}()")
@@ -213,7 +189,7 @@ texting = [
     "come @ me b1ro #gamer 100% m&m gimme a yummy ^",
     "go to #gamer@beans.com to win ä bïg tree... if not, that's ok",
     "1:00 1-1-100.23 12:30     am12:00 2:03pm misc.",
-    "12:00 am 3:59a 2:324 pm 13:03 Pm 1:00 am  % 3:59 Pm x3:09 pm 3:09 pme x3:09 pme 3:59 °F"
+    "12:00 am 1st 11th 21st 3rd % 3:59 Pm 3:09 pm 3:59 °F $100.10 ¢32  £32.12 €1.01 ¥132"
 ]
 
 print(unconfuse(texting[15]))

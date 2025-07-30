@@ -51,54 +51,105 @@ class Pattern:
     def __init__(self, desc:str, reg:str, replFunc):
         self.desc = desc
         self.reg = reg
-        self.replFunc = lambda text: replFunc(self.reg,text)
-        self.search = lambda text: re.search(self.reg,text)
-    # def search(self,text):
-    #     return re.search(self.reg,text)
+        self.replFunc = lambda text: replFunc(reg,text)
     def sub(self, text:str, count: int = 0, flags = 0) -> str:
         return re.sub(self.reg,self.replFunc(text),text,count,flags)
-    def colorsub(self, text:str):
+    def colorsub(self, text:str, count: int = 0, flags = 0) -> str:
         # return f"{re.split(self.reg, text,1)[0]}{c.color(self.replFunc(text),c.bg.blue)}{re.split(self.reg, text,1)[-1]}"
-        array = text.partition(self.reg)
-        return f"{array[0]}{colors.color(self.replFunc(text),colors.bg.blue)}{array[2]}"
-    
+        # array = re.split(self.reg,text)
+        # return f"{array[0]}{colors.color(self.replFunc(text),colors.bg.blue)}{array[1]}"
+        return re.sub(self.reg,colors.color(self.replFunc(text),colors.bg.blue),text,count,flags)    
     def to_Patterns(dict:dict):
         array = []
         for thing in dict:
+            value = dict[thing]
             array.append(
-                Pattern(f"{colors.color(thing,colors.bg.red)} to {colors.color(dict[thing],colors.bg.blue)}",
-                    thing,
-                    lambda *_:dict[thing]
+                Pattern(f"{thing} to {value}",
+                    re.escape(thing),
+                    lambda *_, val=value: val
                 )
             )
-        return tuple(array)
+        return array
     class Replacing:
-        # def __init__(self, reg, text):
-        #     self.reg = reg
-        #     self.text = text
-        #     self.search = re.search(reg,text)
-        def time(self, reg, text):
-            'Replaces valid times'
+        def time(reg:str, text:str):
+            "Replaces valid times"
             search = re.search(reg,text)
             parts = [""]
             parts.append(num2words(search.group(1)))
             if int(search.group(2))<10: parts.append("oh")
             if int(search.group(2))==0: parts.append("clock")
-            parts.append(num2words(search.group(2)))
+            if int(search.group(2))!=0: parts.append(num2words(search.group(2)))
             if search.group(3):
-                match re.search(reg,text).group(3).lower():
+                match search.group(3).lower():
                     case "am": parts.append("ay em")
                     case "pm": parts.append("pee em")
             parts.append("")
             return " ".join(parts)
         # can I use self.search?
         # class number:
-        def ordinal_number(self, reg, text):
-            # search = self.search
-            return 
-        def currency(self, reg, text, currency="$"):
-            pass
+        def ordinal_number(reg:str, text:str):
+            "Replaces ordinal numbers like 1st 2nd 3rd"
+            search = re.search(reg,text)
+            parts = [""]
+            parts.append(num2words(search.group()[:-2],False,"en","ordinal"))
+            return " ".join(parts)+" "
+        def currency(reg:str, text:str, currencySymbol="$"):
+            search = re.search(reg,text)
+            def find_plural(num:int, type:str, is_decimal:bool=False):
+                names = {
+                    "$": ["dollars","dollar","cents","cent"],
+                    "£": ["pounds", "pound", "pence","penny"],
+                    "€": ["euros",  "euro",  "cents","cent"],
+                    "¥": ["yen",    "yen",   "yen",  "yen"],
+                    "¢": ["cents",  "cent",  "cents","cent"],
+                    }
+                move = 0
+                if(is_decimal):
+                    move = 2
+                if(int(num)==1):
+                    return names[type][move+1]
+                else:
+                    return names[type][move]
+                # return {"plural": names[type][move], "singular": names[type][move+1]}
+            parts = ["","","","","",""]
+            # ["","two","dollars","thirteen","cents",""]
+            if(search):
+                if(search.group(5)):            # .12 .00 exists
+                    if(int(search.group(3))==0):    # 0.12, 0.00, 0.99
+                        if(int(search.group(5))==0):    # 0.00
+                            parts[1] = num2words(0)
+                            parts[2] = find_plural(0, currencySymbol)
+                        if(int(search.group(5))>0):     # 0.12, 0.99
+                            parts[3] = num2words(int(search.group(5)))
+                            parts[4] = find_plural(int(search.group(5)), currencySymbol, True)
+                    if(int(search.group(3))>0):     # 1. 32. 1123.
+                        parts[1] = num2words(int(search.group(3)))
+                        parts[2] = find_plural(int(search.group(3)), currencySymbol)+","
+                        if(int(search.group(5))==0):    # 1.00 32.00 1123.00
+                            parts[3] = ""
+                            parts[4] = ""
+                        if(int(search.group(5))>0):     # 1.12, 321.99
+                            parts[3] = num2words(int(search.group(5)))
+                            parts[4] = find_plural(int(search.group(5)), currencySymbol, True)
+                else:                           # 1, 3, 1234, 0
+                    if(int(search.group(3))==0):    # 0
+                        parts[1] = num2words(0)
+                        parts[2] = find_plural(0, currencySymbol)
+                    if(int(search.group(3))>0):     # 1, 3, 1234
+                        parts[1] = num2words(int(search.group(3)))
+                        parts[2] = find_plural(int(search.group(3)), currencySymbol)
+            # print(parts)
+                # match currencySymbol:
+                            # 12.12 12 dollars, 12 cents
+                            # 1.01 1 dollar, 1 cent
+                            # 1.00 1 dollar
+                            # .01 1 cent
+            return " ".join(parts)
 
+print(num2words("0.01",False,"en","currency"))
+print(num2words("1",False,"en","currency"))
+print(num2words("23",False,"en","currency"))
+print(num2words("0123"))
 
 periodPauseDelimiters = (".","!","?","\n","\f","\t","\v")
 commaPauseDelimiters = (",","~","—","(",")",":",";")
@@ -106,7 +157,7 @@ spacePauseDelimiters = (" ","-","_","/","\\")
 pauseDelimiters = periodPauseDelimiters + commaPauseDelimiters + spacePauseDelimiters
 
 
-replacePatterns = (
+longReplacePatterns = [
     Pattern("replace all valid times",
         re.compile(
             r"""
@@ -121,8 +172,10 @@ replacePatterns = (
                 )?             # selects am/pm if it's there
             """,
             flags=re.I | re.X),
-        lambda reg, text: Pattern.Replacing(reg, text).time(reg, text)
+        lambda reg, text: Pattern.Replacing.time(reg, text)
     ),
+# ---------------------------------------------------------
+    # numbers like 1,000,000 should be changed to 1000000
 # ---------------------------------------------------------
     Pattern("ordinal numbers, (like 1st 2nd 3rd)",
         re.compile(
@@ -139,9 +192,46 @@ replacePatterns = (
                 (?![a-z])      # no letters after
             """,
             flags=re.I | re.X),
-        lambda reg, text: Pattern.Replacing.ordinal(reg, text)
+        lambda reg, text: Pattern.Replacing.ordinal_number(reg, text)
     ),
-    num2words("1",False,"en","ordinal")
+    # num2words("1",False,"en","ordinal")
+# ---------------------------------------------------------
+    # for prices: (the symbol is pronounced before)
+        # match case for each currency
+        # take care of singulars too
+    Pattern("$ to dollars",
+        r"(\$)((\d+)(\.(\d{2}))?)(?!\d)",
+        lambda reg, text: Pattern.Replacing.currency(reg, text, "$")
+    ), # 
+    Pattern("£ to pounds",
+        r"(£)((\d+)(\.(\d{2}))?)(?!\d)",
+        lambda reg, text: Pattern.Replacing.currency(reg, text, "£")
+    ), # pence instead of cents
+    Pattern("€ to euros",
+        r"(€)((\d+)(\.(\d{2}))?)(?!\d)",
+        lambda reg, text: Pattern.Replacing.currency(reg, text, "€")
+    ), 
+    Pattern("¥ to yen",
+        r"(¥)(\d+)(?!\d)",
+        lambda reg, text: Pattern.Replacing.currency(reg, text, "¥")
+    ), # no cents for yen. yen plural is yen
+    Pattern("¢ to cents",
+        r"(¢)(\d+)",
+        lambda reg, text: Pattern.Replacing.currency(reg, text, "¢")
+    ), # no cents for yen
+    # for 0 dollar takes priority over cents. just zero dollars
+    # r"#(?! *\d *)",
+    # r"\$(\d+)(\.\d{2})?",
+    # "$": " dollar ",
+    # "£": " pound ",
+    # "€": " euro ",
+    # "¥": " yen ",
+    # cent is the only one that goes before
+    # "¢": " cent ",
+    # take care of this by making the cents .54
+        # should output 54 cents instead of zero dollars and 54 cents
+        # $.54 should also output as 54 cents
+    # test to make sure it should be cents for like yen and pounds
 # ---------------------------------------------------------
     Pattern("dashes that should be minus",
         r"-(?=[0-9])+",
@@ -150,7 +240,7 @@ replacePatterns = (
     # add: detect phone numbers
     Pattern("decimals to point for values",
         r"(?<=[0-9])+\.(?=[0-9])+",
-        lambda text,reg:(" point ")
+        lambda *_:(" point ")
     ), # can be done with num2words "cardinal"
     # dont forget multiple points 12.43.5
     # ([0-9]+)(\.[0-9]+)+
@@ -166,24 +256,27 @@ replacePatterns = (
         lambda *_:(" number ")
     ),
 # ---------------------------------------------------------
-    # for prices: (the symbol is pronounced before)
-        # make replace function with parameter for the different currencies, like 
-        # def currency(reg, text, currency="$")
-        # match case for each currency
-        # take care of singulars too
-    # r"#(?! *\d *)",
-    # r"\$(\d+)(\.\d{2})?",
-    # "$": " dollar ",
-    # "£": " pound ",
-    # "€": " euro ",
-    # "¥": " yen ",
-    # cent is the only one that goes before
-    # "¢": " cent ",
-    # take care of this by making the cents .54
-        # should output 54 cents instead of zero dollars and 54 cents
-        # $.54 should also output as 54 cents
-    # test to make sure it should be cents for like yen and pounds
-)
+    # abbreviations
+    Pattern("AFAIK", r"(?<!a-zA-Z\d)(AFAIK)(?![a-zA-Z\d])", lambda*_:" as far as I know "),
+    Pattern("ADHD", r"(?<!a-zA-Z\d)(ADHD)(?![a-zA-Z\d])", lambda*_:" ay dee h "),
+    Pattern("AITA", r"(?<!a-zA-Z\d)(AITAH?)(?![a-zA-Z\d])", lambda*_:" am I the asshole "),
+    Pattern("AMA", r"(?<!a-zA-Z\d)(AMA)(?![a-zA-Z\d])", lambda*_:" ask me anything "),
+    Pattern("ELI5", r"(?<!a-zA-Z\d)(ELI5)(?![a-zA-Z\d])", lambda*_:" explain like I'm 5 "),
+    Pattern("IIRC", r"(?<!a-zA-Z\d)(IIRC)(?![a-zA-Z\d])", lambda*_:" if I remember correctly "),
+    Pattern("IMO", r"(?<!a-zA-Z\d)(IMO)(?![a-zA-Z\d])", lambda*_:" in my opinion "),
+    Pattern("IMHO", r"(?<!a-zA-Z\d)(IMHO)(?![a-zA-Z\d])", lambda*_:" in my honest opinion "),
+    Pattern("IRL", r"(?<!a-zA-Z\d)(IRL)(?![a-zA-Z\d])", lambda*_:" in real life "),
+    Pattern("IRL", r"(?<!a-zA-Z\d)(IRL)(?![a-zA-Z\d])", lambda*_:" in real life "),
+    Pattern("NSFL", r"(?<!a-zA-Z\d)(NSFL)(?![a-zA-Z\d])", lambda*_:" not safe for life "),
+    Pattern("NSFW", r"(?<!a-zA-Z\d)(NSFW)(?![a-zA-Z\d])", lambda*_:" not safe for work "),
+    Pattern("TIFU", r"(?<!a-zA-Z\d)(TIFU)(?![a-zA-Z\d])", lambda*_:" today I fucked up "),
+    Pattern("TIL", r"(?<!a-zA-Z\d)(TIL)(?![a-zA-Z\d])", lambda*_:" today I learned "),
+    Pattern("TL;DR", r"(?<!a-zA-Z\d)(TL;?DR)(?![a-zA-Z\d])", lambda*_:" too long; didn't read "),
+    Pattern("WIP", r"(?<!a-zA-Z\d)(WIP)(?![a-zA-Z\d])", lambda*_:" work in progress "),
+    Pattern("YSK", r"(?<!a-zA-Z\d)(YSK)(?![a-zA-Z\d])", lambda*_:" you should know "),
+
+]
+
 
 specialGroupDict = Pattern.to_Patterns({
     # for abbrevations instead of just space and teh beginning, look for:
@@ -212,8 +305,6 @@ specialGroupDict = Pattern.to_Patterns({
     "°C": " degrees celsius ",
     "°K": " degrees kelvin ",
     "°": " degrees ",
-    # 
-    # ""
 })
 
 
@@ -234,7 +325,6 @@ unknownDict = Pattern.to_Patterns({
     "∞": " infinity ",
     "π": " pi ",
 
-    
     "…": ".",
     "⁺": "+",
     "₊": "+",
@@ -407,3 +497,6 @@ unknownDict = Pattern.to_Patterns({
     "←": " left ",
     "→": " right ",
 })
+
+
+replacePatterns = unknownDict + specialGroupDict + longReplacePatterns
