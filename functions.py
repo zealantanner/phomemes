@@ -189,10 +189,11 @@ texting = [
     "come @ me b1ro #gamer 100% m&m gimme a yummy ^",
     "go to #gamer@beans.com to win ä bïg tree... if not, that's ok",
     "1:00 1-1-100.23 12:30     am12:00 2:03pm misc.",
-    "12:00 am 1st 11th 21st 3rd % 3:59 Pm 3:09 pm 3:59 °F $100.10 ¢32  £32.12 €1.01 ¥132"
+    "12:00 am 1st 11th 11,333,444,555.3 21st 3rd % 3:59 Pm 3:09 pm 3:59 °F $1,000.10 ¢32  £32.12 €1.01 ¥132"
 ]
 
 print(unconfuse(texting[15]))
+print(p.ipa_list("he"))
 # print("cardinal:\t", num2words("-12.31", False, "en", "cardinal"))
 # print("ordinal:\t", num2words("1231", False, "en", "ordinal"))
 # print("ordinal:\t", num2words("1232", False, "en", "ordinal"))

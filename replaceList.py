@@ -73,7 +73,7 @@ class Pattern:
     class Replacing:
         def time(reg:str, text:str):
             "Replaces valid times"
-            search = re.search(reg,text)
+            search:str = re.search(reg,text)
             parts = [""]
             parts.append(num2words(search.group(1)))
             if int(search.group(2))<10: parts.append("oh")
@@ -87,21 +87,28 @@ class Pattern:
             return " ".join(parts)
         # can I use self.search?
         # class number:
+        def number_commas(reg:str, text:str):
+            "Replaces commas in numbers"
+            search = re.search(reg,text)
+            change = "".join(re.search(reg,text).group().split(","))
+            print(change)
+            return change
+            # return re.sub(reg,change,text)
         def ordinal_number(reg:str, text:str):
             "Replaces ordinal numbers like 1st 2nd 3rd"
-            search = re.search(reg,text)
+            search:str = re.search(reg,text)
             parts = [""]
             parts.append(num2words(search.group()[:-2],False,"en","ordinal"))
             return " ".join(parts)+" "
         def currency(reg:str, text:str, currencySymbol="$"):
-            search = re.search(reg,text)
+            search:str = re.search(reg,text)
             def find_plural(num:int, type:str, is_decimal:bool=False):
                 names = {
                     "$": ["dollars","dollar","cents","cent"],
                     "£": ["pounds", "pound", "pence","penny"],
                     "€": ["euros",  "euro",  "cents","cent"],
-                    "¥": ["yen",    "yen",   "yen",  "yen"],
-                    "¢": ["cents",  "cent",  "cents","cent"],
+                    "¥": ["yen",    "yen",],
+                    "¢": ["cents",  "cent",],
                     }
                 move = 0
                 if(is_decimal):
@@ -113,37 +120,36 @@ class Pattern:
                 # return {"plural": names[type][move], "singular": names[type][move+1]}
             parts = ["","","","","",""]
             # ["","two","dollars","thirteen","cents",""]
-            if(search):
-                if(search.group(5)):            # .12 .00 exists
-                    if(int(search.group(3))==0):    # 0.12, 0.00, 0.99
-                        if(int(search.group(5))==0):    # 0.00
+            # $£€¥¢
+            match currencySymbol:
+                case "$"|"£"|"€":
+                    if(search.group(5)):            # .12 .00 exists
+                        if(int(search.group(3))==0):    # 0.12, 0.00, 0.99
+                            if(int(search.group(5))==0):    # 0.00
+                                parts[1] = num2words(0)
+                                parts[2] = find_plural(0, currencySymbol)
+                            if(int(search.group(5))>0):     # 0.12, 0.99
+                                parts[3] = num2words(int(search.group(5)))
+                                parts[4] = find_plural(int(search.group(5)), currencySymbol, True)
+                        if(int(search.group(3))>0):     # 1. 32. 1123.
+                            parts[1] = num2words(int(search.group(3)))
+                            parts[2] = find_plural(int(search.group(3)), currencySymbol)+","
+                            if(int(search.group(5))==0):    # 1.00 32.00 1123.00
+                                parts[3] = ""
+                                parts[4] = ""
+                            if(int(search.group(5))>0):     # 1.12, 321.99
+                                parts[3] = num2words(int(search.group(5)))
+                                parts[4] = find_plural(int(search.group(5)), currencySymbol, True)
+                    else:                           # 1, 3, 1234, 0
+                        if(int(search.group(3))==0):    # 0
                             parts[1] = num2words(0)
                             parts[2] = find_plural(0, currencySymbol)
-                        if(int(search.group(5))>0):     # 0.12, 0.99
-                            parts[3] = num2words(int(search.group(5)))
-                            parts[4] = find_plural(int(search.group(5)), currencySymbol, True)
-                    if(int(search.group(3))>0):     # 1. 32. 1123.
-                        parts[1] = num2words(int(search.group(3)))
-                        parts[2] = find_plural(int(search.group(3)), currencySymbol)+","
-                        if(int(search.group(5))==0):    # 1.00 32.00 1123.00
-                            parts[3] = ""
-                            parts[4] = ""
-                        if(int(search.group(5))>0):     # 1.12, 321.99
-                            parts[3] = num2words(int(search.group(5)))
-                            parts[4] = find_plural(int(search.group(5)), currencySymbol, True)
-                else:                           # 1, 3, 1234, 0
-                    if(int(search.group(3))==0):    # 0
-                        parts[1] = num2words(0)
-                        parts[2] = find_plural(0, currencySymbol)
-                    if(int(search.group(3))>0):     # 1, 3, 1234
-                        parts[1] = num2words(int(search.group(3)))
-                        parts[2] = find_plural(int(search.group(3)), currencySymbol)
-            # print(parts)
-                # match currencySymbol:
-                            # 12.12 12 dollars, 12 cents
-                            # 1.01 1 dollar, 1 cent
-                            # 1.00 1 dollar
-                            # .01 1 cent
+                        if(int(search.group(3))>0):     # 1, 3, 1234
+                            parts[1] = num2words(int(search.group(3)))
+                            parts[2] = find_plural(int(search.group(3)), currencySymbol)
+                case "¢"|"¥":
+                    parts[1] = num2words(int(search.group(2)))
+                    parts[2] = find_plural(int(search.group(2)), currencySymbol)
             return " ".join(parts)
 
 print(num2words("0.01",False,"en","currency"))
@@ -175,7 +181,10 @@ longReplacePatterns = [
         lambda reg, text: Pattern.Replacing.time(reg, text)
     ),
 # ---------------------------------------------------------
-    # numbers like 1,000,000 should be changed to 1000000
+    Pattern("remove \",\" from big numbers",
+        r"\d{1,3}(,\d{3})+",
+        lambda reg, text: "".join(re.search(reg,text).group().split(","))
+    ),
 # ---------------------------------------------------------
     Pattern("ordinal numbers, (like 1st 2nd 3rd)",
         re.compile(
@@ -196,48 +205,33 @@ longReplacePatterns = [
     ),
     # num2words("1",False,"en","ordinal")
 # ---------------------------------------------------------
-    # for prices: (the symbol is pronounced before)
-        # match case for each currency
-        # take care of singulars too
+    # currency
     Pattern("$ to dollars",
         r"(\$)((\d+)(\.(\d{2}))?)(?!\d)",
         lambda reg, text: Pattern.Replacing.currency(reg, text, "$")
-    ), # 
+    ),
     Pattern("£ to pounds",
         r"(£)((\d+)(\.(\d{2}))?)(?!\d)",
         lambda reg, text: Pattern.Replacing.currency(reg, text, "£")
-    ), # pence instead of cents
+    ),
     Pattern("€ to euros",
         r"(€)((\d+)(\.(\d{2}))?)(?!\d)",
         lambda reg, text: Pattern.Replacing.currency(reg, text, "€")
     ), 
     Pattern("¥ to yen",
-        r"(¥)(\d+)(?!\d)",
+        r"(¥)(\d+)",
         lambda reg, text: Pattern.Replacing.currency(reg, text, "¥")
-    ), # no cents for yen. yen plural is yen
+    ),
     Pattern("¢ to cents",
         r"(¢)(\d+)",
         lambda reg, text: Pattern.Replacing.currency(reg, text, "¢")
-    ), # no cents for yen
-    # for 0 dollar takes priority over cents. just zero dollars
-    # r"#(?! *\d *)",
-    # r"\$(\d+)(\.\d{2})?",
-    # "$": " dollar ",
-    # "£": " pound ",
-    # "€": " euro ",
-    # "¥": " yen ",
-    # cent is the only one that goes before
-    # "¢": " cent ",
-    # take care of this by making the cents .54
-        # should output 54 cents instead of zero dollars and 54 cents
-        # $.54 should also output as 54 cents
-    # test to make sure it should be cents for like yen and pounds
+    ),
 # ---------------------------------------------------------
+    # add: detect phone numbers
     Pattern("dashes that should be minus",
         r"-(?=[0-9])+",
         lambda *_:(" minus ")
     ), # can be done with num2words "cardinal"
-    # add: detect phone numbers
     Pattern("decimals to point for values",
         r"(?<=[0-9])+\.(?=[0-9])+",
         lambda *_:(" point ")
@@ -257,8 +251,8 @@ longReplacePatterns = [
     ),
 # ---------------------------------------------------------
     # abbreviations
+    Pattern("ADHD", r"(?<!a-zA-Z\d)(ADHD)(?![a-zA-Z\d])", lambda*_:" ay dee h dee "),
     Pattern("AFAIK", r"(?<!a-zA-Z\d)(AFAIK)(?![a-zA-Z\d])", lambda*_:" as far as I know "),
-    Pattern("ADHD", r"(?<!a-zA-Z\d)(ADHD)(?![a-zA-Z\d])", lambda*_:" ay dee h "),
     Pattern("AITA", r"(?<!a-zA-Z\d)(AITAH?)(?![a-zA-Z\d])", lambda*_:" am I the asshole "),
     Pattern("AMA", r"(?<!a-zA-Z\d)(AMA)(?![a-zA-Z\d])", lambda*_:" ask me anything "),
     Pattern("ELI5", r"(?<!a-zA-Z\d)(ELI5)(?![a-zA-Z\d])", lambda*_:" explain like I'm 5 "),
