@@ -89,44 +89,10 @@ class Pattern:
             return " ".join(parts)
 
 
-
-# periodPauseDelimiters = ".!&?\n"
-# commaPauseDelimiters  = ",~*()=+\\:;\""
-# spacePauseDelimiters  = " -_></"
 periodPauseDelimiters = (".","!","?","\n","\f","\t","\v")
 commaPauseDelimiters = (",","~","—","(",")",":",";")
-pauseDelimiters = periodPauseDelimiters + commaPauseDelimiters + spacePauseDelimiters
 spacePauseDelimiters = (" ","-","_","/","\\")
-thingy = "zealan"
-escapes = ("""
-Backslash (\)
-~~~\\~~~
-Single quote (')
-~~~\'~~~
-Double quote (")
-~~~\"~~~
-ASCII Bell (BEL)
-~~~\a~~~
-ASCII Backspace (BS)
-~~~\b~~~
-ASCII Formfeed (FF)
-~~~\f~~~
-ASCII Linefeed (LF)
-~~~\n~~~
-ASCII Carriage Return (CR)
-~~aaabcd\refg~~bbbbbbbbbbbbb~
-ASCII Horizontal Tab (TAB)
-~~~\t~~~
-ASCII Vertical Tab
-~~~\v~~~
-that's all folks!
-zombie""")
-print(escapes)
-# class Pause:
-#     def __init__(self):
-#         # self.
-#         pass
-
+pauseDelimiters = periodPauseDelimiters + commaPauseDelimiters + spacePauseDelimiters
 
 
 
