@@ -51,8 +51,8 @@ class Pattern:
     def __init__(self, desc:str, reg:str, replFunc):
         self.desc = desc
         self.reg = reg
-        self.replFunc = lambda text: replFunc(reg,text)
-        # self.search = re.search()
+        self.replFunc = lambda text: replFunc(self.reg,text)
+        self.search = lambda text: re.search(self.reg,text)
     # def search(self,text):
     #     return re.search(self.reg,text)
     def sub(self, text:str, count: int = 0, flags = 0) -> str:
@@ -93,12 +93,35 @@ class Pattern:
 # periodPauseDelimiters = ".!&?\n"
 # commaPauseDelimiters  = ",~*()=+\\:;\""
 # spacePauseDelimiters  = " -_></"
-periodPauseDelimiters = (".","!","?","\n")
+periodPauseDelimiters = (".","!","?","\n","\f","\t","\v")
 commaPauseDelimiters = (",","~","—","(",")",":",";")
-spacePauseDelimiters = (" ","-","_","/","\\")
 pauseDelimiters = periodPauseDelimiters + commaPauseDelimiters + spacePauseDelimiters
-# print(pauseDelimiters)
-
+spacePauseDelimiters = (" ","-","_","/","\\")
+thingy = "zealan"
+escapes = ("""
+Backslash (\)
+~~~\\~~~
+Single quote (')
+~~~\'~~~
+Double quote (")
+~~~\"~~~
+ASCII Bell (BEL)
+~~~\a~~~
+ASCII Backspace (BS)
+~~~\b~~~
+ASCII Formfeed (FF)
+~~~\f~~~
+ASCII Linefeed (LF)
+~~~\n~~~
+ASCII Carriage Return (CR)
+~~aaabcd\refg~~bbbbbbbbbbbbb~
+ASCII Horizontal Tab (TAB)
+~~~\t~~~
+ASCII Vertical Tab
+~~~\v~~~
+that's all folks!
+zombie""")
+print(escapes)
 # class Pause:
 #     def __init__(self):
 #         # self.
@@ -106,33 +129,6 @@ pauseDelimiters = periodPauseDelimiters + commaPauseDelimiters + spacePauseDelim
 
 
 
-specialGroupDict = Pattern.to_Patterns({
-    " misc.": " miscellaneous ",
-    " etc.": " et cetera ",
-    ".com": " dot com",
-    ".org": " dot org",
-    ".net": " dot net",
-    ".edu": " dot ee dee you",
-    ".gov": " dot guv",
-    # can use num2words ordinal for 1st 2nd 3rd etc
-    "1st": " first ",
-    "2nd": " second ",
-    "3rd": " third ",
-    "4th": " fourth ",
-    "5th": " fifth ",
-    "6th": " sixth ",
-    "7th": " seventh ",
-    "8th": " eighth ",
-    "9th": " ninth ",
-    "10th": " tenth ",
-    "°F": " degrees fahrenheit ",
-    "°C": " degrees celsius ",
-    "°K": " degrees kelvin ",
-    "°": " degrees ",
-})
-# tempSpecialGroup = {}
-# for item in specialGroupDict:
-#     print(item)
 
 
 
@@ -304,6 +300,30 @@ replacePatternsOld = [
 #     if(re.search(what[0],qwerty)): print(re.sub(what[0], what[1](qwerty), qwerty))
 
 
+specialGroupDict = Pattern.to_Patterns({
+    " misc.": " miscellaneous ",
+    " etc.": " et cetera ",
+    ".com": " dot com",
+    ".org": " dot org",
+    ".net": " dot net",
+    ".edu": " dot ee dee you",
+    ".gov": " dot guv",
+    # can use num2words ordinal for 1st 2nd 3rd etc
+    "1st": " first ",
+    "2nd": " second ",
+    "3rd": " third ",
+    "4th": " fourth ",
+    "5th": " fifth ",
+    "6th": " sixth ",
+    "7th": " seventh ",
+    "8th": " eighth ",
+    "9th": " ninth ",
+    "10th": " tenth ",
+    "°F": " degrees fahrenheit ",
+    "°C": " degrees celsius ",
+    "°K": " degrees kelvin ",
+    "°": " degrees ",
+})
 
 
 unknownDict = Pattern.to_Patterns({

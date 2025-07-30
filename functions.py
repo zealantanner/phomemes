@@ -94,7 +94,7 @@ def condense_delimiters(text:str):
 def replace_unknowns(text:str) -> str:
     for unknownSymbol in unknownDict:
         search = re.search(unknownSymbol.reg, text)
-        if(search):
+        if(unknownSymbol(text)):
             print(f"replaced \"{search.group()}\" with \"{unknownDict[unknownSymbol]}\"")
             print(f"{unknownSymbol.colorsub}")
             # print(f"{re.split(search.group(), text,1)[0]}{colors.bg.blue}{unknownDict[unknownSymbol]}{colors.reset}{re.split(search.group(), text,1)[-1]}")
@@ -197,7 +197,7 @@ def is_word(s):
 
 
 
-testtext = [
+texting = [
     "electriccompany",
     "begladyournoseisonyourface",
     "$100 $12.34 $1 $1.01 Once. 1:20 pm @ #sussyland #12 #12:03 appleb 12:00 am.com 1st 10th etc. ananacherroy there 12:04 Pm     was a ????????????\\|(so-called) rock. it.,was not! in fact, a big rock.",
@@ -216,7 +216,7 @@ testtext = [
     "12:00 am 3:59a 2:324 pm 13:03 Pm 1:00 am  % 3:59 Pm x3:09 pm 3:09 pme x3:09 pme 3:59 °F"
 ]
 
-print(unconfuse(testtext[15]))
+print(unconfuse(texting[15]))
 # print("cardinal:\t", num2words("-12.31", False, "en", "cardinal"))
 # print("ordinal:\t", num2words("1231", False, "en", "ordinal"))
 # print("ordinal:\t", num2words("1232", False, "en", "ordinal"))

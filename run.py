@@ -40,10 +40,10 @@ if not (inputText == ""):
 	print(convert_to_pronounceable(inputText, method))
 else:
 	print("Choose a number:")
-	for i, text in enumerate(testtext):
+	for i, text in enumerate(texting):
 		print(f"[{1+i}]: \"{text}\"")
 	print("(Enter for 1)")
 	userInput = input()
 	if(userInput == ""):
 		userInput = 1
-	print(convert_to_pronounceable(testtext[int(userInput)-1], method))
+	print(convert_to_pronounceable(texting[int(userInput)-1], method))
