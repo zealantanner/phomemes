@@ -73,7 +73,7 @@ class Pattern:
     class Replacing:
         def time(reg:str, text:str):
             "Replaces valid times"
-            search:str = re.search(reg,text)
+            search = re.search(reg,text)
             parts = [""]
             parts.append(num2words(search.group(1)))
             if int(search.group(2))<10: parts.append("oh")
@@ -96,12 +96,12 @@ class Pattern:
             # return re.sub(reg,change,text)
         def ordinal_number(reg:str, text:str):
             "Replaces ordinal numbers like 1st 2nd 3rd"
-            search:str = re.search(reg,text)
+            search = re.search(reg,text)
             parts = [""]
             parts.append(num2words(search.group()[:-2],False,"en","ordinal"))
             return " ".join(parts)+" "
         def currency(reg:str, text:str, currencySymbol="$"):
-            search:str = re.search(reg,text)
+            search = re.search(reg,text)
             def find_plural(num:int, type:str, is_decimal:bool=False):
                 names = {
                     "$": ["dollars","dollar","cents","cent"],
@@ -151,6 +151,12 @@ class Pattern:
                     parts[1] = num2words(int(search.group(2)))
                     parts[2] = find_plural(int(search.group(2)), currencySymbol)
             return " ".join(parts)
+        
+        def phone_number(reg:str, text:str):
+            search = re.search(reg,text)
+
+            return
+
 
 print(num2words("0.01",False,"en","currency"))
 print(num2words("1",False,"en","currency"))
@@ -203,7 +209,6 @@ longReplacePatterns = [
             flags=re.I | re.X),
         lambda reg, text: Pattern.Replacing.ordinal_number(reg, text)
     ),
-    # num2words("1",False,"en","ordinal")
 # ---------------------------------------------------------
     # currency
     Pattern("$ to dollars",
@@ -227,7 +232,11 @@ longReplacePatterns = [
         lambda reg, text: Pattern.Replacing.currency(reg, text, "¢")
     ),
 # ---------------------------------------------------------
-    # add: detect phone numbers
+    Pattern("phone numbers",
+        r"(?<!\d)(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}(?!\d)",
+        lambda reg, text: Pattern.Replacing.phone_number(reg,text)
+    ),
+# ---------------------------------------------------------
     Pattern("dashes that should be minus",
         r"-(?=[0-9])+",
         lambda *_:(" minus ")
@@ -494,3 +503,10 @@ unknownDict = Pattern.to_Patterns({
 
 
 replacePatterns = unknownDict + specialGroupDict + longReplacePatterns
+
+
+# write a tokenizer which labels which each value is
+# like . would be pause.period
+# ? would be pause.question
+# hello would be word
+# what's for dinner? would be a sentence. the ? would make it a question sentence
