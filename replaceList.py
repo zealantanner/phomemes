@@ -73,7 +73,7 @@ class Pattern:
             )
         return tuple(array)
     class Replacing:
-        def time(reg, text):
+        def time(self, reg, text):
             'Replaces valid times'
             search = re.search(reg,text)
             parts = [""]
@@ -87,26 +87,15 @@ class Pattern:
                     case "pm": parts.append("pee em")
             parts.append("")
             return " ".join(parts)
+        # can I use self.search?
+        def currency(self, reg, text, currency="$"):
+            pass
 
 
 periodPauseDelimiters = (".","!","?","\n","\f","\t","\v")
 commaPauseDelimiters = (",","~","—","(",")",":",";")
 spacePauseDelimiters = (" ","-","_","/","\\")
 pauseDelimiters = periodPauseDelimiters + commaPauseDelimiters + spacePauseDelimiters
-
-
-
-
-
-
-
-print(num2words("1",False,"en","ordinal"))
-        
-
-print(Pattern("asdf",r"asdf",lambda *_:"|||||||").colorsub("jjjjjjjjjjjjjjijijijijijsdfasdf3iojiqoirejq"))
-
-
-
 
 
 replacePatterns = (
@@ -124,39 +113,27 @@ replacePatterns = (
                 )?             # selects am/pm if it's there
             """,
             flags=re.I | re.X),
-            lambda reg, text: Pattern.Replacing.time(reg, text)
-        # lambda reg,text:(
-        #     (" " + num2words(re.search(reg,text).group(1)))
-        #     +
-        #     ( (" " + num2words(re.search(reg,text).group(2))) if int(re.search(reg,text).group(2))>9 else
-        #     ( (" oh " + num2words(re.search(reg,text).group(2))) if int(re.search(reg,text).group(2))>0 else
-        #     ( (" oh clock ") if int(re.search(reg,text).group(2))==0 else None)))
-        #     +
-        #     ((
-        #         (" ay em ") if re.search(reg,text).group(3).lower()=="am" else
-        #         ((" pee em ") if re.search(reg,text).group(3).lower()=="pm" else " "))
-        #     if re.search(reg,text).group(3) else " "
-        #     )
-        # )
+        lambda reg, text: Pattern.Replacing.time(reg, text)
     ),
-    
-    # (" minus " if re.search(r"(?<=-)[0-9]+",x).group() else None)
 # ---------------------------------------------------------
     # Pattern("ordinal numbers, (like 1st 2nd 3rd)",
     #     ,
     #     lambda 
     # ),
-
-
+    # num2words("1",False,"en","ordinal")
 # ---------------------------------------------------------
     Pattern("dashes that should be minus",
         r"-(?=[0-9])+",
         lambda *_:(" minus ")
     ), # can be done with num2words "cardinal"
+    # add: detect phone numbers
     Pattern("decimals to point for values",
         r"(?<=[0-9])+\.(?=[0-9])+",
         lambda text,reg:(" point ")
     ), # can be done with num2words "cardinal"
+    # dont forget multiple points 12.43.5
+    # ([0-9]+)(\.[0-9]+)+
+    # numbers with decimals, 12.34
 # ---------------------------------------------------------
     # "#" can be hashtag or number
     Pattern("# to hashtag",
@@ -169,102 +146,23 @@ replacePatterns = (
     ),
 # ---------------------------------------------------------
     # for prices: (the symbol is pronounced before)
-    # Pattern("$ to singular dollar",
-    #     r"#(?! *\d *)",
-    #     lambda x:(" dollar ")
-    # ),
-    # Pattern("$ to dollar",
-    #     r"\$(\d+)(\.\d{2})?",
-    #     lambda reg,text:(
-    #             re.search(r"\$(\d+)(\.\d{2})?",text,)
-    #         )
-    # ),
-    
+        # make replace function with parameter for the different currencies, like 
+        # def currency(reg, text, currency="$")
+        # match case for each currency
+        # take care of singulars too
+    # r"#(?! *\d *)",
+    # r"\$(\d+)(\.\d{2})?",
     # "$": " dollar ",
-    # $400.23: 400 dollars and 23 cents
-    # $3: 3 dollars
-    #
-
     # "£": " pound ",
     # "€": " euro ",
     # "¥": " yen ",
     # cent is the only one that goes before
     # "¢": " cent ",
-
-    # x = [n for n in range(10)]
+    # take care of this by making the cents .54
+        # should output 54 cents instead of zero dollars and 54 cents
+        # $.54 should also output as 54 cents
+    # test to make sure it should be cents for like yen and pounds
 )
-
-replacePatternsOld = [
-    # am for times
-    [r"(?i)((?<=(?<!\d)[1-9]:[0-5]\d)|(?<=(?<!\d)1[0-2]:[0-5]\d)) *am(?![a-z])",
-        lambda x:(" ay em ")
-    ],
-    # pm for times
-    [r"(?i)((?<=(?<!\d)[1-9]:[0-5]\d)|(?<=(?<!\d)1[0-2]:[0-5]\d)) *pm(?![a-z])",
-        lambda x:(" pee em ")
-    ],
-    # times that end in 00
-    [r"((?<=(?<!\d)[1-9])|(?<=(?<!\d)1[0-2])):00(?!\d)",
-        lambda x:(" oh clock ")
-    ],
-    # times that end in 0[1-9]
-    [r"((?<=(?<!\d)[1-9])|(?<=(?<!\d)1[0-2])):0(?=[1-9](?!\d))",
-        lambda x:(" oh ")
-    ],
-    # times that end in [1-5][0-9]
-    [r"((?<=(?<!\d)[1-9])|(?<=(?<!\d)1[0-2])):(?=[1-5][0-9](?!\d))",
-        lambda x:(" ")
-    ],
-    # dash minus
-    [r"-(?=[0-9])+",
-        lambda x:(" minus ") 
-    ],
-    # decimals, make the . in 13.35 or in 13.35.47.57 to dot
-    [r"(?<=[0-9])+\.(?=[0-9])+",
-        lambda x:(" point ")
-    ],
-    # ([0-9]+)(\.[0-9]+)+
-    # numbers with decimals, 12.34
-    # negative numbers -1123.45
-        # but not using - as minus like this 123-324
-    # multiple points 12.43.5
-    # x = [n for n in range(10)]
-
-    # ------------
-    # # can be hashtag or number
-
-
-    # ------------
-
-    # prices: the symbol is pronounced before
-    
-    # "$": " dollar ",
-    # $400.23: 400 dollars and 23 cents
-    # $3: 3 dollars
-    #
-
-    # "£": " pound ",
-    # "€": " euro ",
-    # "¥": " yen ",
-    # cent is the only one that goes before
-    # "¢": " cent ",
-
-]
-
-
-
-
-# qwerty = "I go to the mall at 4:32 pm after work"
-# print(
-#     map(
-#         x[1],
-#         re.sub(x[0], x[1](qwerty), qwerty) if(re.search(x[0],qwerty))
-#         ) for x in replaceTime
-#     )
-
-# for what in replaceTime:
-#     if(re.search(what[0],qwerty)): print(re.sub(what[0], what[1](qwerty), qwerty))
-
 
 specialGroupDict = Pattern.to_Patterns({
     " misc.": " miscellaneous ",
@@ -285,6 +183,7 @@ specialGroupDict = Pattern.to_Patterns({
     "8th": " eighth ",
     "9th": " ninth ",
     "10th": " tenth ",
+    # make degrees into a function that checks for °[FCK]
     "°F": " degrees fahrenheit ",
     "°C": " degrees celsius ",
     "°K": " degrees kelvin ",
