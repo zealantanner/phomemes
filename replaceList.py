@@ -74,17 +74,16 @@ class Pattern:
         def time(reg:str, text:str):
             "Replaces valid times"
             search = re.search(reg,text)
-            parts = [""]
+            parts = ["","","","","",""]
             parts.append(num2words(search.group(1)))
             if int(search.group(2))<10: parts.append("oh")
             if int(search.group(2))==0: parts.append("clock")
             if int(search.group(2))!=0: parts.append(num2words(search.group(2)))
             if search.group(3):
                 match search.group(3).lower():
-                    case "am": parts.append("ay em")
-                    case "pm": parts.append("pee em")
-            parts.append("")
-            return " ".join(parts)
+                    case "am": parts.append("A M")
+                    case "pm": parts.append("P M")
+            return " " + " ".join(parts) + " "
         # can I use self.search?
         # class number:
         def number_commas(reg:str, text:str):
@@ -97,10 +96,11 @@ class Pattern:
         def ordinal_number(reg:str, text:str):
             "Replaces ordinal numbers like 1st 2nd 3rd"
             search = re.search(reg,text)
-            parts = [""]
+            parts = ["","","","","",""]
             parts.append(num2words(search.group()[:-2],False,"en","ordinal"))
-            return " ".join(parts)+" "
+            return " " + " ".join(parts) + " "
         def currency(reg:str, text:str, currencySymbol="$"):
+            "Replaces currencies"
             search = re.search(reg,text)
             def find_plural(num:int, type:str, is_decimal:bool=False):
                 names = {
@@ -150,18 +150,25 @@ class Pattern:
                 case "¢"|"¥":
                     parts[1] = num2words(int(search.group(2)))
                     parts[2] = find_plural(int(search.group(2)), currencySymbol)
-            return " ".join(parts)
+            return " " + " ".join(parts) + " "
         
         def phone_number(reg:str, text:str):
             search = re.search(reg,text)
-
-            return
-
-
-print(num2words("0.01",False,"en","currency"))
-print(num2words("1",False,"en","currency"))
-print(num2words("23",False,"en","currency"))
-print(num2words("0123"))
+            return " " + " ".join(map(num2words,re.findall(r"\d",search.group()))) + " "
+        
+        def number(reg:str, text:str):
+            search = re.search(reg,text)
+            parts = ""
+            if(float(search.group())==0): # any number that's zero, 0, 0.00, .00
+                parts = num2words(0,False,"en","cardinal")
+            else:                         # not = 0
+                if(search.group(2)): # (0).231, -(3).1, (3), (0)
+                    if(int(search.group(2))!=0): # -(3).1, (3), -(4).32136, (5)
+                        parts = num2words(float(search.group()),False,"en","cardinal")
+                        # parts[1] = num2words(0)
+                    if(int(search.group(2))==0): # -(0).1, (0).3213,
+                        parts = "".join(num2words(float(search.group())).split("zero",1))
+            return " " + parts + " "
 
 periodPauseDelimiters = (".","!","?","\n","\f","\t","\v")
 commaPauseDelimiters = (",","~","—","(",")",":",";")
@@ -199,9 +206,9 @@ longReplacePatterns = [
                 (              # group
                     (?<!1)         # not 11st 12nd 13rd
                     (1st|2nd|3rd)  # 1st 2nd 3rd
-                |              # or
+                    |              # or
                     [04-9]th       # 0th 4th-9th
-                |              # or
+                    |              # or
                     1[1-3]th       # 11th 12th 13th
                 )
                 (?![a-z])      # no letters after
@@ -237,93 +244,128 @@ longReplacePatterns = [
         lambda reg, text: Pattern.Replacing.phone_number(reg,text)
     ),
 # ---------------------------------------------------------
-    Pattern("dashes that should be minus",
-        r"-(?=[0-9])+",
-        lambda *_:(" minus ")
-    ), # can be done with num2words "cardinal"
-    Pattern("decimals to point for values",
-        r"(?<=[0-9])+\.(?=[0-9])+",
-        lambda *_:(" point ")
-    ), # can be done with num2words "cardinal"
+    # "#" can be hashtag or number
+    Pattern("# to \"hashtag\"",
+        r"#(?! *\d *)",
+        lambda*_:(" hashtag ")
+    ),
+    Pattern("# to \"number\"",
+        r"#(?= *\d)",
+        lambda*_:(" number ")
+    ),
+# ---------------------------------------------------------
+    # numbers, can be negative or have decimal
+    Pattern("numbers",
+        r"-?((\d+)(\.(\d+))?|(\.(\d+)))",
+        lambda reg, text: Pattern.Replacing.number(reg,text)
+    ),
+    # Pattern("dashes that should be minus",
+    #     r"-(?=[0-9])+",
+    #     lambda*_:(" minus ")
+    # ), # can be done with num2words "cardinal"
+    # Pattern("decimals to point for values",
+    #     r"(?<=[0-9])+\.(?=[0-9])+",
+    #     lambda*_:(" point ")
+    # ), # can be done with num2words "cardinal"
     # dont forget multiple points 12.43.5
     # ([0-9]+)(\.[0-9]+)+
     # numbers with decimals, 12.34
 # ---------------------------------------------------------
-    # "#" can be hashtag or number
-    Pattern("# to hashtag",
-        r"#(?! *\d *)",
-        lambda *_:(" hashtag ")
-    ),
-    Pattern("# to number",
-        r"#(?= *\d)",
-        lambda *_:(" number ")
-    ),
+    # common characters
+    Pattern("@ to at", r"@", lambda*_:" at "),
+    Pattern("% to percent", r"%", lambda*_:" percent "),
+    Pattern("& to and", r"&", lambda*_:" and "),
+    Pattern("* to asterisk", r"\*", lambda*_:" asterisk "),
+    Pattern("+ to plus", r"\+", lambda*_:" plus "),
+    Pattern("> to is greater than", r">", lambda*_:" is greater than "),
+    Pattern("< to is less than", r"<", lambda*_:" is less than "),
+    Pattern("= to equals", r"=", lambda*_:" equals "),
 # ---------------------------------------------------------
     # abbreviations
-    Pattern("ADHD", r"(?<!a-zA-Z\d)(ADHD)(?![a-zA-Z\d])", lambda*_:" ay dee h dee "),
+    Pattern("ADHD", r"(?<!a-zA-Z\d)(ADHD)(?![a-zA-Z\d])", lambda*_:" A D H D "),
     Pattern("AFAIK", r"(?<!a-zA-Z\d)(AFAIK)(?![a-zA-Z\d])", lambda*_:" as far as I know "),
-    Pattern("AITA", r"(?<!a-zA-Z\d)(AITAH?)(?![a-zA-Z\d])", lambda*_:" am I the asshole "),
-    Pattern("AMA", r"(?<!a-zA-Z\d)(AMA)(?![a-zA-Z\d])", lambda*_:" ask me anything "),
-    Pattern("ELI5", r"(?<!a-zA-Z\d)(ELI5)(?![a-zA-Z\d])", lambda*_:" explain like I'm 5 "),
+    Pattern("ADOFAI", r"(?<!a-zA-Z\d)(ADOFAI)(?![a-zA-Z\d])", lambda*_:" a dance of fire and ice "),
+    Pattern("AKA", r"(?<!a-zA-Z\d)(AKA)(?![a-zA-Z\d])", lambda*_:" also known as "),
+    Pattern("ASAP", r"(?<!a-zA-Z\d)(ASAP)(?![a-zA-Z\d])", lambda*_:" as soon as possible "),
+    Pattern("ASL", r"(?<!a-zA-Z\d)(ASL)(?![a-zA-Z\d])", lambda*_:" American sign language "),
+    Pattern("ASMR", r"(?<!a-zA-Z\d)(ASMR)(?![a-zA-Z\d])", lambda*_:" A S M R "),
+    Pattern("BFF", r"(?<!a-zA-Z\d)(BFF)(?![a-zA-Z\d])", lambda*_:" best friends forever "),
+    Pattern("BTW", r"(?<!a-zA-Z\d)(BTW)(?![a-zA-Z\d])", lambda*_:" by the way "),
+    Pattern("FPS", r"(?<!a-zA-Z\d)(FPS)(?![a-zA-Z\d])", lambda*_:" by the way "),
     Pattern("IIRC", r"(?<!a-zA-Z\d)(IIRC)(?![a-zA-Z\d])", lambda*_:" if I remember correctly "),
-    Pattern("IMO", r"(?<!a-zA-Z\d)(IMO)(?![a-zA-Z\d])", lambda*_:" in my opinion "),
     Pattern("IMHO", r"(?<!a-zA-Z\d)(IMHO)(?![a-zA-Z\d])", lambda*_:" in my honest opinion "),
+    Pattern("IMO", r"(?<!a-zA-Z\d)(IMO)(?![a-zA-Z\d])", lambda*_:" in my opinion "),
     Pattern("IRL", r"(?<!a-zA-Z\d)(IRL)(?![a-zA-Z\d])", lambda*_:" in real life "),
-    Pattern("IRL", r"(?<!a-zA-Z\d)(IRL)(?![a-zA-Z\d])", lambda*_:" in real life "),
-    Pattern("NSFL", r"(?<!a-zA-Z\d)(NSFL)(?![a-zA-Z\d])", lambda*_:" not safe for life "),
-    Pattern("NSFW", r"(?<!a-zA-Z\d)(NSFW)(?![a-zA-Z\d])", lambda*_:" not safe for work "),
-    Pattern("TIFU", r"(?<!a-zA-Z\d)(TIFU)(?![a-zA-Z\d])", lambda*_:" today I fucked up "),
     Pattern("TIL", r"(?<!a-zA-Z\d)(TIL)(?![a-zA-Z\d])", lambda*_:" today I learned "),
     Pattern("TL;DR", r"(?<!a-zA-Z\d)(TL;?DR)(?![a-zA-Z\d])", lambda*_:" too long; didn't read "),
+    Pattern("URL", r"(?<!a-zA-Z\d)(URL)(?![a-zA-Z\d])", lambda*_:" U R L "),
     Pattern("WIP", r"(?<!a-zA-Z\d)(WIP)(?![a-zA-Z\d])", lambda*_:" work in progress "),
     Pattern("YSK", r"(?<!a-zA-Z\d)(YSK)(?![a-zA-Z\d])", lambda*_:" you should know "),
+# ---------------------------------------------------------
+    Pattern("BMP", re.compile(r"(?<!a-z\d)(BMP)(?![a-z\d])",flags=re.I), lambda*_:" bitmap "),
+    Pattern(".BMP", re.compile(r"(\.BMP)(?![a-z\d])",flags=re.I), lambda*_:" dot bitmap "),
+    Pattern("CSS", re.compile(r"(?<!a-z\d)(CSS)(?![a-z\d])",flags=re.I), lambda*_:" C S S "),
+    Pattern(".CSS", re.compile(r"(\.CSS)(?![a-z\d])",flags=re.I), lambda*_:" dot C S S "),
+    Pattern("EXE", re.compile(r"(?<!a-z\d)(EXE)(?![a-z\d])",flags=re.I), lambda*_:" executable "),
+    Pattern(".EXE", re.compile(r"(\.EXE)(?![a-z\d])",flags=re.I), lambda*_:" dot executable "),
+    Pattern("JPG", re.compile(r"(?<!a-z\d)(JPE?G)(?![a-z\d])",flags=re.I), lambda*_:" J peg "),
+    Pattern(".JPG", re.compile(r"(\.JPE?G)(?![a-z\d])",flags=re.I), lambda*_:" dot J peg "),
+    Pattern("JSON", re.compile(r"(?<!a-z\d)(JSON)(?![a-z\d])",flags=re.I), lambda*_:" J son "),
+    Pattern(".JSON", re.compile(r"(\.JSON)(?![a-z\d])",flags=re.I), lambda*_:" dot J son "),
+    Pattern("GIF", re.compile(r"(?<!a-z\d)(GIF)(?![a-z\d])",flags=re.I), lambda*_:" gif "),
+    Pattern(".GIF", re.compile(r"(\.GIF)(?![a-z\d])",flags=re.I), lambda*_:" dot gif "),
+    Pattern("HTML", re.compile(r"(?<!a-z\d)(HTML)(?![a-z\d])",flags=re.I), lambda*_:" H T M L "),
+    Pattern(".HTML", re.compile(r"(\.HTML)(?![a-z\d])",flags=re.I), lambda*_:" dot H T M L "),
+    Pattern("MP3", re.compile(r"(?<!a-z\d)(MP3)(?![a-z\d])",flags=re.I), lambda*_:" M P three "),
+    Pattern(".MP3", re.compile(r"(\.MP3)(?![a-z\d])",flags=re.I), lambda*_:" dot M P three "),
+    Pattern("MP4", re.compile(r"(?<!a-z\d)(MP4)(?![a-z\d])",flags=re.I), lambda*_:" M P four "),
+    Pattern(".MP4", re.compile(r"(\.MP4)(?![a-z\d])",flags=re.I), lambda*_:" dot M P four "),
+    Pattern("PDF", re.compile(r"(?<!a-z\d)(PDF)(?![a-z\d])",flags=re.I), lambda*_:" P D F "),
+    Pattern(".PDF", re.compile(r"(\.PDF)(?![a-z\d])",flags=re.I), lambda*_:" dot P D F "),
+    Pattern("PNG", re.compile(r"(?<!a-z\d)(PNG)(?![a-z\d])",flags=re.I), lambda*_:" P N G "),
+    Pattern(".PNG", re.compile(r"(\.PNG)(?![a-z\d])",flags=re.I), lambda*_:" dot P N G "),
+    Pattern("PY", re.compile(r"(?<!a-z\d)(PY)(?![a-z\d])",flags=re.I), lambda*_:" python "),
+    Pattern(".PY", re.compile(r"(\.PY)(?![a-z\d])",flags=re.I), lambda*_:" dot python "),
+    Pattern("TXT", re.compile(r"(?<!a-z\d)(TXT)(?![a-z\d])",flags=re.I), lambda*_:" text "),
+    Pattern(".TXT", re.compile(r"(\.TXT)(?![a-z\d])",flags=re.I), lambda*_:" dot text "),
+    Pattern("WAV", re.compile(r"(?<!a-z\d)(WAV)(?![a-z\d])",flags=re.I), lambda*_:" wav "),
+    Pattern(".WAV", re.compile(r"(\.WAV)(?![a-z\d])",flags=re.I), lambda*_:" dot wav "),
+    Pattern("WEBP", re.compile(r"(?<!a-z\d)(WEBP)(?![a-z\d])",flags=re.I), lambda*_:" web P "),
+    Pattern(".WEBP", re.compile(r"(\.WEBP)(?![a-z\d])",flags=re.I), lambda*_:" dot web P "),
+    Pattern("ZIP", re.compile(r"(?<!a-z\d)(ZIP)(?![a-z\d])",flags=re.I), lambda*_:" zip "),
+    Pattern(".ZIP", re.compile(r"(\.ZIP)(?![a-z\d])",flags=re.I), lambda*_:" dot zip "),
+
+
+
+    Pattern("misc.", r"(?<![a-z\d])misc\.", lambda*_:" miscellaneous "),
+    # BMP CSS EXE JPG JPEG JSON GIF HTML MP3 MP4 PDF PNG PY TXT WAV ZIP webp
+    # URL C++
+    Pattern("etc.", r"(?<![a-z\d])etc\.", lambda*_:" et cetera "),
+    
+    Pattern(".com", r"\.com(?![a-z])", lambda*_:" dot com "),
+    Pattern(".org", r"\.org(?![a-z])", lambda*_:" dot org "),
+    Pattern(".net", r"\.net(?![a-z])", lambda*_:" dot net "),
+    Pattern(".edu", r"\.edu(?![a-z])", lambda*_:" dot E D U "),
+    Pattern(".gov", r"\.gov(?![a-z])", lambda*_:" dot gov "),
+    # make degrees into a function that checks for °[FCK]
+    Pattern("°F", r"°F", lambda*_:" degrees fahrenheit "),
+    Pattern("°C", r"°C", lambda*_:" degrees celsius "),
+    Pattern("°K", r"°K", lambda*_:" degrees kelvin "),
+    Pattern("°", r"°", lambda*_:" degrees "),
 
 ]
 
 
-specialGroupDict = Pattern.to_Patterns({
-    # for abbrevations instead of just space and teh beginning, look for:
-        # space, start of string, 
-    " misc.": " miscellaneous.",
-    " etc.": " et cetera.",
-    
-    ".com": " dot com",
-    ".org": " dot org",
-    ".net": " dot net",
-    ".edu": " dot ee dee you",
-    ".gov": " dot guv",
-    # can use num2words ordinal for 1st 2nd 3rd etc
-    # "1st": " first ",
-    # "2nd": " second ",
-    # "3rd": " third ",
-    # "4th": " fourth ",
-    # "5th": " fifth ",
-    # "6th": " sixth ",
-    # "7th": " seventh ",
-    # "8th": " eighth ",
-    # "9th": " ninth ",
-    # "10th": " tenth ",
-    # make degrees into a function that checks for °[FCK]
-    "°F": " degrees fahrenheit ",
-    "°C": " degrees celsius ",
-    "°K": " degrees kelvin ",
-    "°": " degrees ",
-})
+# specialGroupDict = Pattern.to_Patterns({
+#     # for abbrevations instead of just space and teh beginning, look for:
+#         # space, start of string, 
+# })
 
 
 unknownDict = Pattern.to_Patterns({
-    "@": " at ",
-    "%": " percent ",
-    "&": " and ",
-    "*": " asterisk ",
-
-    ">": " is greater than ",
-    "<": " is less than ",
     "≥": " is greater than or equal to ",
     "≤": " is less than or equal to ",
-    "=": " equals ",
     "≠": " does not equal ",
-    "+": " plus ",
     "±": " plus or minus ",
     "∞": " infinity ",
     "π": " pi ",
@@ -502,7 +544,7 @@ unknownDict = Pattern.to_Patterns({
 })
 
 
-replacePatterns = unknownDict + specialGroupDict + longReplacePatterns
+replacePatterns = unknownDict + longReplacePatterns
 
 
 # write a tokenizer which labels which each value is
