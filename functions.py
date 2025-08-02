@@ -39,7 +39,6 @@ class Pause:
     def __str__(self):
         return self
     
-
     
 
 delimiters = periodPauseDelimiters+commaPauseDelimiters+spacePauseDelimiters
@@ -193,24 +192,20 @@ texting = [
 ]
 
 print(unconfuse(texting[15]))
+
 print(p.ipa_list("gov"))
-print(p.ipa_list("et"))
+# print(p.ipa_list("et"))
 print(p.ipa_list("cetera"))
 print(p.ipa_list("gif"))
-print(p.ipa_list("wav"))
-print(p.ipa_list("a")) # is it ay or uh
-
-print(p.get_all("read"))
-print(p.convert("read"))
-# print("cardinal:\t", num2words("-12.31", False, "en", "cardinal"))
-# print("ordinal:\t", num2words("1231", False, "en", "ordinal"))
-# print("ordinal:\t", num2words("1232", False, "en", "ordinal"))
-# print("ordinal:\t", num2words("1233", False, "en", "ordinal"))
-# print("ordinal:\t", num2words("1230", False, "en", "ordinal"))
-# # print("ordinal_num:\t", num2words("121", False, "en", "ordinal_num"))
+print(p.ipa_list("thy"))
+print(p.ipa_list("them"))
+print(p.convert("I read a book last week"))
+# print(p.ipa_list("wav"))
+# print(p.ipa_list("a")) # is it ay or uh
+# print(p.get_all("read"))
+# print(p.convert("read"))
 # # print("year:\t", num2words("2025", False, "en", "year"))
 # print("currency:\t", num2words("-12.31", False, "en", "currency"))
-
 
 # l=re.split(r"\b",testtext)
 # print([replaceDelimiters(token) for token in re.split(r"\b",testtext) if token!=""])

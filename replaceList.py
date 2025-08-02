@@ -48,7 +48,7 @@ class colors:
         return f"{color}{text}{colors.reset}"
 
 class Pattern:
-    def __init__(self, desc:str, reg:str, replFunc):
+    def __init__(self, desc:str, reg:str, replFunc, isAlreadyIPA:bool=False):
         self.desc = desc
         self.reg = reg
         self.replFunc = lambda text: replFunc(reg,text)
@@ -71,7 +71,7 @@ class Pattern:
             )
         return array
     class Replacing:
-        def time(reg:str, text:str):
+        def time(reg:str, text:str): # 1:32 3:00 am 12:63
             "Replaces valid times"
             search = re.search(reg,text)
             parts = ["","","","","",""]
@@ -174,7 +174,7 @@ periodPauseDelimiters = (".","!","?","\n","\f","\t","\v")
 commaPauseDelimiters = (",","~","—","(",")",":",";")
 spacePauseDelimiters = (" ","-","_","/","\\")
 pauseDelimiters = periodPauseDelimiters + commaPauseDelimiters + spacePauseDelimiters
-
+# use | to symbolize a nothing symbol
 
 longReplacePatterns = [
     Pattern("replace all valid times",
@@ -255,7 +255,7 @@ longReplacePatterns = [
     ),
 # ---------------------------------------------------------
     # numbers, can be negative or have decimal
-    Pattern("numbers",
+    Pattern("numbers", # this should go after mp3
         r"-?((\d+)(\.(\d+))?|(\.(\d+)))",
         lambda reg, text: Pattern.Replacing.number(reg,text)
     ),
@@ -282,61 +282,62 @@ longReplacePatterns = [
     Pattern("= to equals", r"=", lambda*_:" equals "),
 # ---------------------------------------------------------
     # abbreviations
-    Pattern("ADHD", r"(?<!a-zA-Z\d)(ADHD)(?![a-zA-Z\d])", lambda*_:" A D H D "),
-    Pattern("AFAIK", r"(?<!a-zA-Z\d)(AFAIK)(?![a-zA-Z\d])", lambda*_:" as far as I know "),
-    Pattern("ADOFAI", r"(?<!a-zA-Z\d)(ADOFAI)(?![a-zA-Z\d])", lambda*_:" a dance of fire and ice "),
-    Pattern("AKA", r"(?<!a-zA-Z\d)(AKA)(?![a-zA-Z\d])", lambda*_:" also known as "),
-    Pattern("ASAP", r"(?<!a-zA-Z\d)(ASAP)(?![a-zA-Z\d])", lambda*_:" as soon as possible "),
-    Pattern("ASL", r"(?<!a-zA-Z\d)(ASL)(?![a-zA-Z\d])", lambda*_:" American sign language "),
-    Pattern("ASMR", r"(?<!a-zA-Z\d)(ASMR)(?![a-zA-Z\d])", lambda*_:" A S M R "),
-    Pattern("BFF", r"(?<!a-zA-Z\d)(BFF)(?![a-zA-Z\d])", lambda*_:" best friends forever "),
-    Pattern("BTW", r"(?<!a-zA-Z\d)(BTW)(?![a-zA-Z\d])", lambda*_:" by the way "),
-    Pattern("FPS", r"(?<!a-zA-Z\d)(FPS)(?![a-zA-Z\d])", lambda*_:" by the way "),
-    Pattern("IIRC", r"(?<!a-zA-Z\d)(IIRC)(?![a-zA-Z\d])", lambda*_:" if I remember correctly "),
-    Pattern("IMHO", r"(?<!a-zA-Z\d)(IMHO)(?![a-zA-Z\d])", lambda*_:" in my honest opinion "),
-    Pattern("IMO", r"(?<!a-zA-Z\d)(IMO)(?![a-zA-Z\d])", lambda*_:" in my opinion "),
-    Pattern("IRL", r"(?<!a-zA-Z\d)(IRL)(?![a-zA-Z\d])", lambda*_:" in real life "),
-    Pattern("TIL", r"(?<!a-zA-Z\d)(TIL)(?![a-zA-Z\d])", lambda*_:" today I learned "),
-    Pattern("TL;DR", r"(?<!a-zA-Z\d)(TL;?DR)(?![a-zA-Z\d])", lambda*_:" too long; didn't read "),
-    Pattern("URL", r"(?<!a-zA-Z\d)(URL)(?![a-zA-Z\d])", lambda*_:" U R L "),
-    Pattern("WIP", r"(?<!a-zA-Z\d)(WIP)(?![a-zA-Z\d])", lambda*_:" work in progress "),
-    Pattern("YSK", r"(?<!a-zA-Z\d)(YSK)(?![a-zA-Z\d])", lambda*_:" you should know "),
+    Pattern("ADHD", r"(?<![a-z\d])(ADHD)(?![a-z\d])", lambda*_:" A D H D "),
+    Pattern("AFAIK", r"(?<![a-z\d])(AFAIK)(?![a-z\d])", lambda*_:" as far as I know "),
+    Pattern("ADOFAI", r"(?<![a-z\d])(ADOFAI)(?![a-z\d])", lambda*_:" a dance of fire and ice "),
+    Pattern("AKA", r"(?<![a-z\d])(AKA)(?![a-z\d])", lambda*_:" also known as "),
+    Pattern("ASAP", r"(?<![a-z\d])(ASAP)(?![a-z\d])", lambda*_:" as soon as possible "),
+    Pattern("ASL", r"(?<![a-z\d])(ASL)(?![a-z\d])", lambda*_:" American sign language "),
+    Pattern("ASMR", r"(?<![a-z\d])(ASMR)(?![a-z\d])", lambda*_:" A S M R "),
+    Pattern("BFF", r"(?<![a-z\d])(BFF)(?![a-z\d])", lambda*_:" best friends forever "),
+    Pattern("BTW", r"(?<![a-z\d])(BTW)(?![a-z\d])", lambda*_:" by the way "),
+    Pattern("FPS", r"(?<![a-z\d])(FPS)(?![a-z\d])", lambda*_:" frames per second "),
+    Pattern("IIRC", r"(?<![a-z\d])(IIRC)(?![a-z\d])", lambda*_:" if I remember correctly "),
+    Pattern("IMHO", r"(?<![a-z\d])(IMHO)(?![a-z\d])", lambda*_:" in my honest opinion "),
+    Pattern("IMO", r"(?<![a-z\d])(IMO)(?![a-z\d])", lambda*_:" in my opinion "),
+    Pattern("IRL", r"(?<![a-z\d])(IRL)(?![a-z\d])", lambda*_:" in real life "),
+    Pattern("TIL", r"(?<![a-z\d])(TIL)(?![a-z\d])", lambda*_:" today I learned "),
+    Pattern("TL;DR", r"(?<![a-z\d])(TL;?DR)(?![a-z\d])", lambda*_:" too long; didn't read "),
+    Pattern("URL", r"(?<![a-z\d])(URL)(?![a-z\d])", lambda*_:" U R L "),
+    Pattern("WIP", r"(?<![a-z\d])(WIP)(?![a-z\d])", lambda*_:" work in progress "),
+    Pattern("YSK", r"(?<![a-z\d])(YSK)(?![a-z\d])", lambda*_:" you should know "),
 # ---------------------------------------------------------
-    Pattern("BMP", re.compile(r"(?<!a-z\d)(BMP)(?![a-z\d])",flags=re.I), lambda*_:" bitmap "),
+    Pattern("BMP", re.compile(r"(?<![a-z\d])(BMP)(?![a-z\d])",flags=re.I), lambda*_:" bitmap "),
     Pattern(".BMP", re.compile(r"(\.BMP)(?![a-z\d])",flags=re.I), lambda*_:" dot bitmap "),
-    Pattern("CSS", re.compile(r"(?<!a-z\d)(CSS)(?![a-z\d])",flags=re.I), lambda*_:" C S S "),
+    Pattern("CSS", re.compile(r"(?<![a-z\d])(CSS)(?![a-z\d])",flags=re.I), lambda*_:" C S S "),
     Pattern(".CSS", re.compile(r"(\.CSS)(?![a-z\d])",flags=re.I), lambda*_:" dot C S S "),
-    Pattern("EXE", re.compile(r"(?<!a-z\d)(EXE)(?![a-z\d])",flags=re.I), lambda*_:" executable "),
+    Pattern("EXE", re.compile(r"(?<![a-z\d])(EXE)(?![a-z\d])",flags=re.I), lambda*_:" executable "),
     Pattern(".EXE", re.compile(r"(\.EXE)(?![a-z\d])",flags=re.I), lambda*_:" dot executable "),
-    Pattern("JPG", re.compile(r"(?<!a-z\d)(JPE?G)(?![a-z\d])",flags=re.I), lambda*_:" J peg "),
+    Pattern("JPG", re.compile(r"(?<![a-z\d])(JPE?G)(?![a-z\d])",flags=re.I), lambda*_:" J peg "),
     Pattern(".JPG", re.compile(r"(\.JPE?G)(?![a-z\d])",flags=re.I), lambda*_:" dot J peg "),
-    Pattern("JSON", re.compile(r"(?<!a-z\d)(JSON)(?![a-z\d])",flags=re.I), lambda*_:" J son "),
+    Pattern("JSON", re.compile(r"(?<![a-z\d])(JSON)(?![a-z\d])",flags=re.I), lambda*_:" J son "),
     Pattern(".JSON", re.compile(r"(\.JSON)(?![a-z\d])",flags=re.I), lambda*_:" dot J son "),
-    Pattern("GIF", re.compile(r"(?<!a-z\d)(GIF)(?![a-z\d])",flags=re.I), lambda*_:" gif "),
+    Pattern("GIF", re.compile(r"(?<![a-z\d])(GIF)(?![a-z\d])",flags=re.I), lambda*_:" gif "),
     Pattern(".GIF", re.compile(r"(\.GIF)(?![a-z\d])",flags=re.I), lambda*_:" dot gif "),
-    Pattern("HTML", re.compile(r"(?<!a-z\d)(HTML)(?![a-z\d])",flags=re.I), lambda*_:" H T M L "),
+    Pattern("HTML", re.compile(r"(?<![a-z\d])(HTML)(?![a-z\d])",flags=re.I), lambda*_:" H T M L "),
     Pattern(".HTML", re.compile(r"(\.HTML)(?![a-z\d])",flags=re.I), lambda*_:" dot H T M L "),
-    Pattern("MP3", re.compile(r"(?<!a-z\d)(MP3)(?![a-z\d])",flags=re.I), lambda*_:" M P three "),
+    Pattern("MP3", re.compile(r"(?<![a-z\d])(MP3)(?![a-z\d])",flags=re.I), lambda*_:" M P three "),
     Pattern(".MP3", re.compile(r"(\.MP3)(?![a-z\d])",flags=re.I), lambda*_:" dot M P three "),
-    Pattern("MP4", re.compile(r"(?<!a-z\d)(MP4)(?![a-z\d])",flags=re.I), lambda*_:" M P four "),
+    Pattern("MP4", re.compile(r"(?<![a-z\d])(MP4)(?![a-z\d])",flags=re.I), lambda*_:" M P four "),
     Pattern(".MP4", re.compile(r"(\.MP4)(?![a-z\d])",flags=re.I), lambda*_:" dot M P four "),
-    Pattern("PDF", re.compile(r"(?<!a-z\d)(PDF)(?![a-z\d])",flags=re.I), lambda*_:" P D F "),
+    Pattern("PDF", re.compile(r"(?<![a-z\d])(PDF)(?![a-z\d])",flags=re.I), lambda*_:" P D F "),
     Pattern(".PDF", re.compile(r"(\.PDF)(?![a-z\d])",flags=re.I), lambda*_:" dot P D F "),
-    Pattern("PNG", re.compile(r"(?<!a-z\d)(PNG)(?![a-z\d])",flags=re.I), lambda*_:" P N G "),
+    Pattern("PNG", re.compile(r"(?<![a-z\d])(PNG)(?![a-z\d])",flags=re.I), lambda*_:" P N G "),
     Pattern(".PNG", re.compile(r"(\.PNG)(?![a-z\d])",flags=re.I), lambda*_:" dot P N G "),
-    Pattern("PY", re.compile(r"(?<!a-z\d)(PY)(?![a-z\d])",flags=re.I), lambda*_:" python "),
+    Pattern("PY", re.compile(r"(?<![a-z\d])(PY)(?![a-z\d])",flags=re.I), lambda*_:" python "),
     Pattern(".PY", re.compile(r"(\.PY)(?![a-z\d])",flags=re.I), lambda*_:" dot python "),
-    Pattern("TXT", re.compile(r"(?<!a-z\d)(TXT)(?![a-z\d])",flags=re.I), lambda*_:" text "),
+    Pattern("TXT", re.compile(r"(?<![a-z\d])(TXT)(?![a-z\d])",flags=re.I), lambda*_:" text "),
     Pattern(".TXT", re.compile(r"(\.TXT)(?![a-z\d])",flags=re.I), lambda*_:" dot text "),
-    Pattern("WAV", re.compile(r"(?<!a-z\d)(WAV)(?![a-z\d])",flags=re.I), lambda*_:" wav "),
+    Pattern("WAV", re.compile(r"(?<![a-z\d])(WAV)(?![a-z\d])",flags=re.I), lambda*_:" wav "),
     Pattern(".WAV", re.compile(r"(\.WAV)(?![a-z\d])",flags=re.I), lambda*_:" dot wav "),
-    Pattern("WEBP", re.compile(r"(?<!a-z\d)(WEBP)(?![a-z\d])",flags=re.I), lambda*_:" web P "),
+    Pattern("WEBP", re.compile(r"(?<![a-z\d])(WEBP)(?![a-z\d])",flags=re.I), lambda*_:" web P "),
     Pattern(".WEBP", re.compile(r"(\.WEBP)(?![a-z\d])",flags=re.I), lambda*_:" dot web P "),
-    Pattern("ZIP", re.compile(r"(?<!a-z\d)(ZIP)(?![a-z\d])",flags=re.I), lambda*_:" zip "),
+    Pattern("ZIP", re.compile(r"(?<![a-z\d])(ZIP)(?![a-z\d])",flags=re.I), lambda*_:" zip "),
     Pattern(".ZIP", re.compile(r"(\.ZIP)(?![a-z\d])",flags=re.I), lambda*_:" dot zip "),
 
-
-
+    Pattern("T", re.compile(r"(\.ZIP)(?![a-z\d])",flags=re.I), lambda*_:" dot zip "),
+    # mc tf2
+    # add gif by writing custom ipa, have valid word checker skip over
     Pattern("misc.", r"(?<![a-z\d])misc\.", lambda*_:" miscellaneous "),
     # BMP CSS EXE JPG JPEG JSON GIF HTML MP3 MP4 PDF PNG PY TXT WAV ZIP webp
     # URL C++
