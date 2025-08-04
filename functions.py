@@ -6,38 +6,67 @@ from replaceList import *
 # commaPauseDelimiters  = ",~*()=+\\:;\""
 # spacePauseDelimiters  = " -_></"
 
-class Delimiter:
-    def __init__(self, chars):
-        self.chars = chars
-        self.string = "".join(chars)
-        self.reg = re.escape(self.string)
-    
-    def delimit(self, others):
-        print("~1",self.chars)
-        print("~2",others)
-        return r"[" + self.reg + Delimiter(others).reg + r"]*[" + self.reg + r"*]+[" + self.reg + Delimiter(others).reg + r"]*"
+class Sentence:
+    def __init__(self, data):
+        self.data = 
+    def make_sentence():
+        return
 
-    def sub(self, repl, string ,count: int = 0):
-        return re.sub(self.reg, repl, string, count)
-    # def __str__()
-
-class Pause:
-    def __init__(self, type:str="."):
-        self.type = type
-        self.is_space:bool = False
-        self.is_comma:bool = False
-        self.is_period:bool = False
-        self.is_question:bool = False
-        self.is_exclamation:bool = False
-        match type:
-            case " ": self.is_space = True
-            case ",": self.is_comma = True
-            case ".": self.is_period = True
-            case "?": self.is_question = True
-            case "!": self.is_exclamation = True
+class Token:
+    def __init__(self,str,):
         pass
-    def __str__(self):
-        return self
+    pass
+
+class Delimiter(Token):
+    def __init__(self):
+        super().__init__(str)
+
+class Word(Token):
+    def __init__(self, text, emphasis=False):
+
+# another function to split it into an array of sentences, like
+# [
+#   [word,delimiter,word,delimiter,word,delimiter(,),word,delimiter(.)],
+#   [word,delimiter,word,delimiter,word(?emphasis=true),delimiter,word,delimiter(?)],
+# 
+
+
+# ]
+
+
+# class Delimiter:
+#     def __init__(self, chars):
+#         self.chars = chars
+#         self.string = "".join(chars)
+#         self.reg = re.escape(self.string)
+    
+#     def delimit(self, others):
+#         print("~1",self.chars)
+#         print("~2",others)
+#         return r"[" + self.reg + Delimiter(others).reg + r"]*[" + self.reg + r"*]+[" + self.reg + Delimiter(others).reg + r"]*"
+
+#     def sub(self, repl, string ,count: int = 0):
+#         return re.sub(self.reg, repl, string, count)
+#     # def __str__()
+#     # class 
+
+# class Pause:
+#     def __init__(self, type:str="."):
+#         self.type = type
+#         self.is_space:bool = False
+#         self.is_comma:bool = False
+#         self.is_period:bool = False
+#         self.is_question:bool = False
+#         self.is_exclamation:bool = False
+#         match type:
+#             case " ": self.is_space = True
+#             case ",": self.is_comma = True
+#             case ".": self.is_period = True
+#                 # case "?": self.is_question = True
+#                 # case "!": self.is_exclamation = True
+#         pass
+#     def __str__(self):
+#         return self
     
     
 
@@ -199,7 +228,11 @@ print(p.ipa_list("cetera"))
 print(p.ipa_list("gif"))
 print(p.ipa_list("thy"))
 print(p.ipa_list("them"))
-print(p.convert("I read a book last week"))
+print(p.ipa_list("t"))
+print(p.ipa_list("a"))
+print(p.ipa_list("a"))
+print(p.convert("I reaad a book last week"))
+print(p.convert("emoji"))
 # print(p.ipa_list("wav"))
 # print(p.ipa_list("a")) # is it ay or uh
 # print(p.get_all("read"))
