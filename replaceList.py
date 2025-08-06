@@ -57,7 +57,7 @@ class Pattern:
         # return f"{re.split(self.reg, text,1)[0]}{c.color(self.replFunc(text),c.bg.blue)}{re.split(self.reg, text,1)[-1]}"
         # array = re.split(self.reg,text)
         # return f"{array[0]}{colors.color(self.replFunc(text),colors.bg.blue)}{array[1]}"
-        return re.sub(self.reg,colors.color(self.replFunc(text),colors.bg.blue),text,count,flags)    
+        return re.sub(self.reg,colors.color(self.replFunc(text),colors.bg.blue),text,count,flags)        
     def to_Patterns(dict:dict):
         array = []
         for thing in dict:
@@ -94,6 +94,9 @@ class Pattern:
         def currency(reg:str, text:str, currencySymbol="$"):
             "Replaces currencies"
             search = re.search(reg,text)
+            if(currencySymbol == "¢@"):
+                currencySymbol = "¢"
+                
             def find_plural(num:int, type:str, isdecimal:bool=False):
                 names = {
                     "$": ["dollars","dollar","cents","cent"],
@@ -140,6 +143,9 @@ class Pattern:
                 case "¢"|"¥":
                     parts.append(num2words(int(search.group(2))))
                     parts.append(find_plural(int(search.group(2)), currencySymbol))
+                case "¢@":
+                    parts.append(num2words(int(search.group(1))))
+                    parts.append(find_plural(int(search.group(1)), currencySymbol))
             return " " + " ".join(parts) + " "
         
         def phone_number(reg:str, text:str):
@@ -165,6 +171,13 @@ class Pattern:
                     if(int(search.group(2))==0): # -(0).1, (0).3213,
                         parts = "".join(num2words(float(search.group())).split("zero",1))
             return " " + parts + " "
+        def file_extension(reg:str, text:str, repl:str):
+            search = re.search(reg,text)
+            parts = ""
+            if(search.group(1)):
+                parts += " dot "
+            parts += repl
+            return parts
 
 class Replace:
     def __init__(self, text:str, patternList:list):
@@ -196,6 +209,9 @@ class Replace:
 # use | to symbolize a nothing symbol
 
 longReplacePatterns = [
+    Pattern("remove |", r"\|", lambda*_:" "),
+    Pattern("remove _", r"_", lambda*_:" "),
+# ---------------------------------------------------------
     Pattern("replace all valid times",
         re.compile(
             r"""
@@ -257,6 +273,10 @@ longReplacePatterns = [
         r"(¢)(\d+)",
         lambda reg, text: Pattern.Replacing.currency(reg, text, "¢")
     ),
+    Pattern("¢ to cents reversed",
+        r"(\d+)(¢)",
+        lambda reg, text: Pattern.Replacing.currency(reg, text, "¢@")
+    ),
 # ---------------------------------------------------------
     Pattern("phone numbers",
         r"(?<!\d)(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}(?!\d)",
@@ -273,23 +293,6 @@ longReplacePatterns = [
         lambda*_:(" number ")
     ),
 # ---------------------------------------------------------
-    # numbers, can be negative or have decimal
-    Pattern("numbers", # this should go after mp3
-        r"-?((\d+)(\.(\d+))?|(\.(\d+)))",
-        lambda reg, text: Pattern.Replacing.number(reg,text)
-    ),
-    # Pattern("dashes that should be minus",
-    #     r"-(?=[0-9])+",
-    #     lambda*_:(" minus ")
-    # ), # can be done with num2words "cardinal"
-    # Pattern("decimals to point for values",
-    #     r"(?<=[0-9])+\.(?=[0-9])+",
-    #     lambda*_:(" point ")
-    # ), # can be done with num2words "cardinal"
-    # dont forget multiple points 12.43.5
-    # ([0-9]+)(\.[0-9]+)+
-    # numbers with decimals, 12.34
-# ---------------------------------------------------------
     # common characters
     Pattern("@ to at", r"@", lambda*_:" at "),
     Pattern("% to percent", r"%", lambda*_:" percent "),
@@ -301,77 +304,138 @@ longReplacePatterns = [
     Pattern("= to equals", r"=", lambda*_:" equals "),
 # ---------------------------------------------------------
     # abbreviations
-    Pattern("ADHD", r"(?<![a-z\d])(ADHD)(?![a-z\d])", lambda*_:" A D H D "),
-    Pattern("AFAIK", r"(?<![a-z\d])(AFAIK)(?![a-z\d])", lambda*_:" as far as I know "),
-    Pattern("ADOFAI", r"(?<![a-z\d])(ADOFAI)(?![a-z\d])", lambda*_:" a dance of fire and ice "),
-    Pattern("AKA", r"(?<![a-z\d])(AKA)(?![a-z\d])", lambda*_:" also known as "),
-    Pattern("ASAP", r"(?<![a-z\d])(ASAP)(?![a-z\d])", lambda*_:" as soon as possible "),
-    Pattern("ASL", r"(?<![a-z\d])(ASL)(?![a-z\d])", lambda*_:" American sign language "),
-    Pattern("ASMR", r"(?<![a-z\d])(ASMR)(?![a-z\d])", lambda*_:" A S M R "),
-    Pattern("BFF", r"(?<![a-z\d])(BFF)(?![a-z\d])", lambda*_:" best friends forever "),
-    Pattern("BTW", r"(?<![a-z\d])(BTW)(?![a-z\d])", lambda*_:" by the way "),
-    Pattern("FPS", r"(?<![a-z\d])(FPS)(?![a-z\d])", lambda*_:" frames per second "),
-    Pattern("IIRC", r"(?<![a-z\d])(IIRC)(?![a-z\d])", lambda*_:" if I remember correctly "),
-    Pattern("IMHO", r"(?<![a-z\d])(IMHO)(?![a-z\d])", lambda*_:" in my honest opinion "),
-    Pattern("IMO", r"(?<![a-z\d])(IMO)(?![a-z\d])", lambda*_:" in my opinion "),
-    Pattern("IRL", r"(?<![a-z\d])(IRL)(?![a-z\d])", lambda*_:" in real life "),
-    Pattern("TIL", r"(?<![a-z\d])(TIL)(?![a-z\d])", lambda*_:" today I learned "),
-    Pattern("TL;DR", r"(?<![a-z\d])(TL;?DR)(?![a-z\d])", lambda*_:" too long; didn't read "),
-    Pattern("URL", r"(?<![a-z\d])(URL)(?![a-z\d])", lambda*_:" U R L "),
-    Pattern("WIP", r"(?<![a-z\d])(WIP)(?![a-z\d])", lambda*_:" work in progress "),
-    Pattern("YSK", r"(?<![a-z\d])(YSK)(?![a-z\d])", lambda*_:" you should know "),
+    Pattern("24/7", r"(?<!\w)(24/7)(?!\w)", lambda*_:" 24 7 "),
+    Pattern("ADHD", r"(?<!\w)(ADHD)(?!\w)", lambda*_:" A|D|H|D "), # a is pronounced uh
+    Pattern("AFAIK", r"(?<!\w)(AFAIK)(?!\w)", lambda*_:" as far as I know "),
+    Pattern("AFK", r"(?<!\w)(AFK|afk|Afk)(?!\w)", lambda*_:" as far as I know "),
+    Pattern("ADOFAI", r"(?<!\w)(ADOFAI)(?!\w)", lambda*_:" a dance of fire and ice "),
+    Pattern("AKA", r"(?<!\w)(AKA|aka|Aka)(?!\w)", lambda*_:" also known as "),
+    Pattern("API", r"(?<!\w)(API)(?!\w)", lambda*_:" A|P|I "),
+    Pattern("ASAP", r"(?<!\w)(ASAP|asap)(?!\w)", lambda*_:" as soon as possible "),
+    Pattern("ASL", r"(?<!\w)(ASL)(?!\w)", lambda*_:" American sign language "),
+    Pattern("ASMR", r"(?<!\w)(ASMR)(?!\w)", lambda*_:" A|S|M|R "),
+    Pattern("ATM", r"(?<!\w)(ATM)(?!\w)", lambda*_:" A|T|M "),
+    Pattern("B4", r"(?<!\w)(B4|b4)(?!\w)", lambda*_:" before "),
+    Pattern("BC", r"(?<!\w)(BC|Bc|bc)(?!\w)", lambda*_:" because "),
+    Pattern("BF", r"(?<!\w)(BF|Bf|bf)(?!\w)", lambda*_:" boyfriend "),
+    Pattern("BFF", r"(?<!\w)(BFF|bff|Bff)(?!\w)", lambda*_:" best friends forever "),
+    Pattern("BRB", r"(?<!\w)(BRB|brb|Brb)(?!\w)", lambda*_:" be right back "),
+    Pattern("BTW", r"(?<!\w)(BTW|btw|Btw)(?!\w)", lambda*_:" by the way "),
+    Pattern("C U L8R", r"(?<!\w)((C\ U\|C\ u\|c\ u\) (L8R|l8r))(?!\w)", lambda*_:" see you L8R "),
+    Pattern("CEO", r"(?<!\w)(CEO)(?!\w)", lambda*_:" C|E|O "),
+    Pattern("DND", r"(?<!\w)(DND|Dnd|dnd)(?!\w)", lambda*_:" D N D "),
+    Pattern("FAQ", r"(?<!\w)(FAQ)(?!\w)", lambda*_:" frequently asked questions "),
+    Pattern("FPS", r"(?<!\w)(FPS)(?!\w)", lambda*_:" frames per second "),
+    Pattern("FR", r"(?<!\w)(FR|Fr|fr)(?!\w)", lambda*_:" for real "),
+    Pattern("FRFR", r"(?<!\w)(FRFR|Frfr|frfr)(?!\w)", lambda*_:" for real for real "),
+    Pattern("FYI", r"(?<!\w)(FYI|Fyi|fyi)(?!\w)", lambda*_:" F|Y|I "),
+    Pattern("GF", r"(?<!\w)(GF|Gf|gf)(?!\w)", lambda*_:" girlfriend "),
+    Pattern("GG", r"(?<!\w)(GG|Gg|gg)(?!\w)", lambda*_:" G|G "),
+    Pattern("GOAT", r"(?<!\w)(GOAT)(?!\w)", lambda*_:" greatest of all time "),
+    Pattern("GN", r"(?<!\w)(GN|Gn|gn)(?!\w)", lambda*_:" goodnight "),
+    Pattern("GTG/G2G", r"(?<!\w)(GTG|G2G|G2g|g2g)(?!\w)", lambda*_:" got to go "),
+    Pattern("H8", r"(?<!\w)(H8|h8)(?!\w)", lambda*_:" hate "),
+    Pattern("HIV", r"(?<!\w)(HIV)(?!\w)", lambda*_:" H|I|V "),
+    Pattern("HQ", r"(?<!\w)(HQ|Hq|hq)(?!\w)", lambda*_:" H|Q "),
+    Pattern("IDC", r"(?<!\w)(IDC|Idc|idc)(?!\w)", lambda*_:" I don't care "),
+    Pattern("IDK", r"(?<!\w)(IDK|Idk|idk)(?!\w)", lambda*_:" I don't know "),
+    Pattern("IDGAF", r"(?<!\w)(IDGAF|Idgaf|idgaf)(?!\w)", lambda*_:" I don't give a fuck "),
+    Pattern("IIRC", r"(?<!\w)(IIRC|Iirc|iirc)(?!\w)", lambda*_:" if I remember correctly "),
+    Pattern("IKR", r"(?<!\w)((IKR|Ikr|ikr)\??)(?!\w)", lambda*_:" I know right? "),
+    Pattern("ILY", r"(?<!\w)(ILY|Ily|ily)(?!\w)", lambda*_:" I love you "),
+    Pattern("ILYSM", r"(?<!\w)(ILYSM|Ilysm|ilysm)(?!\w)", lambda*_:" I love you so much "),
+    Pattern("IMHO", r"(?<!\w)(IMHO)(?!\w)", lambda*_:" in my honest opinion "),
+    Pattern("IMO", r"(?<!\w)(IMO|Imo|imo)(?!\w)", lambda*_:" in my opinion "),
+    Pattern("IRL", r"(?<!\w)(IRL|Irl|irl)(?!\w)", lambda*_:" in real life "),
+    Pattern("IYKYK", r"(?<!\w)(IYKYK|Iykyk|iykyk)(?!\w)", lambda*_:" if you know you know "),
+    Pattern("JK", r"(?<!\w)(JK|Jk|jk)(?!\w)", lambda*_:" just kidding "),
+    Pattern("KYS", r"(?<!\w)(KYS|Kys|kys)(?!\w)", lambda*_:" kill yourself "),
+    Pattern("L8R", r"(?<!\w)(L8R|L8r|l8r)(?!\w)", lambda*_:" later "),
+    # Pattern("LMAO", r"(?<!\w)(LMF?AO|Lmf?ao|lmf?ao)(?!\w)", lambda*_:" l "), # custom pronounce 
+    Pattern("LMK", r"(?<!\w)(LMK|Lmk|lmk)(?!\w)", lambda*_:" let me know "),
+    # Pattern("LOL", r"(?<!\w)(LOL|Lol|lol)(?!\w)", lambda*_:" l "), # custom
+    # Pattern("NASA", r"(?<!\w)(NASA|Nasa|nasa)(?!\w)", lambda*_:"  "), # custom
+    Pattern("M8TE", r"(?<!\w)(M8TE|M8te|m8te)(?!\w)", lambda*_:" mate "), 
+    Pattern("NGL", r"(?<!\w)(NGL|Ngl|ngl)(?!\w)", lambda*_:" not gonna lie "), 
+    Pattern("NVM", r"(?<!\w)(NVM|Nvm|nvm)(?!\w)", lambda*_:" nevermind "),
+    Pattern("OBV", r"(?<!\w)(OBV|Obv|obv)(?!\w)", lambda*_:" obviously "),
+    Pattern("OG", r"(?<!\w)(OG|Og|og)(?!\w)", lambda*_:" Oh G "),
+    Pattern("OMG", r"(?<!\w)(OMG|Omg|omg)(?!\w)", lambda*_:" Oh M G "),
+    Pattern("PEMDAS", r"(?<!\w)(PEMDAS|Pemdas|pemdas)(?!\w)", lambda*_:" pem|dass "),
+    Pattern("POV", r"(?<!\w)(POV)(?!\w)", lambda*_:" point of view "),
+    Pattern("PTSD", r"(?<!\w)(PTSD|Ptsd|ptsd)(?!\w)", lambda*_:" P|T|S|D "),
+    Pattern("RN", r"(?<!\w)(RN|Rn|rn)(?!\w)", lambda*_:" right now "),
+    Pattern("ROTFLOL", r"(?<!\w)(ROTFLOL|Rotflol|rotflol)(?!\w)", lambda*_:" rolling on the floor laughing out loud "),
+    Pattern("ROTFL", r"(?<!\w)(ROTFL|Rotfl|rotfl)(?!\w)", lambda*_:" rolling on the floor laughing "),
+    Pattern("SMH", r"(?<!\w)(SMH|Smh|smh)(?!\w)", lambda*_:" S|M|H my head "),
+    Pattern("STFU", r"(?<!\w)(STFU|Stfu|stfu)(?!\w)", lambda*_:" shut the fuck up "),
+    Pattern("TBA", r"(?<!\w)(TBA|Tba|tba)(?!\w)", lambda*_:" to be announced "),
+    Pattern("TBD", r"(?<!\w)(TBD|Tbd|tbd)(?!\w)", lambda*_:" to be determined "),
+    Pattern("TBF", r"(?<!\w)(TBF|Tbf|tbf)(?!\w)", lambda*_:" to be fair "),
+    Pattern("TIL", r"(?<!\w)(TIL)(?!\w)", lambda*_:" today I learned "),
+    Pattern("TL;DR", r"(?<!\w)(TL;?DR|Tl;?dr|tl;?dr)(?!\w)", lambda*_:" too long; didn't read "),
+    Pattern("TTYL", r"(?<!\w)(TTYL|Ttyl|ttyl)(?!\w)", lambda*_:" talk to you later "),
+    Pattern("TMI", r"(?<!\w)(TMI|Tmi|tmi)(?!\w)", lambda*_:" too much information "),
+    Pattern("TYSM", r"(?<!\w)(TYSM|Tysm|tysm)(?!\w)", lambda*_:" thank you so much "),
+    Pattern("URL", r"(?<!\w)(URL|Url|url)(?!\w)", lambda*_:" U|R|L "),
+    Pattern("URLs", r"(?<!\w)(URL|Url|url)(S|s)(?!\w)", lambda*_:" U|R|L|S "),
+    Pattern("VIP", r"(?<!\w)(VIP)(?!\w)", lambda*_:" V|I|P "),
+    Pattern("WIP", r"(?<!\w)(WIP)(?!\w)", lambda*_:" work in progress "),
+    Pattern("WTF", r"(?<!\w)(WTF|Wtf|wtf)(?!\w)", lambda*_:" what the fuck "),
+    Pattern("WYD", r"(?<!\w)(WYD|Wyd|wyd)(?!\w)", lambda*_:" what you doing? "),
+    Pattern("W/", r"(?<!\w)(W/|w/)", lambda*_:" with "),
+    Pattern("W/O", r"(?<!\w)(W/O|W/o|w/o)(?!\w)", lambda*_:" without "),
+    Pattern("XOXO", re.compile(r"(?<![a-z\d])(XOXO)(?![a-z\d])",flags=re.I), lambda*_:" hugs and kisses "),
+    Pattern("YOLO", r"(?<!\w)(YOLO|Yolo|yolo)(?!\w)", lambda*_:" yo|low "),
+    Pattern("YSK", r"(?<!\w)(YSK)(?!\w)", lambda*_:" you should know "),
 # ---------------------------------------------------------
-    Pattern("BMP", re.compile(r"(?<![a-z\d])(BMP)(?![a-z\d])",flags=re.I), lambda*_:" bitmap "),
-    Pattern(".BMP", re.compile(r"(\.BMP)(?![a-z\d])",flags=re.I), lambda*_:" dot bitmap "),
-    Pattern("CSS", re.compile(r"(?<![a-z\d])(CSS)(?![a-z\d])",flags=re.I), lambda*_:" C S S "),
-    Pattern(".CSS", re.compile(r"(\.CSS)(?![a-z\d])",flags=re.I), lambda*_:" dot C S S "),
-    Pattern("EXE", re.compile(r"(?<![a-z\d])(EXE)(?![a-z\d])",flags=re.I), lambda*_:" executable "),
-    Pattern(".EXE", re.compile(r"(\.EXE)(?![a-z\d])",flags=re.I), lambda*_:" dot executable "),
-    Pattern("JPG", re.compile(r"(?<![a-z\d])(JPE?G)(?![a-z\d])",flags=re.I), lambda*_:" J peg "),
-    Pattern(".JPG", re.compile(r"(\.JPE?G)(?![a-z\d])",flags=re.I), lambda*_:" dot J peg "),
-    Pattern("JSON", re.compile(r"(?<![a-z\d])(JSON)(?![a-z\d])",flags=re.I), lambda*_:" J son "),
-    Pattern(".JSON", re.compile(r"(\.JSON)(?![a-z\d])",flags=re.I), lambda*_:" dot J son "),
-    Pattern("GIF", re.compile(r"(?<![a-z\d])(GIF)(?![a-z\d])",flags=re.I), lambda*_:" gif "),
-    Pattern(".GIF", re.compile(r"(\.GIF)(?![a-z\d])",flags=re.I), lambda*_:" dot gif "),
-    Pattern("HTML", re.compile(r"(?<![a-z\d])(HTML)(?![a-z\d])",flags=re.I), lambda*_:" H T M L "),
-    Pattern(".HTML", re.compile(r"(\.HTML)(?![a-z\d])",flags=re.I), lambda*_:" dot H T M L "),
-    Pattern("MP3", re.compile(r"(?<![a-z\d])(MP3)(?![a-z\d])",flags=re.I), lambda*_:" M P three "),
-    Pattern(".MP3", re.compile(r"(\.MP3)(?![a-z\d])",flags=re.I), lambda*_:" dot M P three "),
-    Pattern("MP4", re.compile(r"(?<![a-z\d])(MP4)(?![a-z\d])",flags=re.I), lambda*_:" M P four "),
-    Pattern(".MP4", re.compile(r"(\.MP4)(?![a-z\d])",flags=re.I), lambda*_:" dot M P four "),
-    Pattern("PDF", re.compile(r"(?<![a-z\d])(PDF)(?![a-z\d])",flags=re.I), lambda*_:" P D F "),
-    Pattern(".PDF", re.compile(r"(\.PDF)(?![a-z\d])",flags=re.I), lambda*_:" dot P D F "),
-    Pattern("PNG", re.compile(r"(?<![a-z\d])(PNG)(?![a-z\d])",flags=re.I), lambda*_:" P N G "),
-    Pattern(".PNG", re.compile(r"(\.PNG)(?![a-z\d])",flags=re.I), lambda*_:" dot P N G "),
-    Pattern("PY", re.compile(r"(?<![a-z\d])(PY)(?![a-z\d])",flags=re.I), lambda*_:" python "),
-    Pattern(".PY", re.compile(r"(\.PY)(?![a-z\d])",flags=re.I), lambda*_:" dot python "),
-    Pattern("TXT", re.compile(r"(?<![a-z\d])(TXT)(?![a-z\d])",flags=re.I), lambda*_:" text "),
-    Pattern(".TXT", re.compile(r"(\.TXT)(?![a-z\d])",flags=re.I), lambda*_:" dot text "),
-    Pattern("WAV", re.compile(r"(?<![a-z\d])(WAV)(?![a-z\d])",flags=re.I), lambda*_:" wav "),
-    Pattern(".WAV", re.compile(r"(\.WAV)(?![a-z\d])",flags=re.I), lambda*_:" dot wav "),
-    Pattern("WEBP", re.compile(r"(?<![a-z\d])(WEBP)(?![a-z\d])",flags=re.I), lambda*_:" web P "),
-    Pattern(".WEBP", re.compile(r"(\.WEBP)(?![a-z\d])",flags=re.I), lambda*_:" dot web P "),
-    Pattern("ZIP", re.compile(r"(?<![a-z\d])(ZIP)(?![a-z\d])",flags=re.I), lambda*_:" zip "),
-    Pattern(".ZIP", re.compile(r"(\.ZIP)(?![a-z\d])",flags=re.I), lambda*_:" dot zip "),
+    Pattern("C++", r"((?<!\w)|\.)(C|c)\+\+(?!\w)", lambda reg,text: Pattern.Replacing.file_extension(reg,text," C plus plus ")),
+    Pattern("C#", r"((?<!\w)|\.)(C|c)#(?!\w)", lambda reg,text: Pattern.Replacing.file_extension(reg,text," C sharp ")),
+    Pattern("CSS", r"((?<!\w)|\.)(CSS|Css|css)(?!\w)", lambda reg,text: Pattern.Replacing.file_extension(reg,text," C|S|S ")),
+    Pattern("EXE", r"((?<!\w)|\.)(EXE|Exe|exe)(?!\w)", lambda reg,text: Pattern.Replacing.file_extension(reg,text," E|X|E ")),
+    Pattern("JPG", r"((?<!\w)|\.)(JPE?G|Jpe?g|JPe?g|jpe?g)(?!\w)", lambda reg,text: Pattern.Replacing.file_extension(reg,text," J|peg ")),
+    Pattern("JSON", r"((?<!\w)|\.)(JSON|Json|json)(?!\w)", lambda reg,text: Pattern.Replacing.file_extension(reg,text," J|son ")),
+    Pattern("GIF", r"((?<!\w)|\.)(GIF|Gif|gif)(?!\w)", lambda reg,text: Pattern.Replacing.file_extension(reg,text," gif ")), # not in ipa, neither is plain gif word
+    Pattern("HTML", r"((?<!\w)|\.)(HTML|Html|html)(?!\w)", lambda reg,text: Pattern.Replacing.file_extension(reg,text," H|T|M|L ")),
+    Pattern("MP3", r"((?<!\w)|\.)(MP3|Mp3|mp3)(?!\w)", lambda reg,text: Pattern.Replacing.file_extension(reg,text," M|P|3 ")),
+    Pattern("MP4", r"((?<!\w)|\.)(MP4|Mp4|mp4)(?!\w)", lambda reg,text: Pattern.Replacing.file_extension(reg,text," M|P|4 ")),
+    Pattern("PDF", r"((?<!\w)|\.)(PDF|Pdf|pdf)(?!\w)", lambda reg,text: Pattern.Replacing.file_extension(reg,text," P|D|F ")),
+    Pattern("PNG", r"((?<!\w)|\.)(PNG|Png|png)(?!\w)", lambda reg,text: Pattern.Replacing.file_extension(reg,text," P|N|G ")),
+    Pattern("WAV", r"((?<!\w)|\.)(WAV|Wav|wav)(?!\w)", lambda reg,text: Pattern.Replacing.file_extension(reg,text," wav ")), # not in ipa
+    Pattern("WEBP", r"((?<!\w)|\.)(WEBP|WebP|Webp|webp)(?!\w)", lambda reg,text: Pattern.Replacing.file_extension(reg,text," web|P ")),
+    Pattern("ZIP", r"((?<!\w)|\.)(ZIP|Zip|zip)(?!\w)", lambda reg,text: Pattern.Replacing.file_extension(reg,text," zip ")),
 
-    Pattern("T", re.compile(r"(\.ZIP)(?![a-z\d])",flags=re.I), lambda*_:" dot zip "),
     # mc tf2
     # add gif by writing custom ipa, have valid word checker skip over
-    Pattern("misc.", r"(?<![a-z\d])misc\.", lambda*_:" miscellaneous "),
+# ---------------------------------------------------------
+    Pattern("i.e.", r"(?<!\w)i\.e\.", lambda*_:" that is, "),
+    Pattern("e.g.", r"(?<!\w)e\.g\.", lambda*_:" for example, "),
+    
+    Pattern("misc.", r"(?<!\w)misc\.", lambda*_:" miscellaneous "),
     # BMP CSS EXE JPG JPEG JSON GIF HTML MP3 MP4 PDF PNG PY TXT WAV ZIP webp
     # URL C++
-    Pattern("etc.", r"(?<![a-z\d])etc\.", lambda*_:" et cetera "),
+    Pattern("etc.", r"(?<!\w)etc\.", lambda*_:" et cetera "),
     
-    Pattern(".com", r"\.com(?![a-z])", lambda*_:" dot com "),
-    Pattern(".org", r"\.org(?![a-z])", lambda*_:" dot org "),
-    Pattern(".net", r"\.net(?![a-z])", lambda*_:" dot net "),
-    Pattern(".edu", r"\.edu(?![a-z])", lambda*_:" dot E D U "),
-    Pattern(".gov", r"\.gov(?![a-z])", lambda*_:" dot gov "),
+    Pattern(".com", r"\.com(?!\w)", lambda*_:" dot com "),
+    Pattern(".org", r"\.org(?!\w)", lambda*_:" dot org "),
+    Pattern(".net", r"\.net(?!\w)", lambda*_:" dot net "),
+    Pattern(".edu", r"\.edu(?!\w)", lambda*_:" dot E|D|U "),
+    Pattern(".gov", r"\.gov(?!\w)", lambda*_:" dot gov "),
     # make degrees into a function that checks for °[FCK]
     Pattern("°F", r"°F", lambda*_:" degrees fahrenheit "),
     Pattern("°C", r"°C", lambda*_:" degrees celsius "),
     Pattern("°K", r"°K", lambda*_:" degrees kelvin "),
     Pattern("°", r"°", lambda*_:" degrees "),
+# ---------------------------------------------------------
+    # numbers, can be negative or have decimal
+    Pattern("numbers", # this should go after mp3
+        r"-?((\d+)(\.(\d+))?|(\.(\d+)))",
+        lambda reg, text: Pattern.Replacing.number(reg,text)
+    ),
+    # dont forget multiple points 12.43.5
+    # ([0-9]+)(\.[0-9]+)+
+    # numbers with decimals, 12.34
+
 
 ]
 

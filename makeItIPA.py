@@ -53,15 +53,42 @@ class Delimiter(Token):
     def condense_delimiters(text:str):
         exclamation = "!"
         question = "?"
-        period = "".join([".","\n","\f","\t","\v"])
-        comma = "".join([",","~","—","(",")",":",";"])
-        space = "".join([" ","-","_","/","\\"])
+        period,wannabePeriod = ".","\n\f\t\v"
+        comma,wannabeComma = ",","~—():;"
+        space,wannabeSpace = " ","-_/\\"
         blank = "|"
-        allDelimiters = exclamation,question,period,comma,space,blank
+        allDelimiters = exclamation + question + period + wannabePeriod + comma + wannabeComma + space + wannabeSpace + blank
+        def dupeRemover(text:str): # 1:32 3:00 am 12:63
+            print("start dupe remove")
+            newt = text
+            print(text)
+            search = re.search((r"([" + allDelimiters + r"])\1+"),newt)
+            if(search):
+                newt = re.sub(re.escape(search.group()),search.group(1),newt)
+                newt = dupeRemover(newt)
+            return newt
+
+
+
+
+
+
+        #remove adjacent duplicate delimiters
+        # rmDupDelimiters = Pattern("duplicate adjacent delimiters",
+        #     r"([\ ,\.\?\!])\1+",
+        #     # r"([" + re.escape("|".join(allDelimiters)) + r"])\1+",
+        #     lambda reg, text: re.search(reg,text).group(1)
+        #         )
+        # print(re.search("asdf","fdfsdfasdffddfsfd").group())
         # allDelimiters = r"([" + space + comma + period + exclamation + question + r"]*[" + period + exclamation + question + r"*]+[" + space + comma + period + exclamation + question + r"]*)+"
+        # ([\ ,\.?!]*[\.?!]+[\ ,\.?!]*)+
         # [x for x in range(10)]
-        print(allDelimiters[:3])
-        print(re.search(r"([" + "".join(allDelimiters) + r"]*[" + "".join(allDelimiters[:3]) + r"]+[" + "".join(allDelimiters) + r"]*)+",text))
+        # [x for x in allDelimiters]
+        # for thing in allDelimiters:
+        #     print("there: \"" + thing + "\"")
+        # print(allDelimiters[:3])
+        # print(allDelimiters)
+        # print(re.search(r"([" + allDelimiters + r"]*[" + exclamation + question + period + r"]+[" + allDelimiters + r"]*)+",text))
         # text.partition
         # text = re.sub(exclamation, "!", text)
         # text = re.sub(question, "?", text)
@@ -97,6 +124,8 @@ class Delimiter(Token):
         # print(periodDelimiters)
         # print(text)
         return text
+    
+
 
 class Word(Token):
     isword,isdelimiter = True,False
@@ -107,7 +136,9 @@ class Word(Token):
         """Not a valid word"""
 
 
-Delimiter.condense_delimiters(madetotest)
+print(Delimiter.condense_delimiters("asdlfkjal.................skdjfl  ..??asfd123123::;;?!!alskjdhflk"))
+
+# Delimiter.condense_delimiters(madetotest)
 
 # print(Word)
 # print(p.apply_punct(["hello",",,,,  .... ","sweet"," cheeks. what's up bbryu."], True))
@@ -116,3 +147,7 @@ Delimiter.condense_delimiters(madetotest)
 # print(p.cmu_to_ipa(p.get_cmu("hello")))
 # print(p.get_top("321"))
 # print(Sentence([123]))
+print(p.ipa_list("dont"))
+print(p.ipa_list("gonna"))
+print(p.ipa_list("boyfriend"))
+print(p.ipa_list("boyfriend"))
