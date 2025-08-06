@@ -42,7 +42,7 @@ class Delimiter(Token):
     # blankDelimiters = ("|")
     # allDelimiters = exclamationDelimiters + questionDelimiters + periodDelimiters + commaDelimiters + spaceDelimiters + blankDelimiters
 
-    isword,isdelimiter = False,True
+    isword,isdelimiter = False,True # is there a way to do this in token? look into that
     def __init__(self):
         super().__init__(str)
     # def delimit(self, others):
@@ -68,7 +68,7 @@ class Delimiter(Token):
                 newt = dupeRemover(newt)
             return newt
 
-
+        # condense so ;;;,:::,,, just is , not ;,:,
 
 
 

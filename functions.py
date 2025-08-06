@@ -1,28 +1,29 @@
 import eng_to_ipa as p 
 import re
 from replaceList import *
+from makeItIPA import *
 
 # periodPauseDelimiters = ".!&?\n"
 # commaPauseDelimiters  = ",~*()=+\\:;\""
 # spacePauseDelimiters  = " -_></"
 
-class Sentence:
-    def __init__(self, data):
-        self.data = 
-    def make_sentence():
-        return
+# class Sentence:
+#     def __init__(self, data):
+#         self.data = 
+#     def make_sentence():
+#         return
 
-class Token:
-    def __init__(self,str,):
-        pass
-    pass
+# class Token:
+#     def __init__(self,str,):
+#         pass
+#     pass
 
-class Delimiter(Token):
-    def __init__(self):
-        super().__init__(str)
+# class Delimiter(Token):
+#     def __init__(self):
+#         super().__init__(str)
 
-class Word(Token):
-    def __init__(self, text, emphasis=False):
+# class Word(Token):
+#     def __init__(self, text, emphasis=False):
 
 # another function to split it into an array of sentences, like
 # [
@@ -70,7 +71,7 @@ class Word(Token):
     
     
 
-delimiters = periodPauseDelimiters+commaPauseDelimiters+spacePauseDelimiters
+# delimiters = periodPauseDelimiters+commaPauseDelimiters+spacePauseDelimiters
 
 # def split(string:str, delimiters=pauseDelimiters, maxsplit=0):
 #     regex_pattern = '|'.join(map(re.escape, delimiters))
@@ -84,31 +85,31 @@ def flatten(S):
     return S[:1] + flatten(S[1:])
 
 
-def condense_delimiters(text:str):
-    period = re.escape("".join(periodPauseDelimiters))
-    comma = re.escape("".join(commaPauseDelimiters))
-    space = re.escape("".join(spacePauseDelimiters))
-    # periodDelimiters = rf"[\ \,\.]*[\.*]+[\ \,\.]*"
-    # exclamationDelimiters = 
-    # questionDelimiters =
-    periodDelimiters1 = Delimiter(periodPauseDelimiters)
-    print(1,periodDelimiters1.delimit(space + comma))
-    periodDelimiters2 = r"[" + space + comma + period + r"]*[" + period + r"*]+[" + space + comma + period + r"]*"
-    print(2,periodDelimiters2)
-    # commaDelimiters = r"[" + space + comma + r"]*[" + comma + r"*]+[" + space + comma + r"]*"
-    # spaceDelimiters = r"[" + space + r"]*[" + space + r"*]+[" + space + r"]*"
+# def condense_delimiters(text:str):
+#     period = re.escape("".join(periodPauseDelimiters))
+#     comma = re.escape("".join(commaPauseDelimiters))
+#     space = re.escape("".join(spacePauseDelimiters))
+#     # periodDelimiters = rf"[\ \,\.]*[\.*]+[\ \,\.]*"
+#     # exclamationDelimiters = 
+#     # questionDelimiters =
+#     periodDelimiters1 = Delimiter(periodPauseDelimiters)
+#     print(1,periodDelimiters1.delimit(space + comma))
+#     periodDelimiters2 = r"[" + space + comma + period + r"]*[" + period + r"*]+[" + space + comma + period + r"]*"
+#     print(2,periodDelimiters2)
+#     # commaDelimiters = r"[" + space + comma + r"]*[" + comma + r"*]+[" + space + comma + r"]*"
+#     # spaceDelimiters = r"[" + space + r"]*[" + space + r"*]+[" + space + r"]*"
 
-    # exclamaitionDelimiters
-    # questionDelimiters
-    # exclamation
+#     # exclamaitionDelimiters
+#     # questionDelimiters
+#     # exclamation
 
-    # text = re.sub(periodDelimiters, ".", text)
-    # text = re.sub(commaDelimiters, ",", text)
-    # text = re.sub(spaceDelimiters, " ", text)
-    # print(periodPauseDelimiters)
-    # print(periodDelimiters)
-    # print(text)
-    return text
+#     # text = re.sub(periodDelimiters, ".", text)
+#     # text = re.sub(commaDelimiters, ",", text)
+#     # text = re.sub(spaceDelimiters, " ", text)
+#     # print(periodPauseDelimiters)
+#     # print(periodDelimiters)
+#     # print(text)
+#     return text
 
 # print(condense_delimiters("the?.re  .,,   .  wa,     ,,,    ,s a ???????.?????\\|(so-called) ro"))
 
@@ -144,11 +145,11 @@ def convert_nums_to_words(text:str):
     return newtext
 
 
-def replace_delimiters(text:str):
-    text = text.strip("".join(delimiters))
-    text = condense_delimiters(text)
-    return re.split(r"( |,|\.)", text)
-    # return [condense_delimiters(token) for token in re.split(r"\b",text) if token!=""]
+# def replace_delimiters(text:str):
+#     text = text.strip("".join(delimiters))
+#     text = condense_delimiters(text)
+#     return re.split(r"( |,|\.)", text)
+#     # return [condense_delimiters(token) for token in re.split(r"\b",text) if token!=""]
 
 
 def remove_etc(text:str):
@@ -166,9 +167,9 @@ def remove_etc(text:str):
 # print(replace_unknowns("zealan@gmail@.com"))
 
 def unconfuse(text:str):
-    def replace_with_patterns(text): return replace_patterns(text,replacePatterns)
     order_to_run = [
-        replace_with_patterns,
+        lambda t: replace_patterns(t,unknownDict),
+        lambda t: replace_patterns(t,longReplacePatterns),
         # replace_unknowns,
         # replace_specials,
         # replace_patterns,
@@ -181,7 +182,8 @@ def unconfuse(text:str):
 
     for function in order_to_run:
         # print(f"{function(text)=}")
-        print(f"\t{function.__code__.co_name}()")
+        # print(f"\t{function.__code__.co_name}()")
+        print(f"Functions")
 
         text = function(text)
     return text
@@ -189,7 +191,6 @@ def unconfuse(text:str):
 # order is: specialgroupdict, unknownDict, numbers to words, Delimiter
 # print(temp)
 # print(unconfuse(temp))
-
 
 
 def is_delimiter(text:str):
@@ -217,10 +218,10 @@ texting = [
     "come @ me b1ro #gamer 100% m&m gimme a yummy ^",
     "go to #gamer@beans.com to win ä bïg tree... if not, that's ok",
     "1:00 1-1-100.23 12:30     am12:00 2:03pm misc.",
-    "#qwer #123.422 12:00 am 1st 11th 11,333,444,555.3 @ 21st 3rd % 3:59 Pm 3:09 pm 3:59 °F $1,000.10 ¢32  £32.12 €1.01 ¥132 +1 801-520-3340 ADHD"
+    "win ä bïg tree #qwer check |||| #123.422 12:00 am 1st 11th 11,333,444,555.3 @ 21st 3rd % 3:59 Pm 3:09 pm 3:59 °F $1,000.10 ¢32 878¢ AFAIK £32.12 €1.01 adhd c u l8r ¥132 +1 801-520-3340 ADHD ASMR asap B4 bc bf bff brb btw c u l8r loch ness,,,,,,,       challah uh oh uhoh uh-oh"
 ]
 
-print(unconfuse(texting[15]))
+print(p.convert(unconfuse(texting[15]),False,))
 
 print(p.ipa_list("gov"))
 # print(p.ipa_list("et"))
@@ -233,7 +234,7 @@ print(p.ipa_list("a"))
 print(p.ipa_list("a"))
 print(p.convert("I reaad a book last week"))
 print(p.convert("emoji"))
-# print(p.ipa_list("wav"))
+# print(p.ipa_list("wav"))ʧ
 # print(p.ipa_list("a")) # is it ay or uh
 # print(p.get_all("read"))
 # print(p.convert("read"))
@@ -366,7 +367,7 @@ def hopeless_check(string):
 
 def convert_to_pronounceable(text:str, method:int = 0):
     t = text
-    t = replace_delimiters(t)
+    # t = replace_delimiters(t)
 
     match method:
         case 1:
@@ -413,7 +414,7 @@ def convert_to_pronounceable(text:str, method:int = 0):
 
 
 
-# print(unconfuse(testtext[2]))
+# print(unconfuse(texting[2]))
 
 
 
