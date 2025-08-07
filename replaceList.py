@@ -9,8 +9,7 @@ class colors:
     i.e. colors.fg.red or colors.bg.green\n
     Also, the generic bold, disable, underline, reverse, strikethrough,
     and invisible work with the main class
-    i.e. colors.bold
-    '''
+    i.e. colors.bold'''
     reset='\033[0m'
     bold='\033[01m'
     disable='\033[02m'
@@ -51,13 +50,20 @@ class Pattern:
         self.desc = desc
         self.reg = reg
         self.replFunc = lambda text: replFunc(reg,text)
+    def findall(self, text:str, flags = 0):
+        return re.findall(self.reg,text,flags)
     def sub(self, text:str, count: int = 0, flags = 0) -> str:
         return re.sub(self.reg,self.replFunc(text),text,count,flags)
     def colorsub(self, text:str, count: int = 0, flags = 0) -> str:
         # return f"{re.split(self.reg, text,1)[0]}{c.color(self.replFunc(text),c.bg.blue)}{re.split(self.reg, text,1)[-1]}"
         # array = re.split(self.reg,text)
         # return f"{array[0]}{colors.color(self.replFunc(text),colors.bg.blue)}{array[1]}"
-        return re.sub(self.reg,colors.color(self.replFunc(text),colors.bg.blue),text,count,flags)        
+        return re.sub(self.reg,colors.color(self.replFunc(text),colors.bg.blue),text,count,flags)
+    def search(self, text, num=0, flags=0):
+        return re.search(self.reg, text, flags)
+    def group(self, text, num=0, flags=0):
+        search = re.search(self.reg, text, flags)
+        return search.group(num)
     def to_Patterns(dict:dict):
         array = []
         for thing in dict:

@@ -9,24 +9,31 @@ madetotest = "In sem justo, commodo ut, suscipit at???? pharetra vitae, orci. Du
 class Sentence:
     def __init__(self, data:list):
         self.data:list = data
+
         # if notsentence: raise Sentence.NotSentenceError(list)
         # self.isexclamation = 
     def __str__(self):
         pass
         # return "gobbledegook"
-    def convert(text):
-        return "a"
+    # def (text):
+
+        # return 
     class NotSentenceError(Exception):
         """Not a valid sentence"""
         def __init__(self, message):
             self.message = message
-            super().__init__(f"")
+            super().__init__("\"" + message + f"\" is not a valid sentence")
         def __str__(self):
             return super().__str__()
 
 class Token:
-    
+    def __init__(self, isword, isdelimiter):
+        self.isword = isword
+        self.isdelimiter = isdelimiter # is there a way to do this in token? look into that
     def remove_else(text:str):
+        return re.sub(r"[^a-zA-Z\|\ ,\.\?!]","",text)
+        # remove anything that isn't "a-zA-Z| ,.?!"
+    def convert_to_list(text):
         # text = re.sub(r"[^0-9a-zA-Z" + re.escape("".join(Delimiter.pauseDelimiters)) + r"]", " ", text)
         # check if anything in any of the lists matches and if so return error
         return text
@@ -34,6 +41,28 @@ class Token:
 # isalreadyIPA:bool=False
 
 class Delimiter(Token):
+    exclamation = "!"
+    question = "?"
+    period,wannabePeriod = ".","\n\f\t\v"
+    comma,wannabeComma = ",","~—():;"
+    space,wannabeSpace = " ","-_/\\"
+    blank = "|"
+    allDelimiters = exclamation + question + period + wannabePeriod + comma + wannabeComma + space + wannabeSpace + blank
+    def __init__(self, type:str="."):
+        self.type = type
+        self.is_space:bool = False
+        self.is_comma:bool = False
+        self.is_period:bool = False
+        self.is_question:bool = False
+        self.is_exclamation:bool = False
+        super().__init__(False, True)
+        match type:
+            case " ": self.is_space = True
+            case ",": self.is_comma = True
+            case ".": self.is_period = True
+                # case "?": self.is_question = True
+                # case "!": self.is_exclamation = True
+
     # exclamationDelimiters = ("!")
     # questionDelimiters = ("?")
     # periodDelimiters = (".","!","?","\n","\f","\t","\v")
@@ -42,65 +71,42 @@ class Delimiter(Token):
     # blankDelimiters = ("|")
     # allDelimiters = exclamationDelimiters + questionDelimiters + periodDelimiters + commaDelimiters + spaceDelimiters + blankDelimiters
 
-    isword,isdelimiter = False,True # is there a way to do this in token? look into that
-    def __init__(self):
-        super().__init__(str)
     # def delimit(self, others):
     #     print("~1",self.chars)
     #     print("~2",others)
     #     return r"[" + self.reg + Delimiter(others).reg + r"]*[" + self.reg + r"*]+[" + self.reg + Delimiter(others).reg + r"]*"
-
+    # def identify_delimiters(text:str):
+    #     return text
     def condense_delimiters(text:str):
-        exclamation = "!"
-        question = "?"
-        period,wannabePeriod = ".","\n\f\t\v"
-        comma,wannabeComma = ",","~—():;"
-        space,wannabeSpace = " ","-_/\\"
-        blank = "|"
-        allDelimiters = exclamation + question + period + wannabePeriod + comma + wannabeComma + space + wannabeSpace + blank
-        def dupeRemover(text:str): # 1:32 3:00 am 12:63
+        def wannabe_remover(text:str):
+            print("start wannabe remove")
+            newt = text
+            newt = re.sub(r"([" + re.escape(Delimiter.wannabePeriod) + r"])\1+",".",newt)
+            newt = re.sub(r"([" + re.escape(Delimiter.wannabeComma) + r"])\1+",",",newt)
+            newt = re.sub(r"([" + re.escape(Delimiter.wannabeSpace) + r"])\1+"," ",newt)
+            return newt
+        def dupe_remover(text:str): # 1:32 3:00 am 12:63
             print("start dupe remove")
             newt = text
             print(text)
-            search = re.search((r"([" + allDelimiters + r"])\1+"),newt)
+            search = re.search((r"([" + Delimiter.allDelimiters + r"])\1+"),newt)
             if(search):
                 newt = re.sub(re.escape(search.group()),search.group(1),newt)
-                newt = dupeRemover(newt)
+                newt = dupe_remover(newt)
             return newt
+        def lower_remover(text:str):
 
-        # condense so ;;;,:::,,, just is , not ;,:,
+            lowRemove = Pattern("separate delimiters",
+                r"(?:(\|)|(\ )|(,)|(\.)|(!)|(\?))+",
+                # 1:"|" 2:" " 3:"," 4:"." 5:"!" 6:"?"
+            lambda r,t: re.search(r,t))
+            
+            delimiterList = lowRemove.findall(text)
+            print(delimiterList)
+            return text
+        print("lower_remover")
+        print(lower_remover(";aslkdjfalks alksjd flkja sl lkajs dfj sldk a? ,,,,,,,,,,,,,,,.,| asfa"))
 
-
-
-
-        #remove adjacent duplicate delimiters
-        # rmDupDelimiters = Pattern("duplicate adjacent delimiters",
-        #     r"([\ ,\.\?\!])\1+",
-        #     # r"([" + re.escape("|".join(allDelimiters)) + r"])\1+",
-        #     lambda reg, text: re.search(reg,text).group(1)
-        #         )
-        # print(re.search("asdf","fdfsdfasdffddfsfd").group())
-        # allDelimiters = r"([" + space + comma + period + exclamation + question + r"]*[" + period + exclamation + question + r"*]+[" + space + comma + period + exclamation + question + r"]*)+"
-        # ([\ ,\.?!]*[\.?!]+[\ ,\.?!]*)+
-        # [x for x in range(10)]
-        # [x for x in allDelimiters]
-        # for thing in allDelimiters:
-        #     print("there: \"" + thing + "\"")
-        # print(allDelimiters[:3])
-        # print(allDelimiters)
-        # print(re.search(r"([" + allDelimiters + r"]*[" + exclamation + question + period + r"]+[" + allDelimiters + r"]*)+",text))
-        # text.partition
-        # text = re.sub(exclamation, "!", text)
-        # text = re.sub(question, "?", text)
-        # text = re.sub(period, ".", text)
-        # text = re.sub(comma, ",", text)
-        # text = re.sub(space, " ", text)
-        # text = re.sub(blank, "|", text)
-        pattern = re.escape(r"([" + "".join(allDelimiters) + r"]*[" + "".join(allDelimiters[:3]) + r"]+[" + "".join(allDelimiters) + r"]*)+")
-        search = re.search(pattern,text)
-        if(search): # . ? !
-            print(text)
-            print(re.sub(pattern,"lemon",text))
 
         # periodDelimiters = rf"[\ \,\.]*[\.*]+[\ \,\.]*"
         # exclamationDelimiters = ["!"]
@@ -123,20 +129,25 @@ class Delimiter(Token):
         # print(periodPauseDelimiters)
         # print(periodDelimiters)
         # print(text)
+        text = text+"."
+        text = wannabe_remover(text)
+        text = dupe_remover(text)
+        text = lower_remover(text)
         return text
     
 
 
 class Word(Token):
-    isword,isdelimiter = True,False
-    def __init__(self, text, emphasis=False):pass
+    def __init__(self, text): # emphasis=False
+        super().__init__(True, False)
+
     def to_IPA(word):
         pass
     class InvalidWord(Exception):
         """Not a valid word"""
 
 
-print(Delimiter.condense_delimiters("asdlfkjal.................skdjfl  ..??asfd123123::;;?!!alskjdhflk"))
+print(Delimiter.condense_delimiters("asdlfkjal.............--------....skdjfl  ..??asfd123123::;;?!!alskjdhflk"))
 
 # Delimiter.condense_delimiters(madetotest)
 
