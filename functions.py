@@ -1,4 +1,4 @@
-import eng_to_ipa as p 
+import eng_to_ipa as p
 import re
 from replaceList import *
 from makeItIPA import *
@@ -9,7 +9,7 @@ from makeItIPA import *
 
 # class Sentence:
 #     def __init__(self, data):
-#         self.data = 
+#         self.data =
 #     def make_sentence():
 #         return
 
@@ -29,7 +29,7 @@ from makeItIPA import *
 # [
 #   [word,delimiter,word,delimiter,word,delimiter(,),word,delimiter(.)],
 #   [word,delimiter,word,delimiter,word(?emphasis=true),delimiter,word,delimiter(?)],
-# 
+#
 
 
 # ]
@@ -40,7 +40,7 @@ from makeItIPA import *
 #         self.chars = chars
 #         self.string = "".join(chars)
 #         self.reg = re.escape(self.string)
-    
+
 #     def delimit(self, others):
 #         print("~1",self.chars)
 #         print("~2",others)
@@ -49,7 +49,7 @@ from makeItIPA import *
 #     def sub(self, repl, string ,count: int = 0):
 #         return re.sub(self.reg, repl, string, count)
 #     # def __str__()
-#     # class 
+#     # class
 
 # class Pause:
 #     def __init__(self, type:str="."):
@@ -68,8 +68,7 @@ from makeItIPA import *
 #         pass
 #     def __str__(self):
 #         return self
-    
-    
+
 
 # delimiters = periodPauseDelimiters+commaPauseDelimiters+spacePauseDelimiters
 
@@ -90,7 +89,7 @@ def flatten(S):
 #     comma = re.escape("".join(commaPauseDelimiters))
 #     space = re.escape("".join(spacePauseDelimiters))
 #     # periodDelimiters = rf"[\ \,\.]*[\.*]+[\ \,\.]*"
-#     # exclamationDelimiters = 
+#     # exclamationDelimiters =
 #     # questionDelimiters =
 #     periodDelimiters1 = Delimiter(periodPauseDelimiters)
 #     print(1,periodDelimiters1.delimit(space + comma))
@@ -121,22 +120,22 @@ def flatten(S):
 #     return [condense_delimiters(token) for token in re.split(r"\b",text) if token!=""]
 # apply
 
-def replace_patterns(text:str,patternlist) -> str:
+def replace_patterns(text: str, patternlist) -> str:
     for pattern in patternlist:
-        search = re.search(pattern.reg,text)
-        if(search):
-            print(f"replaced \"{colors.color(search.group(),colors.bg.red)}\" with \"{colors.color(pattern.replFunc(text),colors.bg.blue)}\" using \"{pattern.desc}\"")
+        search = re.search(pattern.reg, text)
+        if (search):
+            print(
+                f"replaced \"{colors.color(search.group(),colors.bg.red)}\" with \"{colors.color(pattern.replFunc(text),colors.bg.blue)}\" using \"{pattern.desc}\"")
             print(f"{pattern.colorsub(text,1)}")
-            text = pattern.sub(text,1)
-            text = replace_patterns(text,patternlist)
+            text = pattern.sub(text, 1)
+            text = replace_patterns(text, patternlist)
     return text
 
 
-
-def convert_nums_to_words(text:str):
+def convert_nums_to_words(text: str):
     newtext = ""
-    for x in re.findall(r"[0-9]+|[^0-9]+",text):
-        if(re.search(r"[0-9]+", x)):
+    for x in re.findall(r"[0-9]+|[^0-9]+", text):
+        if (re.search(r"[0-9]+", x)):
             # print(num2words(x))
             newtext = "".join([newtext, " ", num2words(x), ""])
         else:
@@ -152,24 +151,22 @@ def convert_nums_to_words(text:str):
 #     # return [condense_delimiters(token) for token in re.split(r"\b",text) if token!=""]
 
 
-def remove_etc(text:str):
-    text = re.sub(r"[^0-9a-zA-Z" + re.escape("".join(pauseDelimiters)) + r"]", " ", text)
+def remove_etc(text: str):
+    text = re.sub(
+        r"[^0-9a-zA-Z" + re.escape("".join(pauseDelimiters)) + r"]", " ", text)
     # check if anything in any of the lists matches and if so return error
     return text
-
-
 
 
 # print(replace_delimiters("asdf.asdf,fdsa asdfd"))
 
 
-
 # print(replace_unknowns("zealan@gmail@.com"))
 
-def unconfuse(text:str):
+def unconfuse(text: str):
     order_to_run = [
-        lambda t: replace_patterns(t,unknownDict),
-        lambda t: replace_patterns(t,longReplacePatterns),
+        lambda t: replace_patterns(t, unknownDict),
+        lambda t: replace_patterns(t, longReplacePatterns),
         # replace_unknowns,
         # replace_specials,
         # replace_patterns,
@@ -177,7 +174,7 @@ def unconfuse(text:str):
         # remove_etc,
         # condense_delimiters,
         # replace_delimiters,
-        ]
+    ]
     print(text)
 
     for function in order_to_run:
@@ -187,19 +184,18 @@ def unconfuse(text:str):
 
         text = function(text)
     return text
-    
+
 # order is: specialgroupdict, unknownDict, numbers to words, Delimiter
 # print(temp)
 # print(unconfuse(temp))
 
 
-def is_delimiter(text:str):
-    return any(elem in text for elem in delimiters)
+def is_delimiter(text: str):
+    return any(elem in text for elem in pauseDelimiters)
+
 
 def is_word(s):
-    return (p.isin_cmu(s) and len(s)>0 and not is_delimiter(s))
-
-
+    return (p.isin_cmu(s) and len(s) > 0 and not is_delimiter(s))
 
 
 texting = [
@@ -221,7 +217,7 @@ texting = [
     "win ä bïg tree #qwer check |||| #123.422 12:00 am 1st 11th 11,333,444,555.3 @ 21st 3rd % 3:59 Pm 3:09 pm 3:59 °F $1,000.10 ¢32 878¢ AFAIK £32.12 €1.01 adhd c u l8r ¥132 +1 801-520-3340 ADHD ASMR asap B4 bc bf bff brb btw c u l8r loch ness,,,,,,,       challah uh oh uhoh uh-oh"
 ]
 
-print(p.convert(unconfuse(texting[15]),False,))
+print(p.convert(unconfuse(texting[15]), False,))
 
 print(p.ipa_list("gov"))
 # print(p.ipa_list("et"))
@@ -255,6 +251,7 @@ print(p.convert("emoji"))
 def cut_string_in_half(string):
     return [string[:len(string)//2], string[len(string)//2:]]
 
+
 def zigzag_check(string):
     length = len(string)
     mid = length // 2
@@ -283,12 +280,13 @@ def zigzag_check(string):
             break
     return flatten(results)
 
+
 def back_to_front_check(string):
     length = len(string)
     offsets = [0]
 
     for i in range(1, length):
-        offsets.insert(0,i)
+        offsets.insert(0, i)
 
     results = []
 
@@ -308,6 +306,7 @@ def back_to_front_check(string):
             break
     return flatten(results)
 
+
 def front_to_back_check(string):
     length = len(string)
     offsets = [0]
@@ -322,22 +321,21 @@ def front_to_back_check(string):
         right = string[offset:]
         print(f"Checking: {left}|{right}")
         if is_word(right):
-            results.insert(0,right)
+            results.insert(0, right)
             print(f"Valid word: \"{right}\"")
             if is_word(left):
-                results.insert(0,left)
+                results.insert(0, left)
                 print(f"Valid word: \"{left}\"")
                 break
             else:
-                results.insert(0,front_to_back_check(left))
+                results.insert(0, front_to_back_check(left))
             break
     return flatten(results)
+
 
 def hopeless_check(string):
     results = [ch for ch in string]
     return flatten(results)
-
-
 
 
 # def fix_broken_word(word:str):
@@ -364,8 +362,7 @@ def hopeless_check(string):
 #     return []
 
 
-
-def convert_to_pronounceable(text:str, method:int = 0):
+def convert_to_pronounceable(text: str, method: int = 0):
     t = text
     # t = replace_delimiters(t)
 
@@ -383,7 +380,7 @@ def convert_to_pronounceable(text:str, method:int = 0):
 
     newText = []
     for word in t:
-        if(is_delimiter(word) or is_word(word)):
+        if (is_delimiter(word) or is_word(word)):
             newText.append(word)
         else:
             newText.append(check(word))
@@ -410,12 +407,4 @@ def convert_to_pronounceable(text:str, method:int = 0):
 # print(convert_to_pronounceable(input("Enter some text: ")))
 
 
-
-
-
-
 # print(unconfuse(texting[2]))
-
-
-
-
