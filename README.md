@@ -1,4 +1,6 @@
 Type ```python run.py``` on the command line to run!
 
 
-If it doesn't work try running ```pip install eng-to-ipa``` to install that library
+You should have ```eng-to-ipa``` and ```num2words``` installed
+
+Run ```pip install eng-to-ipa``` and ```pip install num2words``` to install them
