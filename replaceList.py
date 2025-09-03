@@ -58,7 +58,6 @@ class Pattern:
 
     def findall(self, text: str, flags=0):
         return re.findall(self.reg, text, flags)
-
     def sub(self, text: str, count: int = 0, flags=0) -> str:
         return re.sub(self.reg, self.replFunc(text), text, count, flags)
 
@@ -77,19 +76,25 @@ class Pattern:
 
     def to_Patterns(dict: dict):
         array = []
-        for thing in dict:
-            value = dict[thing]
+        for defn in dict:
+            value = dict[defn]
             array.append(
-                Pattern(f"{thing} to {value}",
-                        re.escape(thing),
+                Pattern(f"{defn} to {value}",
+                        re.escape(defn),
                         lambda *_, val=value: val
                         )
             )
         return array
 
     class Replacing:
+        def num2words(number, ordinal=False, lang='en', to='cardinal', **kwargs):
+            "Num2words but without dashes"
+            newn = num2words(number, ordinal, lang, to, **kwargs)
+            return Pattern("remove dashes", r"-", lambda *_: " ").sub(newn)
+
         def time(reg: str, text: str):  # 1:32 3:00 am 12:63
             "Replaces valid times"
+            num2words = Pattern.Replacing.num2words
             search = re.search(reg, text)
             parts = []
             parts.append(num2words(search.group(1)))
@@ -100,23 +105,28 @@ class Pattern:
             if int(search.group(2)) != 0:
                 parts.append(num2words(search.group(2)))
             if search.group(3):
-                match search.group(3).lower():
-                    case "am": parts.append("A M")
-                    case "pm": parts.append("P M")
+                if   search.group(3).lower() == "am":
+                    parts.append("A M")
+                elif search.group(3).lower() == "pm":
+                    parts.append("P M")
+                # match search.group(3).lower():
+                #     case "am": parts.append("A M")
+                #     case "pm": parts.append("P M")
             return " " + " ".join(parts) + " "
         # can I use self.search?
         # class number:
 
         def ordinal_number(reg: str, text: str):
             "Replaces ordinal numbers like 1st 2nd 3rd"
+            # num2words = Pattern.Replacing.num2words
             search = re.search(reg, text)
             parts = []
-            parts.append(num2words(search.group()[
-                         :-2], False, "en", "ordinal"))
+            parts.append(num2words(search.group()[:-2], False, "en", "ordinal"))
             return " " + " ".join(parts) + " "
 
         def currency(reg: str, text: str, currencySymbol="$"):
             "Replaces currencies"
+            num2words = Pattern.Replacing.num2words
             search = re.search(reg, text)
 
             def find_plural(num: int, type: str, isdecimal: bool = False):
@@ -138,45 +148,42 @@ class Pattern:
             parts = []
             # ["","two","dollars","thirteen","cents",""]
             # $£€¥¢
-            match currencySymbol:
-                case "$" | "£" | "€":
-                    if (search.group(5)):            # .12 .00 exists
-                        if (int(search.group(3)) == 0):    # 0.12, 0.00, 0.99
-                            if (int(search.group(5)) == 0):    # 0.00
-                                parts.append(num2words(0))
-                                parts.append(find_plural(0, currencySymbol))
-                            if (int(search.group(5)) > 0):     # 0.12, 0.99
-                                parts.append(num2words(int(search.group(5))))
-                                parts.append(find_plural(
-                                    int(search.group(5)), currencySymbol, True))
-                        if (int(search.group(3)) > 0):     # 1. 32. 1123.
-                            parts.append(num2words(int(search.group(3))))
-                            parts.append(find_plural(
-                                int(search.group(3)), currencySymbol)+",")
-                            # if(int(search.group(5))==0):    # 1.00 32.00 1123.00
-                            if (int(search.group(5)) > 0):     # 1.12, 321.99
-                                parts.append(num2words(int(search.group(5))))
-                                parts.append(find_plural(
-                                    int(search.group(5)), currencySymbol, True))
-                    else:                           # 1, 3, 1234, 0
-                        if (int(search.group(3)) == 0):    # 0
+            if currencySymbol == "$" or currencySymbol == "£" or currencySymbol == "€":
+                if (search.group(5)):            # .12 .00 exists
+                    if (int(search.group(3)) == 0):    # 0.12, 0.00, 0.99
+                        if (int(search.group(5)) == 0):    # 0.00
                             parts.append(num2words(0))
                             parts.append(find_plural(0, currencySymbol))
-                        if (int(search.group(3)) > 0):     # 1, 3, 1234
-                            parts.append(num2words(int(search.group(3))))
-                            parts.append(find_plural(
-                                int(search.group(3)), currencySymbol))
-                case "¢" | "¥":
-                    parts.append(num2words(int(search.group(2))))
-                    parts.append(find_plural(
-                        int(search.group(2)), currencySymbol))
-                case "¢@":
-                    parts.append(num2words(int(search.group(1))))
-                    parts.append(find_plural(int(search.group(1)), "¢"))
+                        if (int(search.group(5)) > 0):     # 0.12, 0.99
+                            parts.append(num2words(int(search.group(5))))
+                            parts.append(find_plural(int(search.group(5)), currencySymbol, True))
+                    if (int(search.group(3)) > 0):     # 1. 32. 1123.
+                        parts.append(num2words(int(search.group(3))))
+                        parts.append(find_plural(
+                            int(search.group(3)), currencySymbol)+",")
+                        # if(int(search.group(5))==0):    # 1.00 32.00 1123.00
+                        if (int(search.group(5)) > 0):     # 1.12, 321.99
+                            parts.append(num2words(int(search.group(5))))
+                            parts.append(find_plural(int(search.group(5)), currencySymbol, True))
+                else:                           # 1, 3, 1234, 0
+                    if (int(search.group(3)) == 0):    # 0
+                        parts.append(num2words(0))
+                        parts.append(find_plural(0, currencySymbol))
+                    if (int(search.group(3)) > 0):     # 1, 3, 1234
+                        parts.append(num2words(int(search.group(3))))
+                        parts.append(find_plural(int(search.group(3)), currencySymbol))
+            elif currencySymbol == "¢" or currencySymbol == "¥":
+                parts.append(num2words(int(search.group(2))))
+                parts.append(find_plural(int(search.group(2)), currencySymbol))
+            elif currencySymbol == "¢@":
+                parts.append(num2words(int(search.group(1))))
+                parts.append(find_plural(int(search.group(1)), "¢"))
+            # parts = 
             return " " + " ".join(parts) + " "
 
         def phone_number(reg: str, text: str):
             "Replaces phone numbers"
+            num2words = Pattern.Replacing.num2words
             search = re.search(reg, text)
             parts = []
             for part in re.findall(r"\d+", search.group()):
@@ -187,6 +194,7 @@ class Pattern:
 
         def number(reg: str, text: str):
             "Replaces numbers to words"
+            num2words = Pattern.Replacing.num2words
             search = re.search(reg, text)
             parts = ""
             if (float(search.group()) == 0):  # any number that's zero, 0, 0.00, .00
@@ -194,12 +202,15 @@ class Pattern:
             else:                         # not = 0
                 if (search.group(2)):  # (0).231, -(3).1, (3), (0)
                     if (int(search.group(2)) != 0):  # -(3).1, (3), -(4).32136, (5)
-                        parts = num2words(
-                            float(search.group()), False, "en", "cardinal")
+                        parts = num2words(float(search.group()), False, "en", "cardinal")
                         # parts[1] = num2words(0)
                     if (int(search.group(2)) == 0):  # -(0).1, (0).3213,
-                        parts = "".join(
-                            num2words(float(search.group())).split("zero", 1))
+                        parts = "".join(num2words(float(search.group())).split("zero", 1))
+            parts = Pattern("remove - from numbers", r"-", lambda *_: " ").sub(parts)
+            # for part in parts:
+
+            #     Pattern("remove - from numbers", r"-", lambda *_: " ").sub(part)
+
             return " " + parts + " "
 
         def file_extension(reg: str, text: str, repl: str):
@@ -226,8 +237,7 @@ class Replace:
         for pattern in patternList:
             search = re.search(pattern.reg, newtext)
             if (search):
-                print(
-                    f"replaced \"{colors.color(search.group(),colors.bg.red)}\" with \"{colors.color(pattern.replFunc(newtext),colors.bg.blue)}\" using \"{pattern.desc}\"")
+                print(f"replaced \"{colors.color(search.group(),colors.bg.red)}\" with \"{colors.color(pattern.replFunc(newtext),colors.bg.blue)}\" using \"{pattern.desc}\"")
                 print(f"{pattern.colorsub(newtext,1)}")
                 newtext = pattern.sub(newtext, 1)
                 newtext = self.__replace_patterns(newtext, patternList)

@@ -218,6 +218,7 @@ texting = [
 ]
 
 print(p.convert(unconfuse(texting[15]), False,))
+print(unconfuse(texting[15]), False,)
 
 print(p.ipa_list("gov"))
 # print(p.ipa_list("et"))
@@ -365,18 +366,27 @@ def hopeless_check(string):
 def convert_to_pronounceable(text: str, method: int = 0):
     t = text
     # t = replace_delimiters(t)
-
-    match method:
-        case 1:
-            check = zigzag_check
-        case 2:
-            check = back_to_front_check
-        case 3:
-            check = front_to_back_check
-        case 4:
-            check = hopeless_check
-        case _:
-            check = back_to_front_check
+    if method == 1:
+        check = zigzag_check
+    elif method == 2:
+        check = back_to_front_check
+    elif method == 3:
+        check = front_to_back_check
+    elif method == 4:
+        check = hopeless_check
+    else:
+        check = back_to_front_check
+    # match method:
+    #     case 1:
+    #         check = zigzag_check
+    #     case 2:
+    #         check = back_to_front_check
+    #     case 3:
+    #         check = front_to_back_check
+    #     case 4:
+    #         check = hopeless_check
+    #     case _:
+    #         check = back_to_front_check
 
     newText = []
     for word in t:
