@@ -79,6 +79,8 @@ from makeItIPA import *
 def flatten(S):
     if S == []:
         return S
+    if isinstance(S[0], tuple):
+        S[0] = list(S[0])
     if isinstance(S[0], list):
         return flatten(S[0]) + flatten(S[1:])
     return S[:1] + flatten(S[1:])
