@@ -76,14 +76,16 @@ from makeItIPA import *
 #     regex_pattern = '|'.join(map(re.escape, delimiters))
 #     return re.split(regex_pattern, string, maxsplit)
 
-def flatten(S):
+def flatten(S) -> list:
     if S == []:
         return S
+    if isinstance(S, tuple):
+        S = list(S)
     if isinstance(S[0], tuple):
         S[0] = list(S[0])
     if isinstance(S[0], list):
-        return flatten(S[0]) + flatten(S[1:])
-    return S[:1] + flatten(S[1:])
+        return Functions.flatten(S[0]) + Functions.flatten(S[1:])
+    return S[:1] + Functions.flatten(S[1:])
 
 
 # def condense_delimiters(text:str):
