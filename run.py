@@ -1,4 +1,4 @@
-import eng_to_ipa as p
+import eng_to_ipa as ipa
 import re
 from functions import *
 
@@ -49,8 +49,8 @@ print(unconfuse("1 apple? and 1 bread for $100.30 12:03"))
 #     print(convert_to_pronounceable(texting[int(userInput)-1], method))
 
 
-print(p.ipa_list("tennessee"))
-print(p.ipa_list("emoji"))
+print(ipa.ipa_list("tennessee"))
+print(ipa.ipa_list("emoji"))
 
 
 print(zigzag_check("wowthatiscool"))

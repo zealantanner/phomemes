@@ -1,4 +1,4 @@
-import eng_to_ipa as p 
+import eng_to_ipa as ipa
 import re
 from replaceList import *
 
@@ -158,7 +158,7 @@ print(Delimiter.condense_delimiters("asdlfkjal.............--------....skdjfl  .
 # print(p.cmu_to_ipa(p.get_cmu("hello")))
 # print(p.get_top("321"))
 # print(Sentence([123]))
-print(p.ipa_list("dont"))
-print(p.ipa_list("gonna"))
-print(p.ipa_list("boyfriend"))
-print(p.ipa_list("boyfriend"))
+print(ipa.ipa_list("dont"))
+print(ipa.ipa_list("gonna"))
+print(ipa.ipa_list("boyfriend"))
+print(ipa.ipa_list("boyfriend"))

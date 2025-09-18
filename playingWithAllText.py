@@ -1,4 +1,4 @@
-import eng_to_ipa as p 
+import eng_to_ipa as ipa 
 import re
 import functions
 

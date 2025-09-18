@@ -1,4 +1,4 @@
-import eng_to_ipa as p
+import eng_to_ipa as ipa
 import re
 from replaceList import *
 from makeItIPA import *
@@ -184,7 +184,7 @@ def unconfuse(text: str):
     for function in order_to_run:
         # print(f"{function(text)=}")
         # print(f"\t{function.__code__.co_name}()")
-        print(f"Functions")
+        print("Functions")
 
         text = function(text)
     return text
@@ -199,7 +199,7 @@ def is_delimiter(text: str):
 
 
 def is_word(s):
-    return (p.isin_cmu(s) and len(s) > 0 and not is_delimiter(s))
+    return (ipa.isin_cmu(s) and len(s) > 0 and not is_delimiter(s))
 
 
 texting = [
@@ -221,20 +221,20 @@ texting = [
     "win ä bïg tree #qwer check |||| #123.422 12:00 am 1st 11th 11,333,444,555.3 @ 21st 3rd % 3:59 Pm 3:09 pm 3:59 °F $1,000.10 ¢32 878¢ AFAIK £32.12 €1.01 adhd c u l8r ¥132 +1 801-520-3340 ADHD ASMR asap B4 bc bf bff brb btw c u l8r loch ness,,,,,,,       challah uh oh uhoh uh-oh"
 ]
 
-print(p.convert(unconfuse(texting[15]), False,))
+print(ipa.convert(unconfuse(texting[15]), False,))
 print(unconfuse(texting[15]), False,)
 
-print(p.ipa_list("gov"))
+print(ipa.ipa_list("gov"))
 # print(p.ipa_list("et"))
-print(p.ipa_list("cetera"))
-print(p.ipa_list("gif"))
-print(p.ipa_list("thy"))
-print(p.ipa_list("them"))
-print(p.ipa_list("t"))
-print(p.ipa_list("a"))
-print(p.ipa_list("a"))
-print(p.convert("I reaad a book last week"))
-print(p.convert("emoji"))
+print(ipa.ipa_list("cetera"))
+print(ipa.ipa_list("gif"))
+print(ipa.ipa_list("thy"))
+print(ipa.ipa_list("them"))
+print(ipa.ipa_list("t"))
+print(ipa.ipa_list("a"))
+print(ipa.ipa_list("a"))
+print(ipa.convert("I reaad a book last week"))
+print(ipa.convert("emoji"))
 # print(p.ipa_list("wav"))ʧ
 # print(p.ipa_list("a")) # is it ay or uh
 # print(p.get_all("read"))
