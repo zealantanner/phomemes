@@ -84,8 +84,8 @@ def flatten(S) -> list:
     if isinstance(S[0], tuple):
         S[0] = list(S[0])
     if isinstance(S[0], list):
-        return Functions.flatten(S[0]) + Functions.flatten(S[1:])
-    return S[:1] + Functions.flatten(S[1:])
+        return flatten(S[0]) + flatten(S[1:])
+    return S[:1] + flatten(S[1:])
 
 
 # def condense_delimiters(text:str):
