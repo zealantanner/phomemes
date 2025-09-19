@@ -1,53 +1,8 @@
 import re
 from num2words import num2words
+import unicodedata
 
 
-class colors:
-    '''Colors class:
-    Reset all colors with colors.reset\n
-    Two subclasses: fg = foreground and bg = background.\n
-    Use as colors.subclass.colorname.\n
-    i.e. colors.fg.red or colors.bg.green\n
-    Also, the generic bold, disable, underline, reverse, strikethrough,
-    and invisible work with the main class
-    i.e. colors.bold'''
-    reset = '\033[0m'
-    bold = '\033[01m'
-    disable = '\033[02m'
-    underline = '\033[04m'
-    reverse = '\033[07m'
-    strikethrough = '\033[09m'
-    invisible = '\033[08m'
-
-    class fg:
-        black = '\033[30m'
-        red = '\033[31m'
-        green = '\033[32m'
-        orange = '\033[33m'
-        blue = '\033[34m'
-        purple = '\033[35m'
-        cyan = '\033[36m'
-        lightgrey = '\033[37m'
-        darkgrey = '\033[90m'
-        lightred = '\033[91m'
-        lightgreen = '\033[92m'
-        yellow = '\033[93m'
-        lightblue = '\033[94m'
-        pink = '\033[95m'
-        lightcyan = '\033[96m'
-
-    class bg:
-        black = '\033[40m'
-        red = '\033[41m'
-        green = '\033[42m'
-        orange = '\033[43m'
-        blue = '\033[44m'
-        purple = '\033[45m'
-        cyan = '\033[46m'
-        lightgrey = '\033[47m'
-
-    def color(text: str, color):
-        return f"{color}{text}{colors.reset}"
 
 
 class Pattern:
@@ -405,6 +360,7 @@ longReplacePatterns = [
     Pattern("OBV", r"(?<!\w)(OBV|Obv|obv)(?!\w)", lambda *_: " obviously "),
     Pattern("OG", r"(?<!\w)(OG|Og|og)(?!\w)", lambda *_: " Oh G "),
     Pattern("OMG", r"(?<!\w)(OMG|Omg|omg)(?!\w)", lambda *_: " Oh M G "),
+    Pattern("PEMDAS", r"(?<!\w)(PEMDAS|Pemdas|pemdas)(?!\w)", lambda *_: " pem|dass "),
     Pattern("POV", r"(?<!\w)(POV|Pov|pov)(?!\w)", lambda *_: " point of view "),
     Pattern("PTSD", r"(?<!\w)(PTSD|Ptsd|ptsd)(?!\w)", lambda *_: " P|T|S|D "),
     Pattern("RN", r"(?<!\w)(RN|Rn|rn)(?!\w)", lambda *_: " right now "),
@@ -412,6 +368,7 @@ longReplacePatterns = [
     Pattern("ROTFL", r"(?<!\w)(ROTFL|Rotfl|rotfl)(?!\w)", lambda *_: " rolling on the floor laughing "),
     Pattern("SMH", r"(?<!\w)(SMH|Smh|smh)(?!\w)", lambda *_: " S|M|H my head "),
     Pattern("STFU", r"(?<!\w)(STFU|Stfu|stfu)(?!\w)", lambda *_: " shut the fuck up "),
+    Pattern("TBA", r"(?<!\w)(TBA|Tba|tba)(?!\w)", lambda *_: " to be announced "),
     Pattern("TBD", r"(?<!\w)(TBD|Tbd|tbd)(?!\w)", lambda *_: " to be determined "),
     Pattern("TBF", r"(?<!\w)(TBF|Tbf|tbf)(?!\w)", lambda *_: " to be fair "),
     Pattern("TIL", r"(?<!\w)(TIL)(?!\w)", lambda *_: " today I learned "),
@@ -492,7 +449,7 @@ longReplacePatterns = [
 # })
 
     
-unknownDict = {
+unknownDict = Pattern.to_Patterns({
     # "|": " ",
 
     "≥": " >= ",
@@ -535,7 +492,6 @@ unknownDict = {
     "₈": "8",
     "⁹": "9",
     "₉": "9",
-    "⏨": "10",
 
 
 
@@ -673,7 +629,7 @@ unknownDict = {
     "↓": " down ",
     "←": " left ",
     "→": " right ",
-}
+})
 
 
 replacePatterns = unknownDict + longReplacePatterns
@@ -707,10 +663,7 @@ print(thing.rep)
 
 
 # more odd characters:
-oddchars = """
-    œ∑`¡™£¢∞§¶•ªº–≠«‘“πøˆˆ¨¥†®´∑œåß∂ƒ©˙∆˚¬…æ÷≥≥≤µ˜∫√ç≈ß``⁄€‹›ﬁﬂ‡°·‚—±»’”∏Ø»’”∏Øuui¨Áu¨u¨ÁÁˇÿ¨g¨q¨wëˇ‰´„ŒŒÍÎ˝ÓÔÒÚÒÚÆ¿˘¯Â˜ı◊Ç˛¸`
-    ïü¥¨¥ÿ¨†¨t¨r¨wüïö¨p¸˛Ç◊ı˜Â¯˘¿
-"""
+
 
 # if there's a ¡ or ¿ then try to detect in between as a sentence
 
