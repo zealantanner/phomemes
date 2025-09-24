@@ -82,7 +82,7 @@ class Pattern:
                 Pattern(f"{defn} to {value}",
                     re.escape(defn),
                     lambda *_, val=value: val
-                    )
+                )
             )
         return array
 
@@ -405,6 +405,7 @@ longReplacePatterns = [
     Pattern("OBV", r"(?<!\w)(OBV|Obv|obv)(?!\w)", lambda *_: " obviously "),
     Pattern("OG", r"(?<!\w)(OG|Og|og)(?!\w)", lambda *_: " Oh G "),
     Pattern("OMG", r"(?<!\w)(OMG|Omg|omg)(?!\w)", lambda *_: " Oh M G "),
+    Pattern("PEMDAS", r"(?<!\w)(PEMDAS|Pemdas|pemdas)(?!\w)", lambda *_: " pem|dass "),
     Pattern("POV", r"(?<!\w)(POV|Pov|pov)(?!\w)", lambda *_: " point of view "),
     Pattern("PTSD", r"(?<!\w)(PTSD|Ptsd|ptsd)(?!\w)", lambda *_: " P|T|S|D "),
     Pattern("RN", r"(?<!\w)(RN|Rn|rn)(?!\w)", lambda *_: " right now "),
@@ -412,6 +413,7 @@ longReplacePatterns = [
     Pattern("ROTFL", r"(?<!\w)(ROTFL|Rotfl|rotfl)(?!\w)", lambda *_: " rolling on the floor laughing "),
     Pattern("SMH", r"(?<!\w)(SMH|Smh|smh)(?!\w)", lambda *_: " S|M|H my head "),
     Pattern("STFU", r"(?<!\w)(STFU|Stfu|stfu)(?!\w)", lambda *_: " shut the fuck up "),
+    Pattern("TBA", r"(?<!\w)(TBA|Tba|tba)(?!\w)", lambda *_: " to be announced "),
     Pattern("TBD", r"(?<!\w)(TBD|Tbd|tbd)(?!\w)", lambda *_: " to be determined "),
     Pattern("TBF", r"(?<!\w)(TBF|Tbf|tbf)(?!\w)", lambda *_: " to be fair "),
     Pattern("TIL", r"(?<!\w)(TIL)(?!\w)", lambda *_: " today I learned "),
@@ -492,7 +494,7 @@ longReplacePatterns = [
 # })
 
     
-unknownDict = {
+unknownDict = Pattern.to_Patterns({
     # "|": " ",
 
     "≥": " >= ",
@@ -673,7 +675,7 @@ unknownDict = {
     "↓": " down ",
     "←": " left ",
     "→": " right ",
-}
+})
 
 
 replacePatterns = unknownDict + longReplacePatterns

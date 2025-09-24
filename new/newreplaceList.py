@@ -452,98 +452,19 @@ longReplacePatterns = [
 unknownDict = Pattern.to_Patterns({
     # "|": " ",
 
-    "≥": " >= ",
-    "≤": " <= ",
     "≠": " != ",
     "±": " + or - ",
     "∞": " infinity ",
     "π": " pi ", # these should all be in a different group
 
-    "…": ".", # this should be in a different group
-    "⁺": "+",
-    "₊": "+",
-    "⁻": "-",
-    "₋": "-",
-    "⁼": "=",
-    "₌": "=",
-    "⁽": "(",
-    "₍": "(",
-    "⁾": ")",
-    "₎": ")",
-
-    "º": "0",
-    "⁰": "0",
-    "₀": "0",
-    "¹": "1",
-    "₁": "1",
-    "²": "2",
-    "₂": "2",
-    "³": "3",
-    "₃": "3",
-    "⁴": "4",
-    "₄": "4",
-    "⁵": "5",
-    "₅": "5",
-    "⁶": "6",
-    "₆": "6",
-    "⁷": "7",
-    "₇": "7",
-    "⁸": "8",
-    "₈": "8",
-    "⁹": "9",
-    "₉": "9",
 
 
 
-    "ₐ": "a",
-    "ª": "a",
-    "À": "a",
-    "à": "a",
-    "Á": "a",
-    "á": "a",
-    "Â": "a",
-    "â": "a",
-    "Ã": "a",
-    "ã": "a",
-    "Ä": "a",
-    "ä": "a",
-    "Å": "a",
-    "å": "a",
+
 
     "Æ": "ae",
     "æ": "ae",
 
-    "Ç": "c",
-    "ç": "c",
-
-    "ₑ": "e",
-    "È": "e",
-    "è": "e",
-    "É": "e",
-    "é": "e",
-    "Ê": "e",
-    "ê": "e",
-    "Ë": "e",
-    "ë": "e",
-
-    "ƒ": "f",
-
-    "ₕ": "h",
-    "ⁱ": "i",
-    "Ì": "i",
-    "ì": "i",
-    "Í": "i",
-    "í": "i",
-    "Î": "i",
-    "î": "i",
-    "Ï": "i",
-    "ï": "i",
-
-    "ₖ": "k",
-
-    "ₗ": "l",
-
-    "ₘ": "m",
 
     "ₙ": "n",
     "ⁿ": "n",
@@ -551,59 +472,9 @@ unknownDict = Pattern.to_Patterns({
     "Ñ": "ny", # these should be in a different group
     "ñ": "ny",
 
-    "ₒ": "o",
-    "Ò": "o",
-    "ò": "o",
-    "Ó": "o",
-    "ó": "o",
-    "Ô": "o",
-    "ô": "o",
-    "Õ": "o",
-    "õ": "o",
-    "Ö": "o",
-    "ö": "o",
 
     "Œ": "oe",
     "œ": "oe",
-
-    "Ø": "oo", # these should be in a different group
-    "ø": "oo",
-
-    "ₚ": "p",
-
-    "ₛ": "s",
-    "Š": "s",
-    "š": "s",
-
-    "ß": "ss", # these should be in a different group
-    "ẞ": "ss",
-
-    "ₜ": "t",
-
-    "Ð": "th", # these should be in a different group
-    "ð": "th",
-    "Þ": "th",
-    "þ": "th",
-
-    "Ù": "u",
-    "ù": "u",
-    "Ú": "u",
-    "ú": "u",
-    "Û": "u",
-    "û": "u",
-    "Ü": "u",
-    "ü": "u",
-
-    "ₓ": "x",
-
-    "Ý": "y",
-    "ý": "y",
-    "Ÿ": "y",
-    "ÿ": "y",
-
-    "Ž": "z",
-    "ž": "z",
-
 
 
     "½": " 1 half ", # these should all be in a different group
@@ -653,6 +524,7 @@ print(thing)
 print(thing.patternList)
 print(thing.ogtext)
 print(thing.rep)
+
 
 
 # write a tokenizer which labels which each value is
