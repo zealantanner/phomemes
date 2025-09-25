@@ -248,14 +248,13 @@ print(unidecode("£45.32, at 12:34 pm for Zealañ."))
 
 #   Sentence("+1 801-520-3340 ADHD ASMR #123.422 21st! verycool $1,000.0,,,, 2% 2ndly?")
 # ----------------------------------------
-#   Set("+1 801-520-3340",      (0, 16)),
+#   Set("+1 801-520-3340",      (0, 16)),       before
 #   Set(" ADHD ASMR ",          (17,27)),
-#   Set("#",                    (28,28)),
-#   Set("123.422",              (29,35)),
+#   Set("#123.422",             (28,35)),       before
 #   Set(" 21st! verycool ",     (36,50)),
-#   Set("$1,000.0",             (51,59)),
+#   Set("$1,000.0",             (51,59)),       before
 #   Set(",,,, 2",               (60,65)),
-#   Set("%",                    (66,66)),
+#   Set("%",                    (66,66)),       before
 #   Set(" 2ndly?",              (67,73)),
 # ----------------------------------------
 
@@ -287,7 +286,7 @@ print(unidecode("£45.32, at 12:34 pm for Zealañ."))
 #   ),
 #   Set("#",                    (28,28)),
 #   Set("123.422",              (29,35)),   translated with num2words
-#       Set("123",                  (29,31)),
+#       Set("123",type="number"     (29,31)),
 #           Word("one",                 (29,29)),
 #           Delimiter(" "),
 #           Word("hundred"),
@@ -299,9 +298,9 @@ print(unidecode("£45.32, at 12:34 pm for Zealañ."))
 #           Word("three",               (31,31)),
 #       ),
 #       Delimiter(" "),
-#       Word("point",               (32,32)),
+#       Word(".",asif="point"    (32,32)),
 #       Delimiter(" "),
-#       Set("422",                  (33,35)),
+#       Set("422",type="number"                         (33,35)),
 #           Word("four",                (33,33)),
 #           Delimiter(" "),
 #           Word("two",                 (34,34)),
@@ -315,6 +314,105 @@ print(unidecode("£45.32, at 12:34 pm for Zealañ."))
 #   Set("%",                      (66,66)),
 #   Set(" 2ndly?",                (67,73)),
 
+
+
+# the default state of a delimiter is " "
+
+#Sentence("+1 801-520-3340 ADHD ASMR #123.422 21st! verycool $1,022.0,,,, 2% 2ndly?")
+#   Set("+1 801-520-3340 ADHD ASMR #123.422 21st! verycool $1,022.0,,,, 2% 2ndly?", (0,73)){
+#  --   Set("+1 801-520-3340",                                                  (0,14),     type="phoneNumber"){        uses phoneNumber converter
+#           Set("+",                                                                (0, 0),     type="symbol"){         uses symbol converter
+#               Word("plus",                                                            (0, 0))
+#           },
+#           Delimiter(),
+#           Set("1",        this part can be multiple numbers in a phone number     (1, 1),     type="indivNumbers"){   uses indivNumbers converter
+#               Set("1",                                                                (1, 1)){                        uses num2words converter
+#                   Word("one",                                                             (1, 1))
+#               }, 
+#           },
+#           Delimiter(" ",                                                          (2, 2)),
+#           Set("801",                                                              (3, 5),     type="indivNumbers"){   uses indivNumbers converter
+#               Set("8",                                                                (3, 3)){                        uses num2words converter
+#                   Word("eight",                                                           (3, 3))
+#               }, 
+#               Delimiter(),
+#               Set("0",                                                                (4, 4), asif=Word(asif="o",type="acronym")){ asif from phoneNumber converter - uses acronym converter
+#                   Word("o",                                                               (4, 4), asif="o",type="acronym")
+#               }, 
+#               Delimiter(),
+#               Set("1",                                                                (5, 5)){                        uses num2words converter
+#                   Word("one",                                                             (5, 5))
+#               }, 
+#           },
+#           Delimiter("-",                                                          (6, 6),     asif=Delimiter(",")),   asif from phoneNumber converter
+#           Set("520",                                                              (7, 9),     type="indivNumbers"){   uses indivNumbers converter
+#               Set("5",                                                                (7, 7)){                        uses num2words converter
+#                   Word("five",                                                            (7, 7))
+#               },
+#               Delimiter(),
+#               Set("2",                                                                (8, 8)){                        uses num2words converter
+#                   Word("four",                                                            (8, 8))
+#               }, 
+#               Delimiter(),
+#               Set("0",                                                                (9, 9)){                        uses num2words converter
+#                   Word("zero",                                                            (9, 9))
+#               }, 
+#           },
+#           Delimiter("-",                                                          (10,10),    asif=Delimiter(",")),   asif from phoneNumber converter
+#           Set("3340",                                                             (11,14),    type="indivNumbers"){   uses indivNumbers converter
+#               Set("3",                                                                (11,11)){                       uses number converter
+#                   Word("three",                                                           (11,11))
+#               }, 
+#               Delimiter(),
+#               Set("3",                                                                (12,12)){                       uses number converter
+#                   Word("three",                                                           (12,12))
+#               }, 
+#               Delimiter(),
+#               Set("4",                                                                (13,13)){                       uses number converter
+#                   Word("four",                                                            (13,13))
+#               }, 
+#               Delimiter(),
+#               Set("0",                                                                (14,14)){                       uses number converter
+#                   Word("zero",                                                            (14,14))
+#               }, 
+#           },
+#       },
+#       Set(" ADHD ASMR #123.422 21st! verycool $1,022.0,,,, 2% 2ndly?",        (15,73)){
+#           Set(" ADHD ASMR ",                                                      (15,25)){
+#           },
+#  --       Set("#"                                                                 (26,26),    type="hashtagNum"){     uses hashtag converter - types(hashtagWord, hashtagNum)
+#               Word("number",                                                          (26,26))
+#               Delimiter(),
+#           },
+#           Set("123.422 21st! verycool $1,022.0,,,, 2% 2ndly?",                    (27,73)){
+#               Set("123.422 21st! verycool ",                                          (27,49)){
+#               },
+#  --           Set("$1,022.0"                                                          (50,57),    type="currency"){   uses currency converter
+#                   Set("1,022",                                                            (51,55),    type="number"){         uses number converter
+#                       one thousand and twenty two
+#                   },
+#                   Delimiter(),
+#                   Set("$",                                                                (50,50),    type="number"){         uses number converter
+#                       
+#                   },
+#               },
+#               Set(",,,, 2% 2ndly?",                    (34,73)){
+#               },
+#           },
+#       },
+#   }
+
+#           Word(".",asif="point"    (32,32)),
+
+#   Set("+1 801-520-3340",      (0, 16)),       before
+#   Set(" ADHD ASMR #123.422 21st! verycool $1,000.0,,,, 2% 2ndly?",          (17,73)),
+#   Set("#123.422",             (28,35)),       before
+#   Set(" 21st! verycool ",     (36,50)),
+#   Set("$1,000.0",             (51,59)),       before
+#   Set(",,,, 2",               (60,65)),
+#   Set("%",                    (66,66)),       before
+#   Set(" 2ndly?",              (67,73)),
+# ----------------------------------------
 
 
 
