@@ -318,76 +318,133 @@ print(unidecode("£45.32, at 12:34 pm for Zealañ."))
 
 # the default state of a delimiter is " "
 
-#Sentence("+1 801-520-3340 ADHD ASMR #123.422 21st! verycool $1,022.0,,,, 2% 2ndly?")
+#Sentence("    +1 801-520-3340 ADHD ASMR #123.422 21st! vérycool $1,022.0,,,, 2% 2ndly?")                               uses custom unidecode and removes whitespace on ends
 #   Set("+1 801-520-3340 ADHD ASMR #123.422 21st! verycool $1,022.0,,,, 2% 2ndly?", (0,73)){
-#  --   Set("+1 801-520-3340",                                                  (0,14),     type="phoneNumber"){        uses phoneNumber converter
+# -     Set("+1 801-520-3340",                                                  (0,14),     type="phoneNumber"){        uses phoneNumber converter
 #           Set("+",                                                                (0, 0),     type="symbol"){         uses symbol converter
-#               Word("plus",                                                            (0, 0))
+#               Word("+",                                                               (0, 0),     asif="plus")
 #           },
 #           Delimiter(),
 #           Set("1",        this part can be multiple numbers in a phone number     (1, 1),     type="indivNumbers"){   uses indivNumbers converter
 #               Set("1",                                                                (1, 1)){                        uses num2words converter
-#                   Word("one",                                                             (1, 1))
+#                   Word("1",                                                               (1, 1),     asif="one")    
 #               }, 
 #           },
-#           Delimiter(" ",                                                          (2, 2)),
+# 
+#  $1.05
+#  one dollar, five cents
+#  word1 word$ word5 wordcents
+# 
+#           Delimiter(" ",                                                          (2, 2),     asif=","),
 #           Set("801",                                                              (3, 5),     type="indivNumbers"){   uses indivNumbers converter
 #               Set("8",                                                                (3, 3)){                        uses num2words converter
-#                   Word("eight",                                                           (3, 3))
+#                   Word("8",                                                               (3, 3), asif="eight")
 #               }, 
 #               Delimiter(),
 #               Set("0",                                                                (4, 4), asif=Word(asif="o",type="acronym")){ asif from phoneNumber converter - uses acronym converter
-#                   Word("o",                                                               (4, 4), asif="o",type="acronym")
+#                   Word("0",                                                               (4, 4), asif="zero")
 #               }, 
 #               Delimiter(),
 #               Set("1",                                                                (5, 5)){                        uses num2words converter
-#                   Word("one",                                                             (5, 5))
+#                   Word("1",                                                               (5, 5), asif="one")
 #               }, 
 #           },
 #           Delimiter("-",                                                          (6, 6),     asif=Delimiter(",")),   asif from phoneNumber converter
 #           Set("520",                                                              (7, 9),     type="indivNumbers"){   uses indivNumbers converter
 #               Set("5",                                                                (7, 7)){                        uses num2words converter
-#                   Word("five",                                                            (7, 7))
+#                   Word("5",                                                               (7, 7), asif="five")            asif from num2words converter
 #               },
 #               Delimiter(),
 #               Set("2",                                                                (8, 8)){                        uses num2words converter
-#                   Word("four",                                                            (8, 8))
+#                   Word("2",                                                               (8, 8), asif="two")             asif from num2words converter
 #               }, 
 #               Delimiter(),
 #               Set("0",                                                                (9, 9)){                        uses num2words converter
-#                   Word("zero",                                                            (9, 9))
+#                   Word("0",                                                               (9, 9), asif="zero")            asif from num2words converter
 #               }, 
 #           },
 #           Delimiter("-",                                                          (10,10),    asif=Delimiter(",")),   asif from phoneNumber converter
 #           Set("3340",                                                             (11,14),    type="indivNumbers"){   uses indivNumbers converter
-#               Set("3",                                                                (11,11)){                       uses number converter
-#                   Word("three",                                                           (11,11))
+#               Set("3",                                                                (11,11)){                       uses num2words converter
+#                   Word("3",                                                               (11,11), asif="three")
 #               }, 
 #               Delimiter(),
-#               Set("3",                                                                (12,12)){                       uses number converter
-#                   Word("three",                                                           (12,12))
+#               Set("3",                                                                (12,12)){                       uses num2words converter
+#                   Word("3",                                                               (12,12), asif="three")
 #               }, 
 #               Delimiter(),
-#               Set("4",                                                                (13,13)){                       uses number converter
-#                   Word("four",                                                            (13,13))
+#               Set("4",                                                                (13,13)){                       uses num2words converter
+#                   Word("4",                                                               (13,13), asif="four")
 #               }, 
 #               Delimiter(),
-#               Set("0",                                                                (14,14)){                       uses number converter
-#                   Word("zero",                                                            (14,14))
+#               Set("0",                                                                (14,14)){                       uses num2words converter
+#                   Word("0",                                                               (14,14), asif="zero")
 #               }, 
 #           },
 #       },
 #       Set(" ADHD ASMR #123.422 21st! verycool $1,022.0,,,, 2% 2ndly?",        (15,73)){
 #           Set(" ADHD ASMR ",                                                      (15,25)){
+#               Set(" ",                                                                (15,15)){
+#                   Set(" ",                                                                (15,15)){                       uses delimiter converter
+#                       Delimiter(" ",                                                          (15,15))
+#                   },
+#               },
+# ---           Set("ADHD",                                                             (16,19),    type="acronym"){                uses acronym converter
+#                   Word("A",                                                               (16,16)     type="acronymletter")           uses acronym pronoucer
+#                   Delimiter(),
+#                   Word("D",                                                               (17,17)     type="acronymletter")           uses acronym pronoucer
+#                   Delimiter(),
+#                   Word("H",                                                               (18,18)     type="acronymletter")           uses acronym pronoucer
+#                   Delimiter(),
+#                   Word("D",                                                               (19,19)     type="acronymletter")           uses acronym pronoucer
+#               },
+#               Set(" ASMR ",                                                           (20,25)){
+#                   Set(" ",                                                                (20,20)){
+#                       Set(" ",                                                                (20,20)){                                   uses delimiter converter
+#                           Delimiter(" ",                                                          (20,20))
+#                       },
+#                   },
+# ----              Set("ASMR",                                                             (21,24),    type="acronym"){                uses acronym converter
+#                       Word("A",                                                               (21,21)     type="acronymletter")           uses acronym pronoucer
+#                       Delimiter(),
+#                       Word("S",                                                               (22,22)     type="acronymletter")           uses acronym pronoucer
+#                       Delimiter(),
+#                       Word("M",                                                               (23,23)     type="acronymletter")           uses acronym pronoucer
+#                       Delimiter(),
+#                       Word("R",                                                               (24,24)     type="acronymletter")           uses acronym pronoucer
+#                   },
+#                   Set(" ",                                                                (25,25)){
+#                       Set(" ",                                                                (25,25)){                       uses delimiter converter
+#                           Delimiter(" ",                                                          (25,25))
+#                       },
+#                   },
+#               },
 #           },
-#  --       Set("#"                                                                 (26,26),    type="hashtagNum"){     uses hashtag converter - types(hashtagWord, hashtagNum)
+# --        Set("#"                                                                 (26,26),    type="hashtagNum"){     uses hashtag converter - types(hashtagWord, hashtagNum)
 #               Word("number",                                                          (26,26))
 #               Delimiter(),
 #           },
 #           Set("123.422 21st! verycool $1,022.0,,,, 2% 2ndly?",                    (27,73)){
 #               Set("123.422 21st! verycool ",                                          (27,49)){
+#                   Set("123.422 ",                                                         (27,34)){
+# -----                 Set("123.422",                                                          (27,33),    type="number"){                   uses number converter
+#                           Set("123",                                                              (27,29),    type="number"){
+#                               
+#                           },
+#                           Word(".",asif="point"    (32,32)),
+#                       },
+#                       Set(" ",                                                                (34,34)){                       uses delimiter converter
+#                           Delimiter(" ",                                                          (15,15))
+#                       },
+#                   },
+# ----              Set("21st",                                                             (11,11)){
+#                       
+#                   },
+#                   Set("! verycool ",                                                      (11,11)){
+#                       
+#                   },
 #               },
-#  --           Set("$1,022.0"                                                          (50,57),    type="currency"){   uses currency converter
+# ---           Set("$1,022.0"                                                          (50,57),    type="currency"){   uses currency converter
 #                   Set("1,022",                                                            (51,55),    type="number"){         uses number converter
 #                       one thousand and twenty two
 #                   },
