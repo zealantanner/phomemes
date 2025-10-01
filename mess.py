@@ -1,127 +1,88 @@
 import re
 import eng_to_ipa as ipa
+import num2words
 from unidecode import unidecode
+from Qualities import colors
 
 
-class colors:
-    '''Colors class:
-    Reset all colors with colors.reset\n
-    Two subclasses: fg = foreground and bg = background.\n
-    Use as colors.subclass.colorname.\n
-    i.e. colors.fg.red or colors.bg.green\n
-    Also, the generic bold, disable, underline, reverse, strikethrough,
-    and invisible work with the main class
-    i.e. colors.bold'''
-    reset = '\033[0m'
-    bold = '\033[01m'
-    disable = '\033[02m'
-    underline = '\033[04m'
-    reverse = '\033[07m'
-    strikethrough = '\033[09m'
-    invisible = '\033[08m'
-
-    class fg:
-        black = '\033[30m'
-        red = '\033[31m'
-        green = '\033[32m'
-        orange = '\033[33m'
-        blue = '\033[34m'
-        purple = '\033[35m'
-        cyan = '\033[36m'
-        lightgrey = '\033[37m'
-        darkgrey = '\033[90m'
-        lightred = '\033[91m'
-        lightgreen = '\033[92m'
-        yellow = '\033[93m'
-        lightblue = '\033[94m'
-        pink = '\033[95m'
-        lightcyan = '\033[96m'
-
-    class bg:
-        black = '\033[40m'
-        red = '\033[41m'
-        green = '\033[42m'
-        orange = '\033[43m'
-        blue = '\033[44m'
-        purple = '\033[45m'
-        cyan = '\033[46m'
-        lightgrey = '\033[47m'
-
-    def color(text: str, color):
-        return f"{color}{text}{colors.reset}"
-
-
-
-class Pattern:
-    def __init__(self, desc: str, reg: str, replFunc):
-        self.desc = desc
-        self.reg = reg
-        self.replFunc = lambda text: replFunc(reg, text)
-    def sub(self, text: str, count: int = 0, flags=0) -> str:
-        return re.sub(self.reg, self.replFunc(text), text, count, flags)
-    class Replacing:
-        def currency(reg: str, text: str, currencySymbol="$"):
-            "Replaces currencies"
+class Set:
+    # def __init__(self, text:list[str], tags = None):
+    def __init__(self, text:str, tags = None):
+        self.text = text
+        self.tags = tags
+    class Convert:
+        def default(text:str, position:list[int,int] = None):
+            "nonspecific set converter"
+            search = re.search(reg, text)
+        def num2words(self,aSet:Set()):
+            return Set()
+        def phone_number(text:str, reg: str):
+            "Replaces phone numbers"
             num2words = Pattern.Replacing.num2words
             search = re.search(reg, text)
-
-            def find_plural(num: int, type: str, isdecimal: bool = False):
-                names = {
-                    "$": ["dollars", "dollar", "cents", "cent"],
-                    "£": ["pounds", "pound", "pence", "penny"],
-                    "€": ["euros",  "euro",  "cents", "cent"],
-                    "¥": ["yen",    "yen",],
-                    "¢": ["cents",  "cent",],
-                }
-                move = 0
-                if (isdecimal):
-                    move = 2
-                if (int(num) == 1):
-                    return names[type][move+1]
-                else:
-                    return names[type][move]
-                # return {"plural": names[type][move], "singular": names[type][move+1]}
             parts = []
-            # ["","two","dollars","thirteen","cents",""]
-            # $£€¥¢
-            if currencySymbol == "$" or currencySymbol == "£" or currencySymbol == "€":
-                if (search.group(5)):            # .12 .00 exists
-                    if (int(search.group(3)) == 0):    # 0.12, 0.00, 0.99
-                        if (int(search.group(5)) == 0):    # 0.00
-                            parts.append(num2words(0))
-                            parts.append(find_plural(0, currencySymbol))
-                        if (int(search.group(5)) > 0):     # 0.12, 0.99
-                            parts.append(num2words(int(search.group(5))))
-                            parts.append(find_plural(int(search.group(5)), currencySymbol, True))
-                    if (int(search.group(3)) > 0):     # 1. 32. 1123.
-                        parts.append(num2words(int(search.group(3))))
-                        parts.append(find_plural(
-                            int(search.group(3)), currencySymbol)+",")
-                        # if(int(search.group(5))==0):    # 1.00 32.00 1123.00
-                        if (int(search.group(5)) > 0):     # 1.12, 321.99
-                            parts.append(num2words(int(search.group(5))))
-                            parts.append(find_plural(int(search.group(5)), currencySymbol, True))
-                else:                           # 1, 3, 1234, 0
-                    if (int(search.group(3)) == 0):    # 0
-                        parts.append(num2words(0))
-                        parts.append(find_plural(0, currencySymbol))
-                    if (int(search.group(3)) > 0):     # 1, 3, 1234
-                        parts.append(num2words(int(search.group(3))))
-                        parts.append(find_plural(int(search.group(3)), currencySymbol))
-            elif currencySymbol == "¢" or currencySymbol == "¥":
-                parts.append(num2words(int(search.group(2))))
-                parts.append(find_plural(int(search.group(2)), currencySymbol))
-            elif currencySymbol == "¢%":
-                parts.append(num2words(int(search.group(1))))
-                parts.append(find_plural(int(search.group(1)), "¢"))
-            # parts = 
-            return " " + " ".join(parts) + " "
+            for part in re.findall(r"\d+", search.group()):
+                parts.append(" ".join(map(num2words, re.findall(r"\d", part))))
+            return " " + ", ".join(parts) + " "
+    # Pattern("$ to dollars",
+    #     r"(\$)((\d+)(\.(\d{2}))?)(?!\d)",
+    #     lambda r, t: Pattern.Replacing.currency(r, t, "$")
+    # ),
+        # def to_word(val):
+        #     return Word(val)
+        # def to_delimiter(val):
+        #     return 
+    def tokenize(self):
+        if issubclass(type(self.text),Set):
+            return self.text
+        if isinstance(self.text[0], list):
+            return Set.tokenize(self.text[0]) + Set.tokenize(self.text[1:])
+        return self.text[:1] + Set.tokenize(self.text[1:])
+    
+print(Set("the text").tokenize())
+
+class Sentence(Set):
+    # def __init__(self, text:str, type: list[str] = None):
+    #     self.text = text,
+    # def __init__(self, text, tags = None):
+    #     super().__init__(text, tags)
+    # def convert_to_sets()
+    #     self.text
+    #     return 
+    pass
 
 
-currencyPattern = Pattern("$ replacing",
-        r"(\$)((\d+)(\.(\d{2}))?)(?!\d)",
-        lambda r, t: Pattern.Replacing.currency(r, t, "$")
-    )
+
+
+example = Sentence("it is 7:00")
+example.convert_to_tokens()
+# output:
+# []
+
+
+Set("7").Word("seven")
+
+
+class Token:
+    def __init__(self, text, convertby=None):
+        pass
+    def tokenize(self):
+        if issubclass(type(self.text),Token):
+            return self.text
+        if isinstance(self.text[0], list):
+            return Set.tokenize(self.text[0]) + Set.tokenize(self.text[1:])
+        return self.text[:1] + Set.tokenize(self.text[1:])
+
+class Word(Token):
+    pass
+class Delimiter(Token):
+    pass
+
+print(Token("the text").tokenize())
+
+
+
+# class Thing:
 
 
 class Textify:
@@ -318,7 +279,7 @@ print(unidecode("£45.32, at 12:34 pm for Zealañ."))
 
 # the default state of a delimiter is " "
 
-#Sentence("    +1 801-520-3340 ADHD ASMR #123.422 21st! vérycool $1,022.0,,,, 2% 2ndly?")                               uses custom unidecode and removes whitespace on ends
+#Sentence("    +1 801-520-3340 ADHD ASMR #123.422 21st! vérycool $1,022.0,,,, 2% 2ndly?")                               uses custom unidecode &&&& remove whitespace on ends
 #   Set("+1 801-520-3340 ADHD ASMR #123.422 21st! verycool $1,022.0,,,, 2% 2ndly?", (0,73)){
 # -     Set("+1 801-520-3340",                                                  (0,14),     type="phoneNumber"){        uses phoneNumber converter
 #           Set("+",                                                                (0, 0),     type="symbol"){         uses symbol converter
@@ -470,6 +431,145 @@ print(unidecode("£45.32, at 12:34 pm for Zealañ."))
 #   Set("%",                    (66,66)),       before
 #   Set(" 2ndly?",              (67,73)),
 # ----------------------------------------
+
+testset = Set("    +1 801-520-3340 ADHD ASMR #123.422 21st! vérycool $1,022.0,,,, 2% 2ndly?", type="sentence")
+Set().tokenize
+#>>>                                                               (0, 0),     asif="plus")
+#           },
+#           Delimiter(),
+#           Set("1",        this part can be multiple numbers in a phone number     (1, 1),     type="indivNumbers"){   uses indivNumbers converter
+#               Set("1",                                                                (1, 1)){                        uses num2words converter
+#                   Word("1",                                                               (1, 1),     asif="one")    
+#               }, 
+#           },
+# 
+#  $1.05
+#  one dollar, five cents
+#  word1 word$ word5 wordcents
+# 
+#           Delimiter(" ",                                                          (2, 2),     asif=","),
+#           Set("801",                                                              (3, 5),     type="indivNumbers"){   uses indivNumbers converter
+#               Set("8",                                                                (3, 3)){                        uses num2words converter
+#                   Word("8",                                                               (3, 3), asif="eight")
+#               }, 
+#               Delimiter(),
+#               Set("0",                                                                (4, 4), asif=Word(asif="o",type="acronym")){ asif from phoneNumber converter - uses acronym converter
+#                   Word("0",                                                               (4, 4), asif="zero")
+#               }, 
+#               Delimiter(),
+#               Set("1",                                                                (5, 5)){                        uses num2words converter
+#                   Word("1",                                                               (5, 5), asif="one")
+#               }, 
+#           },
+#           Delimiter("-",                                                          (6, 6),     asif=Delimiter(",")),   asif from phoneNumber converter
+#           Set("520",                                                              (7, 9),     type="indivNumbers"){   uses indivNumbers converter
+#               Set("5",                                                                (7, 7)){                        uses num2words converter
+#                   Word("5",                                                               (7, 7), asif="five")            asif from num2words converter
+#               },
+#               Delimiter(),
+#               Set("2",                                                                (8, 8)){                        uses num2words converter
+#                   Word("2",                                                               (8, 8), asif="two")             asif from num2words converter
+#               }, 
+#               Delimiter(),
+#               Set("0",                                                                (9, 9)){                        uses num2words converter
+#                   Word("0",                                                               (9, 9), asif="zero")            asif from num2words converter
+#               }, 
+#           },
+#           Delimiter("-",                                                          (10,10),    asif=Delimiter(",")),   asif from phoneNumber converter
+#           Set("3340",                                                             (11,14),    type="indivNumbers"){   uses indivNumbers converter
+#               Set("3",                                                                (11,11)){                       uses num2words converter
+#                   Word("3",                                                               (11,11), asif="three")
+#               }, 
+#               Delimiter(),
+#               Set("3",                                                                (12,12)){                       uses num2words converter
+#                   Word("3",                                                               (12,12), asif="three")
+#               }, 
+#               Delimiter(),
+#               Set("4",                                                                (13,13)){                       uses num2words converter
+#                   Word("4",                                                               (13,13), asif="four")
+#               }, 
+#               Delimiter(),
+#               Set("0",                                                                (14,14)){                       uses num2words converter
+#                   Word("0",                                                               (14,14), asif="zero")
+#               }, 
+#           },
+#       },
+#       Set(" ADHD ASMR #123.422 21st! verycool $1,022.0,,,, 2% 2ndly?",        (15,73)){
+#           Set(" ADHD ASMR ",                                                      (15,25)){
+#               Set(" ",                                                                (15,15)){
+#                   Set(" ",                                                                (15,15)){                       uses delimiter converter
+#                       Delimiter(" ",                                                          (15,15))
+#                   },
+#               },
+# ---           Set("ADHD",                                                             (16,19),    type="acronym"){                uses acronym converter
+#                   Word("A",                                                               (16,16)     type="acronymletter")           uses acronym pronoucer
+#                   Delimiter(),
+#                   Word("D",                                                               (17,17)     type="acronymletter")           uses acronym pronoucer
+#                   Delimiter(),
+#                   Word("H",                                                               (18,18)     type="acronymletter")           uses acronym pronoucer
+#                   Delimiter(),
+#                   Word("D",                                                               (19,19)     type="acronymletter")           uses acronym pronoucer
+#               },
+#               Set(" ASMR ",                                                           (20,25)){
+#                   Set(" ",                                                                (20,20)){
+#                       Set(" ",                                                                (20,20)){                                   uses delimiter converter
+#                           Delimiter(" ",                                                          (20,20))
+#                       },
+#                   },
+# ----              Set("ASMR",                                                             (21,24),    type="acronym"){                uses acronym converter
+#                       Word("A",                                                               (21,21)     type="acronymletter")           uses acronym pronoucer
+#                       Delimiter(),
+#                       Word("S",                                                               (22,22)     type="acronymletter")           uses acronym pronoucer
+#                       Delimiter(),
+#                       Word("M",                                                               (23,23)     type="acronymletter")           uses acronym pronoucer
+#                       Delimiter(),
+#                       Word("R",                                                               (24,24)     type="acronymletter")           uses acronym pronoucer
+#                   },
+#                   Set(" ",                                                                (25,25)){
+#                       Set(" ",                                                                (25,25)){                       uses delimiter converter
+#                           Delimiter(" ",                                                          (25,25))
+#                       },
+#                   },
+#               },
+#           },
+# --        Set("#"                                                                 (26,26),    type="hashtagNum"){     uses hashtag converter - types(hashtagWord, hashtagNum)
+#               Word("number",                                                          (26,26))
+#               Delimiter(),
+#           },
+#           Set("123.422 21st! verycool $1,022.0,,,, 2% 2ndly?",                    (27,73)){
+#               Set("123.422 21st! verycool ",                                          (27,49)){
+#                   Set("123.422 ",                                                         (27,34)){
+# -----                 Set("123.422",                                                          (27,33),    type="number"){                   uses number converter
+#                           Set("123",                                                              (27,29),    type="number"){
+#                               
+#                           },
+#                           Word(".",asif="point"    (32,32)),
+#                       },
+#                       Set(" ",                                                                (34,34)){                       uses delimiter converter
+#                           Delimiter(" ",                                                          (15,15))
+#                       },
+#                   },
+# ----              Set("21st",                                                             (11,11)){
+#                       
+#                   },
+#                   Set("! verycool ",                                                      (11,11)){
+#                       
+#                   },
+#               },
+# ---           Set("$1,022.0"                                                          (50,57),    type="currency"){   uses currency converter
+#                   Set("1,022",                                                            (51,55),    type="number"){         uses number converter
+#                       one thousand and twenty two
+#                   },
+#                   Delimiter(),
+#                   Set("$",                                                                (50,50),    type="number"){         uses number converter
+#                       
+#                   },
+#               },
+#               Set(",,,, 2% 2ndly?",                    (34,73)){
+#               },
+#           },
+#       },
+#   }
 
 
 
