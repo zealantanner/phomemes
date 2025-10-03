@@ -5,104 +5,281 @@ from unidecode import unidecode
 from Qualities import colors
 
 
-class Set:
-    # def __init__(self, text:list[str], tags = None):
-    def __init__(self, text:str, tags = None):
+class SortedList(list):
+    def __init__(self, *args, reverse=False, **kwargs):
+        super().__init__(*args, **kwargs)       # Initialize the super class
+        self.reverse = reverse
+        self.sort(reverse=self.reverse)         # Do additional things with the custom keyword arguments
+
+
+# class Node:
+#     def __init__(self, data):
+#         self.data = data
+#         self.next = None
+#     # def
+
+
+class Tree:
+    def __init__(self, data):
+        self.children = []
+        self.data = data
+    def add_child(self, child_node):
+        "Creates parent-child relationship"
+        print("Adding " + child_node.data)
+        self.children.append(child_node)
+    def traverse(self):
+        "Moves through each node referenced from self downwards"
+        nodes_to_visit = [self]
+        while len(nodes_to_visit) > 0:
+            current_node = nodes_to_visit.pop()
+            print(current_node.data)
+            nodes_to_visit += current_node.children
+
+class Set(Tree):
+    def __init__(self, text:str, span:tuple, type=None, convertby=None):
         self.text = text
-        self.tags = tags
-    class Convert:
-        def default(text:str, position:list[int,int] = None):
-            "nonspecific set converter"
-            search = re.search(reg, text)
-        def num2words(self,aSet:Set()):
-            return Set()
-        def phone_number(text:str, reg: str):
-            "Replaces phone numbers"
-            num2words = Pattern.Replacing.num2words
-            search = re.search(reg, text)
-            parts = []
-            for part in re.findall(r"\d+", search.group()):
-                parts.append(" ".join(map(num2words, re.findall(r"\d", part))))
-            return " " + ", ".join(parts) + " "
-    # Pattern("$ to dollars",
-    #     r"(\$)((\d+)(\.(\d{2}))?)(?!\d)",
-    #     lambda r, t: Pattern.Replacing.currency(r, t, "$")
-    # ),
-        # def to_word(val):
-        #     return Word(val)
-        # def to_delimiter(val):
-        #     return 
-    def tokenize(self):
-        if issubclass(type(self.text),Set):
-            return self.text
-        if isinstance(self.text[0], list):
-            return Set.tokenize(self.text[0]) + Set.tokenize(self.text[1:])
-        return self.text[:1] + Set.tokenize(self.text[1:])
+        self.span = span
+        self.type = type
+        self.convertby = convertby
+        super().__init__(self)
+        self.functionforset()
+    def functionforset(self):
+        if self.convertby == None:
+            spacereg = r" "
+            result = re.search(spacereg,self.text)
+            self.children
+        # self.children = []
+
+    def __str__(self):
+        return self.text
     
-print(Set("the text").tokenize())
+    # def allfuncs(self, method):
+    #     if method == None:
+    #         self.spaces(self)
+    # class Convert:
+    #     def spaces(self):
+    #         spacereg = r" "
 
 class Sentence(Set):
-    # def __init__(self, text:str, type: list[str] = None):
-    #     self.text = text,
-    # def __init__(self, text, tags = None):
-    #     super().__init__(text, tags)
-    # def convert_to_sets()
-    #     self.text
-    #     return 
-    pass
+    def __init__(self, text):
+        # text=text
+        super().__init__(text, (0,len(text)))
 
-
-
-
-example = Sentence("it is 7:00")
-example.convert_to_tokens()
-# output:
-# []
-
-
-Set("7").Word("seven")
 
 
 class Token:
-    def __init__(self, text, convertby=None):
-        pass
-    def tokenize(self):
-        if issubclass(type(self.text),Token):
-            return self.text
-        if isinstance(self.text[0], list):
-            return Set.tokenize(self.text[0]) + Set.tokenize(self.text[1:])
-        return self.text[:1] + Set.tokenize(self.text[1:])
+    def __init__(self, text:str, span:tuple, asif=None):
+        self.text = text
+        self.span = span
+        self.asif = text if asif is None else asif
+    def __str__(self):
+        return self.text
 
 class Word(Token):
-    pass
+    def __init__(self, text:str, span:tuple, asif=None, type=None):
+        self.type = type
+        super().__init__(text, span, asif)
+        if type == "acronym": pass
+        
 class Delimiter(Token):
-    pass
+    def __init__(self, text:str, span:tuple, asif=None, type=None):
+        self.type = type
+        super().__init__(text, span, asif)
 
-print(Token("the text").tokenize())
+radthing = Word("$",(0,1), asif="dollars", type="symbol")
+print(radthing.asif)
+
+
+
+coolthing = Sentence("apple bee and me")
+print(coolthing.span)
+print(coolthing.text)
+
+
+spacereg = "ee a"
+result = re.match(spacereg,coolthing.text)
+print(result)
+# result = re.compile(spacereg,coolthing.text)
+# print(result)
+result = re.search(spacereg,coolthing.text)
+print(result.span())
+print(coolthing.text[:result.start()])
+print(coolthing.text[result.start():result.end()])
+print(coolthing.text[result.end():])
+
+# "patternfinder"
+
+
+sometext = Sentence("apple and bees") 
+# print(sometext.)
+# sometext.
+
+
+
+
+# class Convert:
+#     def __init__(self, name:str, desc:str, patt, func):
+#         self.name = name
+#         self.desc = desc
+#         self.patt = patt
+#         self.func = func
+#     def find():
+#         return 
+#     class Str:
+#         def num2words(number, ordinal=False, lang='en', to='cardinal', **kwargs):
+#             "Num2words but without dashes"
+#             newn = num2words(number, ordinal, lang, to, **kwargs)
+#             return Pattern("remove dashes", r"-", lambda *_: " ").sub(newn)
+#     # class Setify:
+#     #     def 
+#     #     pass
+#     #     # class:
+#     # class Tokenify
+
+
+
+
+
+
+
+
+
+# thingy = str("tree", "map")
+# print(thingy)
+
+# class Set(str):
+#     # def __init__(self, text:list[str], tags = None):
+#     def __init__(self, text:str, tags = None):
+#         self.text = text
+#         self.tags = tags
+#     class Convert:
+#         def default(text:str, position:list[int,int] = None):
+#             "nonspecific set converter"
+#             search = re.search(reg, text)
+#         def num2words(self,aSet):
+#             return Set()
+#         def phone_number(text:str, reg: str):
+#             "Replaces phone numbers"
+#             num2words = Pattern.Replacing.num2words
+#             search = re.search(reg, text)
+#             parts = []
+#             for part in re.findall(r"\d+", search.group()):
+#                 parts.append(" ".join(map(num2words, re.findall(r"\d", part))))
+#             return " " + ", ".join(parts) + " "
+#     # Pattern("$ to dollars",
+#     #     r"(\$)((\d+)(\.(\d{2}))?)(?!\d)",
+#     #     lambda r, t: Pattern.Replacing.currency(r, t, "$")
+#     # ),
+#         # def to_word(val):
+#         #     return Word(val)
+#         # def to_delimiter(val):
+#         #     return 
+#     def tokenize(self):
+#         if issubclass(type(self.text),Set):
+#             return self.text
+#         if isinstance(self.text[0], list):
+#             return Set.tokenize(self.text[0]) + Set.tokenize(self.text[1:])
+#         return self.text[:1] + Set.tokenize(self.text[1:])
+    
+# print(Set("the text").tokenize())
+
+# class Sentence(Set):
+#     # def __init__(self, text:str, type: list[str] = None):
+#     #     self.text = text,
+#     # def __init__(self, text, tags = None):
+#     #     super().__init__(text, tags)
+#     # def convert_to_sets()
+#     #     self.text
+#     #     return 
+#     pass
+
+# Sentence("   I want $7.05") ->
+# [
+#   Set("I want $7.05", (0,11)) ->
+#   [
+# 	Set("I want ",  	(0, 6)), ->
+# 	[
+#   	Word("I",       	(0, 0)),
+#   	Delimiter(" ",  	(1, 1)),
+#   	Word("want",    	(2, 5)),
+#   	Delimiter(" ",  	(6, 6)),
+# 	]
+# 	Set("$7.05",    	(7,11),  convertby="currency"), ->
+# 	[
+#   	Set("7",        	(8, 8),  convertby="num2words"), ->
+#   	[
+#     	Word("7",       	(8, 8),  asif="seven")),
+#   	]
+#   	Delimiter(),
+#   	Word("$",       	(7, 7),  asif="dollars"),
+#   	Delimiter(".",  	(9, 9),  asif=" "),
+#   	Word("",                 	asif="and"),
+#   	Delimiter(),
+#   	Set("05",       	(10,11), convertby="num2words"), ->
+#   	[
+#     	Word("05",      	(10,11), asif="five"),
+#   	]
+#   	Delimiter(),
+#   	Word("",                 	asif="cents"),
+# 	]
+#   ]
+# ]
+
+
+
+
+
+
+
+# example = Sentence("it is 7:00")
+# example.convert_to_tokens()
+# # output:
+# []
+
+
+# Set("7").Word("seven")
+
+
+# class Token:
+#     def __init__(self, text, convertby=None):
+#         pass
+#     def tokenize(self):
+#         if issubclass(type(self.text),Token):
+#             return self.text
+#         if isinstance(self.text[0], list):
+#             return Set.tokenize(self.text[0]) + Set.tokenize(self.text[1:])
+#         return self.text[:1] + Set.tokenize(self.text[1:])
+
+# class Word(Token):
+#     pass
+# class Delimiter(Token):
+#     pass
+
+# print(Token("the text").tokenize())
 
 
 
 # class Thing:
 
 
-class Textify:
-    def __init__(self, text):
-        self.text = text
-        # self.repl = 
-        # self.
-    def __str__(self):
-        return self.text
+# class Textify:
+#     def __init__(self, text):
+#         self.text = text
+#         # self.repl = 
+#         # self.
+#     def __str__(self):
+#         return self.text
     
 
-# class Jank(Obby):
+# # class Jank(Obby):
 
 
-thing1 = Textify("qwe")
-thing2 = Textify("rty")
-thing3 = Textify("uio")
-thing4 = Textify("p[]")
+# thing1 = Textify("qwe")
+# thing2 = Textify("rty")
+# thing3 = Textify("uio")
+# thing4 = Textify("p[]")
 
-thing = Textify("johñny ôwes me £1.34")
+# thing = Textify("johñny ôwes me £1.34")
 
 # customCharacterConverter
 
@@ -130,7 +307,7 @@ checklist = "½⅓¼⅕⅙⅐⅛⅑⅒⅔⅖¾⅗⅜⅘⅚⅝⅞↑↓←→≥�
 #     if(unidecode(char) != char):
 #         print(f"{ord(char)}: {colors.color(char,colors.bg.blue)}\t{colors.color(unidecode(char),colors.bg.red)}")
 
-print(unidecode("£45.32, at 12:34 pm for Zealañ."))
+# print(unidecode("£45.32, at 12:34 pm for Zealañ."))
 
 
 
@@ -432,8 +609,8 @@ print(unidecode("£45.32, at 12:34 pm for Zealañ."))
 #   Set(" 2ndly?",              (67,73)),
 # ----------------------------------------
 
-testset = Set("    +1 801-520-3340 ADHD ASMR #123.422 21st! vérycool $1,022.0,,,, 2% 2ndly?", type="sentence")
-Set().tokenize
+# testset = Set("    +1 801-520-3340 ADHD ASMR #123.422 21st! vérycool $1,022.0,,,, 2% 2ndly?", type="sentence")
+# Set().tokenize
 #>>>                                                               (0, 0),     asif="plus")
 #           },
 #           Delimiter(),
@@ -577,15 +754,15 @@ Set().tokenize
 # print(ipa.cmu_to_ipa("pee"))
 # print(ipa.cmu_to_ipa("pm"))
 # print(ipa.cmu_to_ipa("pee em"))
-print(ipa.convert("pee"))
-print(ipa.convert("pm"))
-print(ipa.convert("pee em"))
-print(ipa.convert("p m"))
-print(ipa.convert("johnny"))
-print(ipa.convert("aim"))
-print(ipa.convert("deep"))
-print(ipa.convert("a watermelon is read"))
-print(ipa.ipa_list("a"))
-print(ipa.ipa_list("s"))
-print(ipa.ipa_list("m"))
-print(ipa.ipa_list("t"))
+# print(ipa.convert("pee"))
+# print(ipa.convert("pm"))
+# print(ipa.convert("pee em"))
+# print(ipa.convert("p m"))
+# print(ipa.convert("johnny"))
+# print(ipa.convert("aim"))
+# print(ipa.convert("deep"))
+# print(ipa.convert("a watermelon is read"))
+# print(ipa.ipa_list("a"))
+# print(ipa.ipa_list("s"))
+# print(ipa.ipa_list("m"))
+# print(ipa.ipa_list("t"))
