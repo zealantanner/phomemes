@@ -12,21 +12,36 @@ class SortedList(list):
         self.sort(reverse=self.reverse)         # Do additional things with the custom keyword arguments
 
 
-# class Node:
-#     def __init__(self, data):
-#         self.data = data
-#         self.next = None
-#     # def
 
+
+
+class Token:
+    def __init__(self, text:str, span:tuple[int,int], asif=None):
+        self.text = text
+        self.span = span
+        self.asif = text if asif is None else asif
+    def __str__(self):
+        return self.text
+
+class Word(Token):
+    type IPA = str #> custom type for IPA
+    def __init__(self, text:str, span:tuple[int,int], asif=None, pronounce:IPA=None):
+        super().__init__(text, span, asif)
+        if type == "acronym": pass
+        #> pronunciation override
+        
+class Delimiter(Token):
+    def __init__(self, text:str, span:tuple[int,int], asif=None, type=None):
+        super().__init__(text, span, asif)
 
 class Tree:
     def __init__(self, data):
         self.children = []
         self.data = data
-    def add_child(self, child_node):
+    def add_child(self, child):
         "Creates parent-child relationship"
-        print("Adding " + child_node.data)
-        self.children.append(child_node)
+        print("Adding ", child)
+        self.children.append(child)        
     def traverse(self):
         "Moves through each node referenced from self downwards"
         nodes_to_visit = [self]
@@ -36,69 +51,106 @@ class Tree:
             nodes_to_visit += current_node.children
 
 class Set(Tree):
-    def __init__(self, text:str, span:tuple, type=None, convertby=None):
+    def __init__(self, text:str, span:tuple, convertby=None):
+        super().__init__(text)
         self.text = text
         self.span = span
-        self.type = type
         self.convertby = convertby
-        super().__init__(self)
-        self.functionforset()
-    def functionforset(self):
-        if self.convertby == None:
-            spacereg = r" "
-            result = re.search(spacereg,self.text)
-            self.children
-        # self.children = []
+        # ratio   = r"(?<first>\d+)(:)(?<second>\d+)"
+        class reg:
+            space   = r" "
+            period  = r"\."
+            number  = r"^\d+$"
+            word    = r"^\w+$"
+        
 
+        # m = re.match(r"(?P<first_name>\w+) (?P<last_name>\w+)", "Malcolm Reynolds")
+        # # m.group('last_name')
+        # parts
+        if(re.search(reg.space, text)):
+            result = re.search(reg.space, text)
+            start = text[:result.start()]
+            middle = text[result.start():result.end()]
+            end = text[result.end():]
+            if start != "":
+                self.add_child(Set(start,(self.span[0],result.start())))
+            self.add_child(Delimiter(" ",(result.start(),result.end())))
+            if end != "":
+                self.add_child(Set(end,(result.end(),self.span[1])))
+                
+        elif(re.search(reg.period, text)):
+            result = re.search(reg.period, text)
+            start = text[:result.start()]
+            middle = text[result.start():result.end()]
+            end = text[result.end():]
+            if start != "":
+                self.add_child(Set(start,(self.span[0],result.start())))
+            self.add_child(Delimiter(".",(result.start(),result.end())))
+            if end != "":
+                self.add_child(Set(end,(result.end(),self.span[1])))
+        elif(re.search(reg.word, text)):
+            result = re.search(reg.word, text)
+            middle = text[result.start():result.end()]
+            self.add_child(Word(middle,(result.start(),result.end())))
+        else:
+            raise ValueError(f"{text}\ncouldn't be helped")
+
+
+
+        # self.children = [
+        #     Set(text[:result.start()],),
+        #     Delimiter(text[result.start():result.end()])
+        # ]
+        # match convertby:
+        #     case None:
+        #     case "spaces":
+        # self.set_children(
+        #     # Set("the bomb", (0,8)),
+        #     Delimiter(".", (8,9)),
+        #     Word("com", (9,12)),
+
+        # )
+
+    # class Reg:
+        
+    # def _split(self, text:str, span:tuple):
+    #     for 
     def __str__(self):
         return self.text
-    
-    # def allfuncs(self, method):
-    #     if method == None:
-    #         self.spaces(self)
-    # class Convert:
-    #     def spaces(self):
-    #         spacereg = r" "
+
+class Split:
+    def __init__(self, regex, func):
+        pass
+    def num2words():pass
+    def phone_number():pass
+    def currency():pass
 
 class Sentence(Set):
     def __init__(self, text):
-        # text=text
+        #> function for removing whitespace on sides and unidecode
         super().__init__(text, (0,len(text)))
 
 
 
-class Token:
-    def __init__(self, text:str, span:tuple, asif=None):
-        self.text = text
-        self.span = span
-        self.asif = text if asif is None else asif
-    def __str__(self):
-        return self.text
 
-class Word(Token):
-    def __init__(self, text:str, span:tuple, asif=None, type=None):
-        self.type = type
-        super().__init__(text, span, asif)
-        if type == "acronym": pass
-        
-class Delimiter(Token):
-    def __init__(self, text:str, span:tuple, asif=None, type=None):
-        self.type = type
-        super().__init__(text, span, asif)
 
 radthing = Word("$",(0,1), asif="dollars", type="symbol")
 print(radthing.asif)
 
 
 
-coolthing = Sentence("apple bee and me")
-print(coolthing.span)
-print(coolthing.text)
+coolthing = Sentence("apple bee and me.com")
+coolthing.traverse()
+print(f"span {coolthing.span}")
+print(f"text {coolthing.text}")
+# print(f"type {coolthing.type}")
+print(f"data {coolthing.data}")
+
 
 
 spacereg = "ee a"
-result = re.match(spacereg,coolthing.text)
-print(result)
+# result = re.match(spacereg,coolthing.text)
+# print(result)
 # result = re.compile(spacereg,coolthing.text)
 # print(result)
 result = re.search(spacereg,coolthing.text)
@@ -115,7 +167,9 @@ sometext = Sentence("apple and bees")
 # sometext.
 
 
-
+# m = re.match(r"(?P<first_name>\w+) (?P<last_name>\w+)", "Malcolm Reynolds")
+# m.group('first_name')
+# m.group('last_name')
 
 # class Convert:
 #     def __init__(self, name:str, desc:str, patt, func):
@@ -213,7 +267,7 @@ sometext = Sentence("apple and bees")
 #   	Delimiter(),
 #   	Word("$",       	(7, 7),  asif="dollars"),
 #   	Delimiter(".",  	(9, 9),  asif=" "),
-#   	Word("",                 	asif="and"),
+#   	Word("",                 	 asif="and"),
 #   	Delimiter(),
 #   	Set("05",       	(10,11), convertby="num2words"), ->
 #   	[
