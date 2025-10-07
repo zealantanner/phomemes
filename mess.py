@@ -162,13 +162,14 @@ class Set(Tree):
                     )?
                 )
             """, flags=re.X),
-            lambda span, m: Set.Reg.num2words(span, m),
+            lambda span, m: Set.Reg.num2words_func(span, m),
             "num2words")
         def num2words_func(self, span, m):
             Pattern(re.compile(r"\w+-\w+"), lambda span, m: "dashes between", type="text")
             repl = n2w(m)
+            search = re.search(reg, text)
             
-            return Set(span,m,)
+            return Set(span,m,wasSplit=True)
         # .34 - zero point three four
         # 34.123452 - thirty-four point one two three four five two
         # 34123452 - thirty-four million, one hundred and twenty-three thousand, four hundred and fifty-two
