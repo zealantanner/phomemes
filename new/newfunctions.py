@@ -54,39 +54,39 @@ class Token:
 
 sampleSentence = Token("come @ me b1ro #gamer 100% m&m gimme a yummy ^")
 # returns array that is 
-# “$10.30, is the correct amount for John”
-# Sentence(“$10.30, is the correct amount for John.”)
+# "$10.30, is the correct amount for John"
+# Sentence("$10.30, is the correct amount for John.")
 # Sentence(
-#   Token(“$10.30”),
-#   Token(“, ”),
-#   Token(“is”),
-#   Token(“ ”),
-#   Token(“the”),
-#   Token(“ ”),
-#   Token(“correct”),
-#   Token(“ ”),
-#   Token(“amount”),
-#   Token(“ ”),
-#   Token(“for”),
-#   Token(“ ”),
-#   Token(“John”),
-#   Token(“.”),
+#   Token("$10.30"),
+#   Token(", "),
+#   Token("is"),
+#   Token(" "),
+#   Token("the"),
+#   Token(" "),
+#   Token("correct"),
+#   Token(" "),
+#   Token("amount"),
+#   Token(" "),
+#   Token("for"),
+#   Token(" "),
+#   Token("John"),
+#   Token("."),
 # )
 # Sentence(
-#   Token(“$10.30”), # attempt unconfuse
-#   Delimiter(“, ”),
-#   Word(“is”),
-#   Delimiter(“ ”),
-#   Word(“the”),
-#   Delimiter(“ ”),
-#   Word(“correct”),
-#   Delimiter(“ ”),
-#   Word(“amount”),
-#   Delimiter(“ ”),
-#   Word(“for”),
-#   Delimiter(“ ”),
-#   Token(“John”),
-#   Delimiter(“.”),
+#   Token("$10.30"), # attempt unconfuse
+#   Delimiter(", "),
+#   Word("is"),
+#   Delimiter(" "),
+#   Word("the"),
+#   Delimiter(" "),
+#   Word("correct"),
+#   Delimiter(" "),
+#   Word("amount"),
+#   Delimiter(" "),
+#   Word("for"),
+#   Delimiter(" "),
+#   Token("John"),
+#   Delimiter("."),
 # )
 
 sample = Token('ä')

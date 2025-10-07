@@ -13,10 +13,15 @@ class SortedList(list):
 
 
 class Pattern:
-    def __init__(self, reg:str, replFunc, desc:str="Unnamed pattern"):
+    def __init__(self, reg:str, replFunc, desc:str="Unnamed pattern", type="sets"):
         self.desc = desc
         self.reg = reg
-        self.replFunc = lambda span, m: replFunc(span, m)
+        self.type = type
+        if(type == "sets"):
+            self.replFunc = lambda span, m: replFunc(span, m)
+        elif(type == "text"):
+            self.replFunc = lambda text: replFunc(reg, text)
+
 
 
 class Token:
@@ -26,7 +31,7 @@ class Token:
 
 class Word(Token):
     type IPA = str #> custom type for IPA
-    def __init__(self, span:tuple[int,int], text:str="", asif=None, pronounceOverride:IPA=None, type=None):
+    def __init__(self, span:tuple[int,int], text:str="", asif=None, pronounceOverride:str=None, type=None):
         self.span = span
         self.text = text
         self.asif = text if asif is None else asif
@@ -51,7 +56,7 @@ class Tree:
         self.data = data
         self.children = []
     def add_child(self, child):
-        self.children.append(child)        
+        self.children.append(child)
     # def traverse(self):
     #     "Moves through each node referenced from self downwards"
     #     nodes_to_visit = [self]
@@ -78,49 +83,42 @@ class Tree:
 class Set(Tree):
     def __init__(self, span:tuple[int,int], text:str, convertby=None, wasSplit=False):
         print(f"creation: ({self.span[0]},{self.span[1]}), \"{self.text}\"")
-        super().__init__(text)
+        super().__init__(span, text)
         self.span = span
         self.text = text
         self.convertby = convertby
         # ratio   = r"(?<first>\d+)(:)(?<second>\d+)"
-        # class reg:
-        #     space   = r" "
-        #     period  = r"\."
-        #     number  = r"^\d+$"
-        #     word    = r"^\w+$"
-        #     dollar  = r"\$"
 
-        # m = re.match(r"(?P<first_name>\w+) (?P<last_name>\w+)", "Malcolm Reynolds")
         # # m.group('last_name')
         # parts
-        if(re.search(reg.space, text)):
-            result = re.search(reg.space, text)
-            start = text[:result.start()]
-            middle = text[result.start():result.end()]
-            end = text[result.end():]
-            if start != "":
-                self.add_child(Set(start,(self.span[0],result.start())))
-            self.add_child(Delimiter(" ",(self.span[0]+result.start(),self.span[0]+result.end())))
-            if end != "":
-                self.add_child(Set(end,(self.span[0]+result.end(),self.span[1])))
+        # if(re.search(reg.space, text)):
+        #     result = re.search(reg.space, text)
+        #     start = text[:result.start()]
+        #     middle = text[result.start():result.end()]
+        #     end = text[result.end():]
+        #     if start != "":
+        #         self.add_child(Set(start,(self.span[0],result.start())))
+        #     self.add_child(Delimiter(" ",(self.span[0]+result.start(),self.span[0]+result.end())))
+        #     if end != "":
+        #         self.add_child(Set(end,(self.span[0]+result.end(),self.span[1])))
                 
-        elif(re.search(reg.period, text)):
-            result = re.search(reg.period, text)
-            start = text[:result.start()]
-            middle = text[result.start():result.end()]
-            end = text[result.end():]
-            if start != "":
-                self.add_child(Set(start,(self.span[0],self.span[0]+result.start())))
-            self.add_child(Delimiter(".",(self.span[0]+result.start(),self.span[0]+result.end())))
-            if end != "":
+        # elif(re.search(reg.period, text)):
+        #     result = re.search(reg.period, text)
+        #     start = text[:result.start()]
+        #     middle = text[result.start():result.end()]
+        #     end = text[result.end():]
+        #     if start != "":
+        #         self.add_child(Set(start,(self.span[0],self.span[0]+result.start())))
+        #     self.add_child(Delimiter(".",(self.span[0]+result.start(),self.span[0]+result.end())))
+        #     if end != "":
 
-                self.add_child(Set(end,(self.span[0]+result.end(),self.span[1])))
-        elif(re.search(reg.word, text)):
-            result = re.search(reg.word, text)
-            middle = text[result.start():result.end()]
-            self.add_child(Word(middle,(self.span[0]+result.start(),self.span[0]+result.end())))
-        else:
-            raise ValueError(f"{text}\ncouldn't be helped")
+        #         self.add_child(Set(end,(self.span[0]+result.end(),self.span[1])))
+        # elif(re.search(reg.word, text)):
+        #     result = re.search(reg.word, text)
+        #     middle = text[result.start():result.end()]
+        #     self.add_child(Word(middle,(self.span[0]+result.start(),self.span[0]+result.end())))
+        # else:
+        #     raise ValueError(f"{text}\ncouldn't be helped")
 
 
 
@@ -142,39 +140,40 @@ class Set(Tree):
         #     "Num2words but without dashes"
         #     newn = num2words(number, ordinal, lang, to, **kwargs)
         #     return Pattern("remove dashes", r"-", lambda *_: " ").sub(newn)
-
-        def num2words(self, span, m):
-            Pattern(re.compile(r"\w+-\w+"))
-            repl = n2w(m)
-
-            return Set(span,m,)
-        num2words.patt = Pattern(
-            re.compile(
-                r"""
-                    (?<isminus>-)?
-                    (
-                        (?<justdecimal>
-                            (?<justdecpoint>\.)
-                            (?<justdecdigits>\d+)
+        num2words_patt = Pattern(re.compile(
+            r"""(?P<isminus>-)?
+                (?P<number>
+                    (?P<justdecimal>
+                        (?P<justdecpoint>\.)
+                        (?P<justdecdigits>\d+)
+                    )
+                |
+                    (?P<integer>
+                        (?P<withcommas>
+                            (?:\d{1,3})
+                            (?:,\d{3})+
                         )
                     |
-                        (?<integer>
-                            (?<withcommas>
-                                (?:\d{1,3})
-                                (?:,\d{3})+
-                            )
-                        |
-                            (?<nocommas>\d+)
-                        )
-                        (?<decimal>
-                            (?<decpoint>\.)
-                            (?<decdigits>\d+)
-                        )?
+                        (?P<nocommas>\d+)
                     )
-                """,
-                flags=re.X),
+                    (?P<decimal>
+                        (?P<decpoint>\.)
+                        (?P<decdigits>\d+)
+                    )?
+                )
+            """, flags=re.X),
             lambda span, m: Set.Reg.num2words(span, m),
             "num2words")
+        def num2words_func(self, span, m):
+            Pattern(re.compile(r"\w+-\w+"), lambda span, m: "dashes between", type="text")
+            repl = n2w(m)
+            
+            return Set(span,m,)
+        # .34 - zero point three four
+        # 34.123452 - thirty-four point one two three four five two
+        # 34123452 - thirty-four million, one hundred and twenty-three thousand, four hundred and fifty-two
+        # 3000000 - three million
+
 
         # symbols = [
         #     Pattern("&", r"&", lambda span, m: "and")
@@ -184,7 +183,7 @@ class Set(Tree):
         def delimiters(self, span, m):
 
             return m
-        delimiters.patt = Pattern(r"\d+", lambda span, m: Set.Reg.num2words(span, m), "num2words")
+        delimiters.patt = Pattern(r"[\., ]+", lambda span, m: Set.Reg.num2words(span, m), "num2words")
     # rules = [
     #     Pattern("&", r"&", lambda span, m: " and "),
     #     Pattern("currency", r"%", lambda span, m: " and "),
@@ -210,15 +209,21 @@ class Set(Tree):
 
 class Sentence(Set):
     def __init__(self, text):
+        self.span = (0,len(text))
+        self.text = text
+        super().__init__((0,len(text)),text)
         #> function for removing whitespace on sides and unidecode
-        super().__init__((0,len(text)), text)
 
+Sentence("asdfads").span
 
-
-
+n2w("12.34")
 
 radthing = Word("$",(0,1), asif="dollars", type="symbol")
 print(radthing.asif)
+print(n2w(".34")) # zero point three four
+print(n2w("34.123452")) # thirty-four point one two three four five two
+print(n2w("34123452")) # thirty-four million, one hundred and twenty-three thousand, four hundred and fifty-two
+print(n2w("3000000")) # three million
 
 
 
