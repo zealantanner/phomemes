@@ -46,3 +46,8 @@ class colors:
 
     def color(text: str, color):
         return f"{color}{text}{colors.reset}"
+
+
+
+def say_span(span:tuple[int,int]):
+    return f"({span[0]},{span[1]})"

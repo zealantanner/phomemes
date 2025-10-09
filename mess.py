@@ -2,7 +2,8 @@ import re
 import eng_to_ipa as ipa
 from num2words import num2words as n2w
 from unidecode import unidecode
-from Qualities import colors
+from Qualities import colors, say_span
+from __future__ import annotations
 
 
 class SortedList(list):
@@ -13,14 +14,14 @@ class SortedList(list):
 
 
 class Pattern:
-    def __init__(self, reg:str, replFunc, desc:str="Unnamed pattern", type="sets"):
+    def __init__(self, reg:str, func, desc:str="Unnamed pattern", type="sets"):
         self.desc = desc
         self.reg = reg
         self.type = type
         if(type == "sets"):
-            self.replFunc = lambda span, m: replFunc(span, m)
+            self.func = lambda span, m, text: func(span, m, text)
         elif(type == "text"):
-            self.replFunc = lambda text: replFunc(reg, text)
+            self.func = lambda text: func(reg, text)
 
 
 
@@ -31,7 +32,7 @@ class Token:
 
 class Word(Token):
     type IPA = str #> custom type for IPA
-    def __init__(self, span:tuple[int,int], text:str="", asif=None, pronounceOverride:str=None, type=None):
+    def __init__(self, span:tuple[int,int], text:str="", asif=None, type=None, pronounceOverride:str=None, ):
         self.span = span
         self.text = text
         self.asif = text if asif is None else asif
@@ -80,126 +81,129 @@ class Tree:
         #     c.traverse(level + 1)
 
 
-class Set(Tree):
-    def __init__(self, span:tuple[int,int], text:str, convertby=None, wasSplit=False):
-        print(f"creation: ({self.span[0]},{self.span[1]}), \"{self.text}\"")
-        super().__init__(span, text)
+class SetNode:
+    def __init__(self, span:tuple[int,int], text:str, asif=None, convertby:str=None, inherit_span:bool=False):
         self.span = span
         self.text = text
+        self.asif = asif
         self.convertby = convertby
+        self.inherit_span = inherit_span
+        self.children:list[Token|SetNode] = self._split(convertby)
+        print(f"creation: {say_span(span)}, \"{self.text}\"")
+
+    def add_child(self, child:Token|SetNode):
+        if isinstance(child,SetNode):
+            if self.inherit_span:
+                child.span = self.span
+                child.inherit_span = self.inherit_span
+            self.children.append(child)
+        elif isinstance(child,Token):
+            self.children.append(child)
+        else:
+            raise ValueError(f"Couldn't add child with type: {type(child)}")
+        return child
+    def set_children(self, *children:Token|SetNode):
+        for child in children:
+            self.add_child(child)
+        return children
+    
+    def flatten(self,S:SetNode):
+        if isinstance(S,SetNode):
+            pass
+        elif isinstance(S,Token):pass
+        else:
+            raise ValueError(f"Couldn't add child with type: {type(child)}")
+        return
+    
+    def spanflatten(self,S:SetNode):
+        pass
+
+    def flatten(self,S) -> list:
+        if S == []:
+            return S
+        if isinstance(S, tuple):
+            S = list(S)
+        if isinstance(S[0], tuple):
+            S[0] = list(S[0])
+        if isinstance(S[0], list):
+            return flatten(S[0]) + flatten(S[1:])
+        return S[:1] + flatten(S[1:])
         # ratio   = r"(?<first>\d+)(:)(?<second>\d+)"
 
-        # # m.group('last_name')
-        # parts
-        # if(re.search(reg.space, text)):
-        #     result = re.search(reg.space, text)
-        #     start = text[:result.start()]
-        #     middle = text[result.start():result.end()]
-        #     end = text[result.end():]
-        #     if start != "":
-        #         self.add_child(Set(start,(self.span[0],result.start())))
-        #     self.add_child(Delimiter(" ",(self.span[0]+result.start(),self.span[0]+result.end())))
-        #     if end != "":
-        #         self.add_child(Set(end,(self.span[0]+result.end(),self.span[1])))
-                
-        # elif(re.search(reg.period, text)):
-        #     result = re.search(reg.period, text)
-        #     start = text[:result.start()]
-        #     middle = text[result.start():result.end()]
-        #     end = text[result.end():]
-        #     if start != "":
-        #         self.add_child(Set(start,(self.span[0],self.span[0]+result.start())))
-        #     self.add_child(Delimiter(".",(self.span[0]+result.start(),self.span[0]+result.end())))
-        #     if end != "":
+    def _split(self, using = None):
+        if(using == None):
+            for patt, in [
+                Reg.wordspaceword_patt
+            ]
 
-        #         self.add_child(Set(end,(self.span[0]+result.end(),self.span[1])))
-        # elif(re.search(reg.word, text)):
-        #     result = re.search(reg.word, text)
-        #     middle = text[result.start():result.end()]
-        #     self.add_child(Word(middle,(self.span[0]+result.start(),self.span[0]+result.end())))
-        # else:
-        #     raise ValueError(f"{text}\ncouldn't be helped")
+        elif(using == 1):pass
 
+    def __str__(self):
+        return self.text
+    def __repr__(self):
+        return f"Set({self.span[0]},{self.span[1]}), \"{self.text}\")"
+    def __getitem__(self,item):
+        pass
 
-
-        # self.children = [
-        #     Set(text[:result.start()],),
-        #     Delimiter(text[result.start():result.end()])
-        # ]
-        # match convertby:
-        #     case None:
-        #     case "spaces":
-        # self.set_children(
-        #     # Set("the bomb", (0,8)),
-        #     Delimiter(".", (8,9)),
-        #     Word("com", (9,12)),
-
-        # )
-    class Reg:
-        # def num2words(number, ordinal=False, lang='en', to='cardinal', **kwargs):
-        #     "Num2words but without dashes"
-        #     newn = num2words(number, ordinal, lang, to, **kwargs)
-        #     return Pattern("remove dashes", r"-", lambda *_: " ").sub(newn)
-        num2words_patt = Pattern(re.compile(
-            r"""(?P<isminus>-)?
-                (?P<number>
-                    (?P<justdecimal>
-                        (?P<justdecpoint>\.)
-                        (?P<justdecdigits>\d+)
-                    )
-                |
-                    (?P<integer>
-                        (?P<withcommas>
-                            (?:\d{1,3})
-                            (?:,\d{3})+
-                        )
-                    |
-                        (?P<nocommas>\d+)
-                    )
-                    (?P<decimal>
-                        (?P<decpoint>\.)
-                        (?P<decdigits>\d+)
-                    )?
-                )
-            """, flags=re.X),
-            lambda span, m: Set.Reg.num2words_func(span, m),
-            "num2words")
-        def num2words_func(self, span, m):
-            Pattern(re.compile(r"\w+-\w+"), lambda span, m: "dashes between", type="text")
-            repl = n2w(m)
-            search = re.search(reg, text)
-            
-            return Set(span,m,wasSplit=True)
         # .34 - zero point three four
         # 34.123452 - thirty-four point one two three four five two
         # 34123452 - thirty-four million, one hundred and twenty-three thousand, four hundred and fifty-two
         # 3000000 - three million
 
-
-        # symbols = [
-        #     Pattern("&", r"&", lambda span, m: "and")
-        # ]
-        # words = Pattern(r"\d", lambda span, m: [],"num2words")
-
-        def delimiters(self, span, m):
-
-            return m
-        delimiters.patt = Pattern(r"[\., ]+", lambda span, m: Set.Reg.num2words(span, m), "num2words")
-    # rules = [
-    #     Pattern("&", r"&", lambda span, m: " and "),
-    #     Pattern("currency", r"%", lambda span, m: " and "),
-    # ]
-    def _split(self, span:tuple[int,int], text:str, using = None):
-        if(using == None):pass
-
-        elif(using == 1):pass
-
-    #     for 
-    def __str__(self):
-        return self.text
-    def __repr__(self):
-        return f"Set({self.span[0]},{self.span[1]}), \"{self.text}\")"
+class Reg:
+    @staticmethod
+    # def num2words(number, ordinal=False, lang='en', to='cardinal', **kwargs):
+    #     "Num2words but without dashes"
+    #     newn = num2words(number, ordinal, lang, to, **kwargs)
+    #     return Pattern("remove dashes", r"-", lambda *_: " ").sub(newn)
+    def num2words(span, text, m):
+        # Pattern(re.compile(r"\w+-\w+"), lambda span, m: "dashes between", type="text")
+        repl = n2w(m)
+        search = re.search(reg, text)
+        return SetNode(span,m,)
+    num2words = Pattern(re.compile(
+        r"""(?P<isminus>-)?
+            (?P<number>
+                (?P<justdecimal>
+                    (?P<justdecpoint>\.)
+                    (?P<justdecdigits>\d+)
+                )
+            |
+                (?P<integer>
+                    (?P<withcommas>
+                        (?:\d{1,3})
+                        (?:,\d{3})+
+                    )
+                |
+                    (?P<nocommas>\d+)
+                )
+                (?P<decimal>
+                    (?P<decpoint>\.)
+                    (?P<decdigits>\d+)
+                )?
+            )
+        """, flags=re.X),
+        lambda span, text, m: Reg.num2words(span, text, m),
+        "num2words")
     
+
+    def wordspaceword(span, text, m):
+        # m.
+        
+        pass
+    wordspaceword = Reg()
+    wordspaceword.patt = Pattern(re.compile(
+        r"""(?P<start>\w+)
+            (?P<selection>\ )
+            (?P<end>\w.+)
+        """, flags=re.X),
+        lambda span, m: SetNode.wordspaceword(span, m))
+
+    def delimitize(self, span, m):
+
+        return m
+    delimitize.patt = Pattern(r"[\., ]+", lambda span, m: SetNode.num2words(span, m), "num2words")
+
 
 # class Split:
 #     def __init__(self, regex, func):
@@ -208,7 +212,7 @@ class Set(Tree):
 #     def phone_number():pass
 #     def currency():pass
 
-class Sentence(Set):
+class Sentence(SetNode):
     def __init__(self, text):
         self.span = (0,len(text))
         self.text = text
@@ -891,6 +895,120 @@ checklist = "½⅓¼⅕⅙⅐⅛⅑⅒⅔⅖¾⅗⅜⅘⅚⅝⅞↑↓←→≥�
 #       },
 #   }
 
+
+
+
+# -----------------------------------------------------------------
+
+
+# default convertby for word is "word", can be acronym
+
+
+test100 = Sentence("  I want $1,222.31") # (0,18)
+SetNode((2,18), "I want $1,222.31")[ # triggered currency function
+    SetNode((2,9),"I want ")[ # triggered trailingDelimiter function
+        SetNode((2,8),"I want")[ # triggered wordspaceword function
+            SetNode((2,3),"I")[ # triggered wordize function
+                Word((2,3),"I"),
+            ],
+            Delimiter((3,4)," "),
+            SetNode((4,8),"want")[ # triggered wordize function
+                Word((4,8),"want"),
+            ],
+        ],
+        Delimiter((8,9), " "),
+    ],
+    SetNode((9,18),"$1,222.31", convertby="currency")[ # one thousand, two hundred and twenty-two dollars and thirty-one cents
+        SetNode((10,15),"1,222", convertby="num2words")[
+            SetNode((10,11),"1", asif="1000", inherit_span=True)[ # triggered num2words function
+                SetNode((10,11),"1000", convertby="num2words", inherit_span=True)[
+                    SetNode((10,11),"one", inherit_span=True)[ # triggered wordize function
+                        Word((10,11),"one"),
+                    ],
+                    Delimiter((10,11)," "),
+                    SetNode((10,11),"thousand", inherit_span=True)[ # triggered wordize function
+                        Word((10,11),"thousand"),
+                    ],
+                ],
+            ],
+            SetNode((11,12),",", asif=", ", convertby="delimiterize", inherit_span=True)[
+                Delimiter((11,12),",",type="comma"),
+            ],
+            SetNode((12,15),"222", convertby="num2words")[
+                SetNode((12,13),"2", asif="two hundred and ", inherit_span=True)[ # triggered trailingDelimiter function
+                    SetNode((12,13),"two hundred and ", inherit_span=True)[ # triggered trailingDelimiter function
+                        SetNode((12,13),"two hundred and", inherit_span=True)[ # triggered wordspaceword function
+                            SetNode((12,13),"two", inherit_span=True)[ # triggered wordize function
+                                Word((12,13),"two"),
+                            ],
+                            Delimiter((12,13)," "),
+                            SetNode((12,13),"hundred and", inherit_span=True)[ # triggered wordspaceword function
+                                SetNode((12,13),"hundred", inherit_span=True)[ # triggered wordize function
+                                    Word((12,13),"hundred"),
+                                ],
+                                Delimiter((12,13)," "),
+                                SetNode((12,13),"and",inherit_span=True)[ # triggered wordize function
+                                    Word((12,13),"and"),
+                                ],
+                            ],
+                        ],
+                        SetNode((12,13)," ", convertby="trailingDelimiter", inherit_span=True)[
+                            Delimiter((12,13)," "),
+                        ],
+                    ],
+                ],
+                SetNode((13,14),"2", asif="twenty-", inherit_span=True)[ # triggered trailingDelimiter function
+                    SetNode((13,14),"2", asif="twenty", inherit_span=True)[ # triggered wordize function 
+                        Word((13,14),"twenty"),
+                    ],
+                    SetNode((13,14)," ", convertby="trailingDelimiter", inherit_span=True)[
+                        Delimiter((13,14),"-"),
+                    ],
+                ],
+                SetNode((14,15),"2", asif="two", convertby="num2words", inherit_span=True)[
+                    Word((14,15),"two"),
+                ],
+            ],
+            SetNode((13,14),"2", asif="20", convertby="num2words", inherit_span=True)[ # triggered wordize function
+                Word((13,14),"twenty"),
+            ],
+
+            SetNode((14,15),"2", asif="two", convertby="num2words", inherit_span=True)[ # triggered wordize function
+                Word((14,15),"two"),
+            ],
+        ],
+        SetNode((9,10),"$", asif="dollars")[ # triggered wordize function
+            Word((9,10),"dollars"),
+        ],
+        SetNode((15,16),".", asif="and")[ # triggered wordize function
+            Word((15,16),"and"),
+        ],
+        SetNode((16,18),"31", convertby="cents")[
+            SetNode((16,18),"31", convertby="num2words")[
+                SetNode((16,17),"3", asif="thirty", inherit_span=True)[ # triggered wordize function
+                    
+                ],
+                Delimiter((10,13)," "),
+                SetNode((16,17),"1", asif="one", inherit_span=True)[ # triggered wordize function
+                    
+                ],
+                SetNode((16,17),"3", asif="thirty", inherit_span=True)[ # triggered wordize function
+                    Word((16,17),"thirty"),
+                ],
+            ],
+            # Set((17,18),"1", asif="one")[ # triggered wordize function
+            #     Word((17,18),"one"),
+            # ],
+            Delimiter((10,13)," "),
+            SetNode((16,18),"31", asif="cents")[
+                Word((17,18),"cents"),
+            ]
+        ],
+    ],
+]
+
+print(n2w("34123452")) # thirty-four million, one hundred and twenty-three thousand, four hundred and fifty-two
+print(n2w("3452")) # three thousand, four hundred and fifty-two
 
 
 
