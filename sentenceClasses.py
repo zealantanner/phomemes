@@ -3,6 +3,9 @@ from __future__ import annotations
 from Qualities import say_span
 import Regs
 
+
+
+
 class Pattern:
     def __init__(self, reg:str, func, desc:str="Unnamed pattern", type="sets"):
         self.desc = desc

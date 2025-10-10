@@ -3,8 +3,38 @@ from mess import Pattern, SetNode, Sentence, Token, Word, Delimiter
 from num2words import num2words as n2w
 from Qualities import colors, say_span
 from __future__ import annotations
+import delimit
+#> make sure unidecode doesn't change ¿¡‘’“”£¢∞π§œ∑´®†¥¨ˆøπ“‘åß∂ƒ©˙∆˚¬…æ≈ç√∫˜µ≤≥÷
+# blankDelimiters = ("|")
 
-
+groupize_neutralSingleQuote = Pattern(re.compile( # specifically for '' # considers "won't" and "lucas'"
+    r"""(?P<selection1>
+            (?P<first1>
+                (?<![a-zA-Z0-9'])'(?!(?:bout|cause|cept|em|neath|til|tis|twas|tween|twere)[^a-zA-Z])
+            )
+            (?P<content1>.*?)
+            (?<!s)(?P<second1> 
+                (?<![^a-zA-Z0-9](?:ol))'(?![a-zA-Z0-9'])
+            )
+        )
+        |
+        (?P<selection2>
+            (?P<first2>
+                (?<![a-zA-Z0-9'])'(?!(?:bout|cause|cept|em|neath|til|tis|twas|tween|twere)[^a-zA-Z])
+            )
+            (?P<content2>.*?)
+            (?P<second2>
+                (?<![^a-zA-Z0-9](?:ol))'(?![a-zA-Z0-9'])
+            )
+        )
+    """, flags=re.VERBOSE),
+    lambda span, m: groupize_neutralSingleQuote(span, m),
+    "'single neutral quotation marks'")
+groupize_neutral = 1
+groupize = [groupize_neutralSingleQuote, groupize_neutraldoubleQuote]
+def groupize_func(span, m):
+    #> 
+    pass
 
 def num2words_func(span, m):
     # Pattern(re.compile(r"\w+-\w+"), lambda span, m: "dashes between", type="text")
@@ -32,42 +62,61 @@ num2words = Pattern(re.compile(
                 (?P<decdigits>\d+)
             )?
         )
-    """, flags=re.X),
+    """, flags=re.VERBOSE),
     lambda span, m: num2words_func(span, m),
-    "num2words")
+    desc="num2words")
     
 
 def wordspaceword_func(span, m):
+
     return SetNode(span, m)
 wordspaceword = Pattern(re.compile(
-    r"""(?P<start>\w+)
-        (?P<selection>\ )
-        (?P<end>\w.+)
-    """
-),)
+    #> may not work with delimiter variables, figure that out
+    r"""(?<=\w)
+        (?P<selection>[\ \-,\.\?\!]+) #> use delimiter variables
+        (?=\w) #
+    """, flags=re.VERBOSE),
+    lambda span, m: wordspaceword_func(span, m),
+    desc="wordspaceword")
 
+def delimitize_func(span, m):
+    return SetNode(span,m)
+delimitize = Pattern(re.compile(
+    r"""
+        (?P<selection>[\ \-,\.\?\!]+)
+    """, flags=re.VERBOSE),
+    lambda span, m: delimitize_func(span, m),
+    desc="delimitize")
+
+
+
+#> functionality for math symbols, call each of symbols what they are 
+#> like "is greater than or equal to" if there's numbers being compared ≤≥÷+-
 rules = [
-    # trailingDelimiter "hi " "hi," "hi."
-    # symbols, # like π or ∞
-    # fractionSymbols, # ½
-    # degrees, # °
-    # currency,
-    # time, # clock time
-    # url_or_email,
-    # phoneNumbers,
-    # hashtag, # # #
-    # abbreviations, # l84 b4 i.e. e.g. misc. etc.
-    # fileExtensions,
-    # ordinal numbers, (including 2ndly)
-    # fractions, # 1/2 2/3
-    num2words, # with type indivNumbers
-    wordspaceword,
-    # delimitize,
-    # wordize, with type acronym
+    # groupize, # --unfinished like ¡hi! or "what" or but not for "didn't he's brooks' "
+    # trailingDelimiter, # "hi " "hi," "hi." --unfinished
+    # symbols, # like π or ∞ --unfinished
+    # fractionSymbols, # ½ --unfinished
+    # degrees, # ° --unfinished
+    # currency, # --unfinished
+    # time, # clock time # --unfinished
+    # url_or_email, # --unfinished
+    # phoneNumbers, # --unfinished
+    # hashtag, # # # --unfinished
+    # apostrophewords
+    # abbreviations, # l84 b4 i.e. e.g. misc. etc. --unfinished
+    # fileExtensions, # --unfinished
+    # ordinal numbers, # (including 2ndly) --unfinished
+    # fractions, # 1/2 2/3 --unfinished
+    num2words, # with type indivNumbers, add e notation --unfinished
+    wordspaceword, # --unfinished
+    delimitize, # --unfinished
+    # wordize, # with type acronym, --unfinished
 ]
 
 
 
 start_rules = [
-    # custom unidecode that doesn't touch symbols like ¢ £ π ∞ ½
+    # multisentencesplitter, # for \n --unfinished
+    # customUnidecode, # that doesn't touch symbols like ¢ £ π ∞ ½ --unfinished
 ]

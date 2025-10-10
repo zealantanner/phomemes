@@ -218,6 +218,7 @@ class Sentence(SetNode):
         self.text = text
         super().__init__((0,len(text)),text)
         #> function for removing whitespace on sides and unidecode
+        #> function for if there's a \n then split it into 2 sentences
 
 Sentence("asdfads").span
 
