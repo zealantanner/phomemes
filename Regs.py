@@ -10,24 +10,24 @@ import delimit
 groupize_neutralSingleQuote = Pattern(re.compile( # specifically for '' # considers "won't" and "lucas'"
     r"""(?P<selection1> #> make it case insensitive
             (?P<first1>
-                (?<![a-zA-Z0-9'])'(?!(?:bout|cause|cept|em|neath|til|tis|twas|tween|twere)[^a-zA-Z])
+                (?<![a-z0-9'])'(?!(?:bout|cause|cept|em|neath|til|tis|twas|tween|twere)[^a-z])
             )
             (?P<content1>.*?)
             (?<!s)(?P<second1> 
-                (?<![^a-zA-Z0-9](?:ol))'(?![a-zA-Z0-9'])
+                (?<![^a-z0-9](?:ol))'(?![a-z0-9'])
             )
         )
         |
         (?P<selection2>
             (?P<first2>
-                (?<![a-zA-Z0-9'])'(?!(?:bout|cause|cept|em|neath|til|tis|twas|tween|twere)[^a-zA-Z])
+                (?<![a-z0-9'])'(?!(?:bout|cause|cept|em|neath|til|tis|twas|tween|twere)[^a-z])
             )
             (?P<content2>.*?)
             (?P<second2>
-                (?<![^a-zA-Z0-9](?:ol))'(?![a-zA-Z0-9'])
+                (?<![^a-z0-9](?:ol))'(?![a-z0-9'])
             )
         )
-    """, flags=re.VERBOSE),
+    """, flags=re.X|re.I),
     lambda span, m: groupize_neutralSingleQuote(span, m),
     "'single neutral quotation marks'")
 groupize_neutral = 1
