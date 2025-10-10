@@ -8,7 +8,7 @@ import delimit
 # blankDelimiters = ("|")
 
 groupize_neutralSingleQuote = Pattern(re.compile( # specifically for '' # considers "won't" and "lucas'"
-    r"""(?P<selection1>
+    r"""(?P<selection1> #> make it case insensitive
             (?P<first1>
                 (?<![a-zA-Z0-9'])'(?!(?:bout|cause|cept|em|neath|til|tis|twas|tween|twere)[^a-zA-Z])
             )
