@@ -2,7 +2,7 @@ import re
 import eng_to_ipa as ipa
 from num2words import num2words as n2w
 from unidecode import unidecode
-from Qualities import colors, say_span
+from Qualities import colors, say_span, span, IPA
 from __future__ import annotations
 
 
@@ -26,13 +26,13 @@ class Pattern:
 
 
 class Token:
-    # def __init__(self, span:tuple[int,int], text:str, asif=None):
+    # def __init__(self, span:span, text:str, asif=None):
     def __init__(self, *data):
         self.data = data
 
 class Word(Token):
     type IPA = str #> custom type for IPA
-    def __init__(self, span:tuple[int,int], text:str="", asif=None, type=None, pronounceOverride:str=None, ):
+    def __init__(self, span:span, text:str="", asif=None, type=None, pronounceOverride:str=None, ):
         self.span = span
         self.text = text
         self.asif = text if asif is None else asif
@@ -43,7 +43,7 @@ class Word(Token):
         #> pronunciation override
 
 class Delimiter(Token):
-    def __init__(self, span:tuple[int,int], text:str="", asif=None, type=None):
+    def __init__(self, span:span, text:str="", asif=None, type=None):
         self.span = span
         self.text = text
         self.asif = text if asif is None else asif
@@ -51,6 +51,7 @@ class Delimiter(Token):
     def __str__(self):
         return self.text
 
+#> vprint_tree(root, style="rounded", border_style="rounded")
 
 class Tree:
     def __init__(self, *data):
@@ -75,6 +76,8 @@ class Tree:
                 print(f"{"|" * (level+1)}{child.__class__.__name__}{repr(child.data)}")
             else:
                 raise ValueError("something went wrong")
+    def get_all_tokens(self, level=0):
+        "Returns all Words/Delimiters in order said"
 
         # print("  " * level + f"{self.__class__.__name__}({repr(self.data)})")
         # for c in self.children:
@@ -82,7 +85,7 @@ class Tree:
 
 
 class SetNode:
-    def __init__(self, span:tuple[int,int], text:str, asif=None, convertby:str=None, inherit_span:bool=False):
+    def __init__(self, span:span, text:str, asif=None, convertby:str=None, inherit_span:bool=False):
         self.span = span
         self.text = text
         self.asif = asif
@@ -142,8 +145,8 @@ class SetNode:
         return self.text
     def __repr__(self):
         return f"Set({self.span[0]},{self.span[1]}), \"{self.text}\")"
-    def __getitem__(self,item):
-        pass
+    # def __getitem__(self,item):
+    #     pass
 
         # .34 - zero point three four
         # 34.123452 - thirty-four point one two three four five two
@@ -306,7 +309,7 @@ sometext = Sentence("apple and bees")
 #             search = re.search(reg, text)
 #         def num2words(self,aSet):
 #             return Set()
-#         def phone_number(text:str, reg: str):
+#         def phone_number(text:str, regstr):
 #             "Replaces phone numbers"
 #             num2words = Pattern.Replacing.num2words
 #             search = re.search(reg, text)
@@ -332,7 +335,7 @@ sometext = Sentence("apple and bees")
 # print(Set("the text").tokenize())
 
 # class Sentence(Set):
-#     # def __init__(self, text:str, type: list[str] = None):
+#     # def __init__(self, text:str, typelist[str] = None):
 #     #     self.text = text,
 #     # def __init__(self, text, tags = None):
 #     #     super().__init__(text, tags)

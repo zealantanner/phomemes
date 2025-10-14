@@ -1,53 +1,25 @@
-
-
-class colors:
-    '''Colors class:
-    Reset all colors with colors.reset\n
-    Two subclasses: fg = foreground and bg = background.\n
-    Use as colors.subclass.colorname.\n
-    i.e. colors.fg.red or colors.bg.green\n
-    Also, the generic bold, disable, underline, reverse, strikethrough,
-    and invisible work with the main class
-    i.e. colors.bold'''
-    reset = '\033[0m'
-    bold = '\033[01m'
-    disable = '\033[02m'
-    underline = '\033[04m'
-    reverse = '\033[07m'
-    strikethrough = '\033[09m'
-    invisible = '\033[08m'
-
-    class fg:
-        black = '\033[30m'
-        red = '\033[31m'
-        green = '\033[32m'
-        orange = '\033[33m'
-        blue = '\033[34m'
-        purple = '\033[35m'
-        cyan = '\033[36m'
-        lightgrey = '\033[37m'
-        darkgrey = '\033[90m'
-        lightred = '\033[91m'
-        lightgreen = '\033[92m'
-        yellow = '\033[93m'
-        lightblue = '\033[94m'
-        pink = '\033[95m'
-        lightcyan = '\033[96m'
-
-    class bg:
-        black = '\033[40m'
-        red = '\033[41m'
-        green = '\033[42m'
-        orange = '\033[43m'
-        blue = '\033[44m'
-        purple = '\033[45m'
-        cyan = '\033[46m'
-        lightgrey = '\033[47m'
-
-    def color(text: str, color):
-        return f"{color}{text}{colors.reset}"
+from colorclass import Color, list_tags
+print(Color(f"{{red}}thing what{{/red}}"))
+# print(Color('{red}Sample Text{/red}', keep_tags=True))
+# for val in list_tags():
+#     print(Color(f"{val[0]}: {{{val[0]}}}{val[0]}{{{val[1]}}}"))
 
 
 
-def say_span(span:tuple[int,int]):
+type IPA = str #> custom type for IPA
+type span = tuple[int,int]
+
+def colorprint(*values:object,
+    sep: str | None = " ",
+    end: str | None = "\n"):
+    # thing = []
+    for val in values:
+        print(Color(val),end=sep, sep="")
+    print(end,end="",sep="")
+
+
+# colorprint("{red}thing what{/red}","{green}Sample Text{/green}")
+
+
+def say_span(span:span):
     return f"({span[0]},{span[1]})"

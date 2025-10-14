@@ -46,22 +46,22 @@ class colors:
         cyan = '\033[46m'
         lightgrey = '\033[47m'
 
-    def color(text: str, color):
+    def color(text:str, color):
         return f"{color}{text}{colors.reset}"
 
 
 class Pattern:
-    def __init__(self, desc: str, reg: str, replFunc):
+    def __init__(self, desc:str, reg:str, replFunc):
         self.desc = desc
         self.reg = reg
         self.replFunc = lambda text: replFunc(reg, text)
 
-    def findall(self, text: str, flags=0):
+    def findall(self, text:str, flags=0):
         return re.findall(self.reg, text, flags)
-    def sub(self, text: str, count: int = 0, flags=0) -> str:
+    def sub(self, text:str, count:int = 0, flags=0) -> str:
         return re.sub(self.reg, self.replFunc(text), text, count, flags)
 
-    def colorsub(self, text: str, count: int = 0, flags=0) -> str:
+    def colorsub(self, text:str, count:int = 0, flags=0) -> str:
         # return f"{re.split(self.reg, text,1)[0]}{c.color(self.replFunc(text),c.bg.blue)}{re.split(self.reg, text,1)[-1]}"
         # array = re.split(self.reg,text)
         # return f"{array[0]}{colors.color(self.replFunc(text),colors.bg.blue)}{array[1]}"
@@ -74,7 +74,7 @@ class Pattern:
         search = re.search(self.reg, text, flags)
         return search.group(num)
 
-    def to_Patterns(dict: dict):
+    def to_Patterns(dict:dict):
         array = []
         for defn in dict:
             value = dict[defn]
@@ -92,7 +92,7 @@ class Pattern:
             newn = num2words(number, ordinal, lang, to, **kwargs)
             return Pattern("remove dashes", r"-", lambda *_: " ").sub(newn)
 
-        def time(reg: str, text: str):  # 1:32 3:00 am 12:63
+        def time(reg:str, text:str):  # 1:32 3:00 am 12:63
             "Replaces valid times"
             num2words = Pattern.Replacing.num2words
             search = re.search(reg, text)
@@ -116,7 +116,7 @@ class Pattern:
         # can I use self.search?
         # class number:
 
-        def ordinal_number(reg: str, text: str):
+        def ordinal_number(reg:str, text:str):
             "Replaces ordinal numbers like 1st 2nd 3rd"
             # num2words = Pattern.Replacing.num2words
             search = re.search(reg, text)
@@ -124,12 +124,12 @@ class Pattern:
             parts.append(num2words(search.group()[:-2], False, "en", "ordinal"))
             return " " + " ".join(parts) + " "
 
-        def currency(reg: str, text: str, currencySymbol="$"):
+        def currency(reg:str, text:str, currencySymbol="$"):
             "Replaces currencies"
             num2words = Pattern.Replacing.num2words
             search = re.search(reg, text)
 
-            def find_plural(num: int, type: str, isdecimal: bool = False):
+            def find_plural(num:int, type:str, isdecimal:bool = False):
                 names = {
                     "$": ["dollars", "dollar", "cents", "cent"],
                     "£": ["pounds", "pound", "pence", "penny"],
@@ -181,7 +181,7 @@ class Pattern:
             # parts = 
             return " " + " ".join(parts) + " "
 
-        def phone_number(reg: str, text: str):
+        def phone_number(reg:str, text:str):
             "Replaces phone numbers"
             num2words = Pattern.Replacing.num2words
             search = re.search(reg, text)
@@ -192,7 +192,7 @@ class Pattern:
             # search = re.search(reg,text)
             # return " " + " ".join(map(num2words,re.findall(r"\d",search.group()))) + " "
 
-        def number(reg: str, text: str):
+        def number(reg:str, text:str):
             "Replaces numbers to words"
             num2words = Pattern.Replacing.num2words
             search = re.search(reg, text)
@@ -213,7 +213,7 @@ class Pattern:
 
             return " " + parts + " "
 
-        def file_extension(reg: str, text: str, repl: str):
+        def file_extension(reg:str, text:str, repl:str):
             "Replaces phone numbers"
             search = re.search(reg, text)
             parts = ""
@@ -224,7 +224,7 @@ class Pattern:
 
 
 class Replace:
-    def __init__(self, text: str, patternList: list):
+    def __init__(self, text:str, patternList:list):
         self.ogtext = text
         self.patternList = patternList
         self.rep = self.__replace_patterns(text, self.patternList)
@@ -232,7 +232,7 @@ class Replace:
     def __str__(self):
         return self.rep
 
-    def __replace_patterns(self, text: str, patternList: list) -> str:
+    def __replace_patterns(self, text:str, patternList:list) -> str:
         newtext = text
         for pattern in patternList:
             search = re.search(pattern.reg, newtext)

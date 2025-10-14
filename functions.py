@@ -46,7 +46,7 @@ from makeItIPA import *
 #         print("~2",others)
 #         return r"[" + self.reg + Delimiter(others).reg + r"]*[" + self.reg + r"*]+[" + self.reg + Delimiter(others).reg + r"]*"
 
-#     def sub(self, repl, string ,count: int = 0):
+#     def sub(self, repl, string ,count:int = 0):
 #         return re.sub(self.reg, repl, string, count)
 #     # def __str__()
 #     # class
@@ -124,7 +124,7 @@ def flatten(S) -> list:
 #     return [condense_delimiters(token) for token in re.split(r"\b",text) if token!=""]
 # apply
 
-def replace_patterns(text: str, patternlist) -> str:
+def replace_patterns(text:str, patternlist) -> str:
     for pattern in patternlist:
         search = re.search(pattern.reg, text)
         if (search):
@@ -136,7 +136,7 @@ def replace_patterns(text: str, patternlist) -> str:
     return text
 
 
-def convert_nums_to_words(text: str):
+def convert_nums_to_words(text:str):
     newtext = ""
     for x in re.findall(r"[0-9]+|[^0-9]+", text):
         if (re.search(r"[0-9]+", x)):
@@ -155,7 +155,7 @@ def convert_nums_to_words(text: str):
 #     # return [condense_delimiters(token) for token in re.split(r"\b",text) if token!=""]
 
 
-def remove_etc(text: str):
+def remove_etc(text:str):
     text = re.sub(
         r"[^0-9a-zA-Z" + re.escape("".join(pauseDelimiters)) + r"]", " ", text)
     # check if anything in any of the lists matches and if so return error
@@ -167,7 +167,7 @@ def remove_etc(text: str):
 
 # print(replace_unknowns("zealan@gmail@.com"))
 
-def unconfuse(text: str):
+def unconfuse(text:str):
     order_to_run = [
         lambda t: replace_patterns(t, unknownDict),
         lambda t: replace_patterns(t, longReplacePatterns),
@@ -194,7 +194,7 @@ def unconfuse(text: str):
 # print(unconfuse(temp))
 
 
-def is_delimiter(text: str):
+def is_delimiter(text:str):
     return any(elem in text for elem in pauseDelimiters)
 
 
@@ -367,7 +367,7 @@ def hopeless_check(string):
 #     return []
 
 
-def convert_to_pronounceable(text: str, method: int = 0):
+def convert_to_pronounceable(text:str, method:int = 0):
     t = text
     # t = replace_delimiters(t)
     if method == 1:

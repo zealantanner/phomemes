@@ -1,13 +1,12 @@
 import re
 from __future__ import annotations
-from Qualities import say_span
+from Qualities import colors, say_span, span, IPA
 import Regs
 
 
 
-
 class Pattern:
-    def __init__(self, reg:str, func, desc:str="Unnamed pattern", type="sets"):
+    def __init__(self, reg:str, func:function, desc:str="Unnamed pattern", type="sets"):
         self.desc = desc
         self.reg = reg
         self.type = type
@@ -18,25 +17,26 @@ class Pattern:
 
 
 class Token:
-    # def __init__(self, span:tuple[int,int], text:str, asif=None):
-    def __init__(self, span:tuple[int,int], text:str="", type=None):
+    def __init__(self, span:span, text:str="", type=None):
         self.span = span
         self.text = text
+        self.type = type
     def __str__(self):
         return self.text
+    def __repr__(self):
+        return f"{self.__class__.__name__}({colors.color(self.text,colors.bg.green)},\t({self.span}))"
 
 class Word(Token):
-    type IPA = str #> custom type for IPA
-    def __init__(self, span:tuple[int,int], text:str="", type=None, pronounceOverride:IPA=None, ):
+    def __init__(self, span:span, text:str="", type=None, pronounceOverride:IPA=None, ):
         super().__init__(span,text,type)
-        self.asif = text if asif is None else asif
+        # self.asif = text if asif is None else asif
         #> type can be acronym
         self.type = type
         if type == "acronym": pass
-        #> pronunciation override
+        #> pronunciation override 
 
 class Delimiter(Token):
-    def __init__(self, span:tuple[int,int], text:str="", type=None):
+    def __init__(self, span:span, text:str="", type=None):
         #> type can be space, comma
         super().__init__(span,text,type)
     types = {
@@ -51,9 +51,10 @@ class Delimiter(Token):
     }
 
 class SetNode:
-    def __init__(self, span:tuple[int,int], text:str, asif=None, convertby:str=None, inherit_span:bool=False):
+    def __init__(self, span:span, text:str, asif=None, convertby:str=None, inherit_span:bool=False):
         self.span = span
         self.text = text
+        # self.asif = text if asif is None else asif
         self.asif = asif
         self.convertby = convertby
         self.inherit_span = inherit_span
@@ -75,6 +76,19 @@ class SetNode:
         for child in children:
             self.add_child(child)
         return children
+    
     def _split(self, using=None):
         if(using == None):
             for func in Regs.rules:
+                pass #>
+        # if(using == None):
+        #     for patt, in [
+        #         Reg.wordspaceword_patt
+        #     ]
+
+    def __str__(self):
+        return self.text
+    def __repr__(self):
+        colors["black"]
+        return f"{self.__class__.__name__}({colors.bg.green(self.text)},\t({say_span(self.span)}))"
+        # return f"Set({self.span[0]},{self.span[1]}), \"{self.text}\")"
