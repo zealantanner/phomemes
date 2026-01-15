@@ -904,11 +904,119 @@ checklist = "½⅓¼⅕⅙⅐⅛⅑⅒⅔⅖¾⅗⅜⅘⅚⅝⅞↑↓←→≥�
 
 # -----------------------------------------------------------------
 
+#> all info will be inherited from the parent
+#> info will contain everything like which sentence, if it's part of a currency, if it's a number, if it's integer or decimal, word, name
 
 # default convertby for word is "word", can be acronym
+justathing = Phonemify("Can I have $100 of Jonas' 1st paycheck? Thnak you")
+Set((0,49),"Can I have $100 of Jonas' 1st paycheck? Thnak you")[ # triggers detect.sentenceSeparator
+    Set((0,39),"Can I have $100 of Jonas' 1st paycheck?", type=sentence.question,info={sentence:0})[ # triggers detect.currency.dollar
+        Set((0,11),"Can I have ")[ # triggers detect.trailingDelimiter.space
+            Set((0,10),"Can I have")[ # triggers detect.wordSpace
+                Set((0,3),"Can")[ # triggers detect.word
+                    Word((0,3),"Can"),
+                ],
+                Set((3,10)," I have")[ # triggers detect.trailingDelimiter.space
+                    Delimiter((3,4)," "),
+                    Set((4,10),"I have")[ # triggers detect.wordSpace
+                        Set((4,5),"I")[ # triggers detect.word
+                            Word((4,5),"I"),
+                        ],
+                        Set((5,10)," have")[ # triggers detect.trailingDelimiter.space
+                            Delimiter((5,6)," "),
+                            Set((6,10),"have")[ # triggers detect.word
+                                Word((6,10),"have"),
+                            ],
+                        ],
+                    ],
+                ],
+                Delimiter((10,11)," "),
+            ],
+        ],
+        Set((11,15),"$100",convertby=currency.dollar,info={})[ # triggers convertby.currency.dollar
+            Set((12,15),"100",convertby=num2words.integer)[ # triggers convertby.num2words.integer
+                Set((12,15),"100",asif="one hundred")[
+                    Set((12,15,(0,11)),"one hundred")[ # triggers detect.wordSpace #> add functionality for subSpan
+                        Set((12,15,(0,3)),"one")[ # triggers detect.word
+                            Word((12,15,(0,3)),"one"),
+                        ],
+                        Set((12,15,(3,11))," hundred")[ # triggers detect.trailingDelimiter.space
+                            Delimiter((12,15,(3,4))," "),
+                            Set((12,15,(4,11)),"hundred")[ # triggers detect.word
+                                Word((12,15,(4,11)),"hundred"),
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            Delimiter((12,12)," "),
+            Set((11,12),"$",asif="dollars")[ # triggers convertby.asif
+                Set((11,12,(0,7)),"dollars")[ # triggers detect.word
+                    Word((11,12,(0,7)),"dollars",info={currency:True,currency.dollar:True,plural:True}),
+                ],
+            ],
+        ],
+        Set((15,38)," of Jonas' 1st paycheck")[ # triggers detect.trailingDelimiter.space
+            Delimiter((15,16)," "),
+            Set((16,38),"of Jonas' 1st paycheck")[ # triggers detect.number.ordinal
+                Set((16,26),"of Jonas' ")[ # triggers detect.trailingDelimiter.space
+                    Set((16,25),"of Jonas'")[ # triggers detect.wordSpace
+                        Set((16,18),"of")[ # triggers detect.word
+                            Word((16,18),"of"),
+                        ],
+                        Set((18,25)," Jonas'")[ # triggers detect.trailingDelimiter.space
+                            Delimiter((18,19)," "),
+                            Set((19,25),"Jonas'")[ # triggers detect.name.possessive (the name function chooses a list of common names as well as any other names I feel like adding)
+                                Name((19,25),"Jonas'",info={span:(19,24),text:"Jonas",},possessive=True,possessiveInfo={span:(24,25),text:"'"}), # the possessive version of a name (jonas or billy) is pronounced differently. for example, billy('s)->bill-ee(z), jonas(')/jonas('s)->joe-niss(-ehz) #> maybe format this differently
+                                # dont forget the subspan for nameinfo
+                            ],
+                        ],
+                    ],
+                    Delimiter((25,26)," "),
+                ],
+                Set((26,29),"1st",convertby=number.ordinal)[ # triggers convertby.number.ordinal
+                    Set((26,29),"1st",asif="first")[ # triggers convertby.asif
+                        Set((26,29,(0,5)),"first")[ # triggers detect.word
+                            Word((26,29,(0,5)),"first"),
+                        ],
+                    ],
+                ],
+                Set((29,38)," paycheck")[ # triggers detect.trailingDelimiter.space
+                    Delimiter((29,30)," "),
+                    Set((30,38),"paycheck")[ # triggers detect.word
+                        Word((30,38),"paycheck"),
+                    ],
+                ],
+            ],
+        ],
+        Delimiter((38,39),"?",type={question:True,sentenceEnd:True}),
+    ],
+    Set((39,49)," Thnak you",info={sentence:1})[ # triggers detect.trailingDelimiter.space
+        Delimiter((39,40)," "),
+        Set((40,49),"Thnak you")[ # triggers detect.wordSpace
+            Set((40,45),"Thnak")[ # triggers options for mispellings and closest matches
+                AskUser((40,45),"Thnak",options={spell.candidates("Thnak"), custom.Word, custom.Name})[ # if custom word or name is chosen it gets saved into the system
+                    Set((40,45),"Thnak",asif="Thank")[ # triggers convertby.asif
+                        Set((40,45,(0,5)),"Thank")[ # triggers detect.word
+                            Word((40,45,(0,5)),"Thank"),
+                        ],
+                    ],
+                ],
+            ],
+            Set((45,49)," you")[ # triggers trailingDelimiter.space
+                Delimiter((45,46)," "),
+                Set((46,49),"you")[ # triggers detect.word
+                    Word((46,49),"you"),
+                ],
+            ],
+        ],
+    ],
+],
 
 
-test100 = Sentence("  I want $1,222.31") # (0,18)
+
+
+test100 = Sentence("  I want $1,222.31") # (0,18) #> shouldn't just ignore trailing whitespace
 SetNode((2,18), "I want $1,222.31")[ # triggered currency function
     SetNode((2,9),"I want ")[ # triggered trailingDelimiter function
         SetNode((2,8),"I want")[ # triggered wordspaceword function

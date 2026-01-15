@@ -5,7 +5,7 @@ from Qualities import colors, say_span
 from __future__ import annotations
 import delimit
 #> make sure unidecode doesn't change ¿¡‘’“”£¢∞π§œ∑´®†¥¨ˆøπ“‘åß∂ƒ©˙∆˚¬…æ≈ç√∫˜µ≤≥÷
-# blankDelimiters = ("|")
+# blankDelimiters = ("|") #> dont do this
 
 groupize_neutralSingleQuote = Pattern(re.compile( # specifically for '' # considers "won't" and "lucas'"
     r"""(?P<selection1> #> make it case insensitive
@@ -93,6 +93,7 @@ delimitize = Pattern(re.compile(
 #> functionality for math symbols, call each of symbols what they are 
 #> like "is greater than or equal to" if there's numbers being compared ≤≥÷+-
 rules = [
+    # maybe??? if I want to specify if something should be bold or italic, go with <i>hello</i>. use html style
     # groupize, # --unfinished like ¡hi! or "what" or but not for "didn't he's brooks' "
     # trailingDelimiter, # "hi " "hi," "hi." --unfinished
     # symbols, # like π or ∞ --unfinished

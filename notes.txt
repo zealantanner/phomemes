@@ -1,1 +1,80 @@
 input text
+
+how does it pronounce "mr" and "mrs" with eng_to_ipa
+
+
+give groups of text the option of being bold or italic with parameters
+
+instead of actually working with strings, work with objects that contain each character, instead of
+
+
+ 
+Can I have $100 of Jonas' 1st paycheck? Thnak you
+
+test jonas' and jonas's along with in quotation marks
+
+
+Try my program with different books with text.
+
+
+Make it so it can detect characters by the names in bits of text
+
+
+for cases like $100.01 it should be one hundred dollars and 1 cent
+with that .01 being singular
+
+$ could go at the end too . "I have 100$"
+
+
+add all the info inheritance after adding basic functions
+
+use spellchecker
+
+Can I have one hundred dollars of Jonas' first paycheck? Thank you
+
+
+
+
+
+
+Word((0,3),"Can"),
+Delimiter((3,4)," "),
+Word((4,5),"I"),
+Delimiter((5,6)," "),
+Word((6,10),"have"),
+Delimiter((10,11)," "),
+Word((12,15,(0,3)),"one"),
+Delimiter((12,15,(3,4))," "),
+Word((12,15,(4,11)),"hundred"),
+Delimiter((12,12)," "),
+Word((11,12,(0,7)),"dollars",info={currency:True,currency.dollar:True,plural:True}),
+Delimiter((15,16)," "),
+Word((16,18),"of"),
+Delimiter((18,19)," "),
+Name((19,25),"Jonas'",info={span:(19,24),text:"Jonas",},possessive=True,possessiveInfo={span:(24,25),text:"'"}),
+Delimiter((25,26)," "),
+Word((26,29,(0,5)),"first"),
+Delimiter((29,30)," "),
+Word((30,38),"paycheck"),
+Delimiter((38,39),"?",type={question:True,sentenceEnd:True}),
+Delimiter((39,40)," "),
+Word((40,45,(0,5)),"Thank"),
+Delimiter((45,46)," "),
+Word((46,49),"you"),
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
