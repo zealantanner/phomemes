@@ -30,6 +30,10 @@ add all the info inheritance after adding basic functions
 
 use spellchecker
 
+initialism vs acronym
+
+
+
 Can I have one hundred dollars of Jonas' first paycheck? Thank you
 
 
