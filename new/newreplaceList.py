@@ -253,7 +253,7 @@ longReplacePatterns = [
     # ---------------------------------------------------------
     # currency
     Pattern("$ to dollars",
-        r"(\$)((\d+)(\.(\d{2}))?)(?!\d)",
+        r"(\$)((\d+)(\.(\d{2}))?)(?!\d)", #> redo this to include ($100).123407 and (100$) and ($100)$
         lambda r, t: Pattern.Replacing.currency(r, t, "$")
     ),
     Pattern("£ to pounds",
@@ -306,7 +306,7 @@ longReplacePatterns = [
     Pattern("24/7", r"(?<!\w)(24/7)(?!\w)", lambda *_: " 24 7 "),
     Pattern("ADHD", r"(?<!\w)(ADHD|Adhd|adhd)(?!\w)", lambda *_: " A|D|H|D "),  # a is pronounced uh
     Pattern("AFAIK", r"(?<!\w)(AFAIK|Afaik|afaik)(?!\w)", lambda *_: " as far as I know "),
-    Pattern("AFK", r"(?<!\w)(AFK|Afk|afk)(?!\w)", lambda *_: " as far as I know "),
+    Pattern("AFK", r"(?<!\w)(AFK|Afk|afk)(?!\w)", lambda *_: " away from keyboard "),
     Pattern("ADOFAI", r"(?<!\w)(ADOFAI|Adofai|adofai)(?!\w)", lambda *_: " a dance of fire and ice "),
     Pattern("AKA", r"(?<!\w)(AKA|aka|Aka)(?!\w)", lambda *_: " also known as "),
     Pattern("API", r"(?<!\w)(API)(?!\w)", lambda *_: " A|P|I "),
@@ -372,7 +372,7 @@ longReplacePatterns = [
     Pattern("TBD", r"(?<!\w)(TBD|Tbd|tbd)(?!\w)", lambda *_: " to be determined "),
     Pattern("TBF", r"(?<!\w)(TBF|Tbf|tbf)(?!\w)", lambda *_: " to be fair "),
     Pattern("TIL", r"(?<!\w)(TIL)(?!\w)", lambda *_: " today I learned "),
-    Pattern("TL;DR", r"(?<!\w)(TL;?DR|Tl;?dr|tl;?dr)(?!\w)", lambda *_: " too long; didn't read "),
+    Pattern("TL;DR", r"(?<!\w)(TL;?DR|Tl;?dr|tl;?dr)(?!\w)", lambda *_: " too long; didn't read "), #> needs to happen before detecting ";"
     Pattern("TTYL", r"(?<!\w)(TTYL|Ttyl|ttyl)(?!\w)", lambda *_: " talk to you later "),
     Pattern("TMI", r"(?<!\w)(TMI|Tmi|tmi)(?!\w)", lambda *_: " too much information "),
     Pattern("TYSM", r"(?<!\w)(TYSM|Tysm|tysm)(?!\w)", lambda *_: " thank you so much "),
@@ -383,13 +383,14 @@ longReplacePatterns = [
     Pattern("WIP", r"(?<!\w)(WIP)(?!\w)", lambda *_: " work in progress "),
     Pattern("WTF", r"(?<!\w)(WTF|Wtf|wtf)(?!\w)", lambda *_: " what the fuck "),
     Pattern("WYD", r"(?<!\w)(WYD|Wyd|wyd)(?!\w)", lambda *_: " what you doing? "),
-    Pattern("W/", r"(?<!\w)(W/|w/)", lambda *_: " with "),
-    Pattern("W/O", r"(?<!\w)(W/O|W/o|w/o)(?!\w)", lambda *_: " without "),
-    Pattern("XOXO", re.compile(r"(?<![a-z\d])(XOXO)(?![a-z\d])", flags=re.I), lambda *_: " hugs and kisses "),
+    Pattern("W/", r"(?<!\w)(W/|w/)", lambda *_: " with "), # doesn't work perfectly with every scenario 
+    Pattern("W/O", r"(?<!\w)(W/O|W/o|w/o)(?!\w)", lambda *_: " without "), # should match w with and o out. Test how "with", "out", and "without", to see if just putting them together would work
+    Pattern("XOXO", re.compile(r"(?<![a-z\d])(XOXO)(?![a-z\d])", flags=re.I), lambda *_: " hugs and kisses "), # just pronounce letters
     Pattern("YOLO", r"(?<!\w)(YOLO|Yolo|yolo)(?!\w)", lambda *_: " yo|low "),
     Pattern("YSK", r"(?<!\w)(YSK)(?!\w)", lambda *_: " you should know "),
     # ---------------------------------------------------------
-    Pattern("C++", r"((?<!\w)|\.)(C|c)\+\+(?!\w)", lambda r,t: Pattern.Replacing.file_extension(r, t, " C plus plus ")),
+    # file extensions need to be more thought out
+    Pattern("C++", r"((?<!\w)|\.)(C|c)\+\+(?!\w)", lambda r,t: Pattern.Replacing.file_extension(r, t, " C plus plus ")), # .cpp is also a thing
     Pattern("C#", r"((?<!\w)|\.)(C)#(?!\w)", lambda r,t: Pattern.Replacing.file_extension(r, t, " C sharp ")),
     Pattern("CSS", r"((?<!\w)|\.)(CSS|Css|css)(?!\w)", lambda r,t: Pattern.Replacing.file_extension(r, t, " C|S|S ")),
     Pattern("EXE", r"((?<!\w)|\.)(EXE|Exe|exe)(?!\w)", lambda r,t: Pattern.Replacing.file_extension(r, t, " E|X|E ")),

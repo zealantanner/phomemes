@@ -909,104 +909,107 @@ checklist = "½⅓¼⅕⅙⅐⅛⅑⅒⅔⅖¾⅗⅜⅘⅚⅝⅞↑↓←→≥�
 
 # default convertby for word is "word", can be acronym
 justathing = Phonemify("Can I have $100 of Jonas' 1st paycheck? Thnak you")
-Set((0,49),"Can I have $100 of Jonas' 1st paycheck? Thnak you")[ # triggers detect.sentenceSeparator
-    Set((0,39),"Can I have $100 of Jonas' 1st paycheck?", type=sentence.question,info={sentence:0})[ # triggers detect.currency.dollar
-        Set((0,11),"Can I have ")[ # triggers detect.trailingDelimiter.space
-            Set((0,10),"Can I have")[ # triggers detect.wordSpace
-                Set((0,3),"Can")[ # triggers detect.word
-                    Word((0,3),"Can"),
+Set((0,49,49),"Can I have $100 of Jonas' 1st paycheck? Thnak you")[ # triggers detect.sentenceSeparator
+    Set((0,39,49),"Can I have $100 of Jonas' 1st paycheck?", type=sentence.question,info={sentence:0})[ # triggers detect.currency.dollar
+        Set((0,11,49),"Can I have ")[ # triggers detect.trailingDelimiter.space
+            Set((0,10,49),"Can I have")[ # triggers detect.wordSpace
+                Set((0,3,49),"Can")[ # triggers detect.word
+                    Word((0,3,49),"Can"),
                 ],
-                Set((3,10)," I have")[ # triggers detect.trailingDelimiter.space
-                    Delimiter((3,4)," "),
-                    Set((4,10),"I have")[ # triggers detect.wordSpace
-                        Set((4,5),"I")[ # triggers detect.word
-                            Word((4,5),"I"),
+                Set((3,10,49)," I have")[ # triggers detect.trailingDelimiter.space
+                    Delimiter((3,4,49)," "),
+                    Set((4,10,49),"I have")[ # triggers detect.wordSpace
+                        Set((4,5,49),"I")[ # triggers detect.word
+                            Word((4,5,49),"I"),
                         ],
-                        Set((5,10)," have")[ # triggers detect.trailingDelimiter.space
-                            Delimiter((5,6)," "),
-                            Set((6,10),"have")[ # triggers detect.word
-                                Word((6,10),"have"),
+                        Set((5,10,49)," have")[ # triggers detect.trailingDelimiter.space
+                            Delimiter((5,6,49)," "),
+                            Set((6,10,49),"have")[ # triggers detect.word
+                                Word((6,10,49),"have"),
                             ],
                         ],
                     ],
                 ],
-                Delimiter((10,11)," "),
+                Delimiter((10,11,49)," "),
             ],
         ],
-        Set((11,15),"$100",convertby=currency.dollar,info={})[ # triggers convertby.currency.dollar
-            Set((12,15),"100",convertby=num2words.integer)[ # triggers convertby.num2words.integer
-                Set((12,15),"100",asif="one hundred")[
-                    Set((12,15,(0,11)),"one hundred")[ # triggers detect.wordSpace #> add functionality for subSpan
-                        Set((12,15,(0,3)),"one")[ # triggers detect.word
-                            Word((12,15,(0,3)),"one"),
+        Set((11,15,49),"$100",convertby=currency.dollar,info={})[ # triggers convertby.currency.dollar #> has special handling for subclasses
+            Set((12,15,49,(1,4,4)),"100",convertby=num2words.integer)[ # triggers convertby.num2words.integer #> in this case it puts it all in 1 subspan. if it was 123 it would split into ((1)one hundred) and ((2)twenty) ((3)three) but 100 is just ((100)one hundred). Maybe even each one at a time, like for 123 it would split into 100 and 23, do 100, then split 23 into 20,3, but not for 11 12 13, just make the 23 it's own set instead of doing it in the function
+                #> the next set would normally be different because it's a number, so it would be split into more sets, but not since it's 100
+                Set((12,15,49,(1,4,4)),"100",asif="one hundred")[ # triggers convertby.asif
+                    Set((12,15,49,(1,4,4,(0,11,11))),"one hundred")[ # triggers detect.wordSpace #> add functionality for subSpan
+                        Set((12,15,49,(1,4,4,(0,3,11))),"one")[ # triggers detect.word
+                            Word((12,15,49,(1,4,4,(0,3,11))),"one"),
                         ],
-                        Set((12,15,(3,11))," hundred")[ # triggers detect.trailingDelimiter.space
-                            Delimiter((12,15,(3,4))," "),
-                            Set((12,15,(4,11)),"hundred")[ # triggers detect.word
-                                Word((12,15,(4,11)),"hundred"),
+                        Set((12,15,49,(1,4,4,(3,11,11)))," hundred")[ # triggers detect.trailingDelimiter.space
+                            Delimiter((12,15,49,(1,4,4,(3,4,11)))," "),
+                            Set((12,15,49,(1,4,4,(4,11,11))),"hundred")[ # triggers detect.word
+                                Word((12,15,49,(1,4,4,(4,11,11))),"hundred"),
                             ],
                         ],
                     ],
                 ],
             ],
-            Delimiter((12,12)," "),
-            Set((11,12),"$",asif="dollars")[ # triggers convertby.asif
-                Set((11,12,(0,7)),"dollars")[ # triggers detect.word
-                    Word((11,12,(0,7)),"dollars",info={currency:True,currency.dollar:True,plural:True}),
+            Delimiter((12,12,49)," "),
+            Set((11,12,49),"$",asif="dollars")[ # triggers convertby.asif
+                Set((11,12,49,(0,7,7)),"dollars")[ # triggers detect.word
+                    Word((11,12,49,(0,7,7)),"dollars",info={currency:True,currency.dollar:True,plural:True}),
                 ],
             ],
         ],
-        Set((15,38)," of Jonas' 1st paycheck")[ # triggers detect.trailingDelimiter.space
-            Delimiter((15,16)," "),
-            Set((16,38),"of Jonas' 1st paycheck")[ # triggers detect.number.ordinal
-                Set((16,26),"of Jonas' ")[ # triggers detect.trailingDelimiter.space
-                    Set((16,25),"of Jonas'")[ # triggers detect.wordSpace
-                        Set((16,18),"of")[ # triggers detect.word
-                            Word((16,18),"of"),
+        Set((15,38,49)," of Jonas' 1st paycheck")[ # triggers detect.trailingDelimiter.space #> jonas' was probably one of the first that should be done
+            Delimiter((15,16,49)," "),
+            Set((16,38,49),"of Jonas' 1st paycheck")[ # triggers detect.number.ordinal
+                Set((16,26,49),"of Jonas' ")[ # triggers detect.trailingDelimiter.space
+                    Set((16,25,49),"of Jonas'")[ # triggers detect.wordSpace
+                        Set((16,18,49),"of")[ # triggers detect.word
+                            Word((16,18,49),"of"),
                         ],
-                        Set((18,25)," Jonas'")[ # triggers detect.trailingDelimiter.space
-                            Delimiter((18,19)," "),
-                            Set((19,25),"Jonas'")[ # triggers detect.name.possessive (the name function chooses a list of common names as well as any other names I feel like adding)
-                                Name((19,25),"Jonas'",info={span:(19,24),text:"Jonas",},possessive=True,possessiveInfo={span:(24,25),text:"'"}), # the possessive version of a name (jonas or billy) is pronounced differently. for example, billy('s)->bill-ee(z), jonas(')/jonas('s)->joe-niss(-ehz) #> maybe format this differently
+                        Set((18,25,49)," Jonas'")[ # triggers detect.trailingDelimiter.space
+                            Delimiter((18,19,49)," "),
+                            Set((19,25,49),"Jonas'")[ # triggers detect.name.possessive (the name function chooses a list of common names as well as any other names I feel like adding)
+                                Name((19,25,49),"Jonas'",info={span:(19,24,49),text:"Jonas",},possessive_S=True,possessiveInfo={span:(24,25,49),text:"'"}), # the possessive version of a name (jonas or billy) is pronounced differently. for example, billy('s)->bill-ee(z), jonas(')/jonas('s)->joe-niss(-ehz) #> maybe format this differently
                                 # dont forget the subspan for nameinfo
+                                # possessive sounds different for names like elizabeth. elizabeth('s) -> elizabeth(ss)
+                                # Beth's->Beth(ss) Kathy's->Kathy(z) Thomas's->Thomas(ehz) Janet's->Janet(ss) Jonas'->Jonas(ehz) Eric's->Eric(ss)
                             ],
                         ],
                     ],
-                    Delimiter((25,26)," "),
+                    Delimiter((25,26,49)," "),
                 ],
-                Set((26,29),"1st",convertby=number.ordinal)[ # triggers convertby.number.ordinal
-                    Set((26,29),"1st",asif="first")[ # triggers convertby.asif
-                        Set((26,29,(0,5)),"first")[ # triggers detect.word
-                            Word((26,29,(0,5)),"first"),
+                Set((26,29,49),"1st",convertby=number.ordinal)[ # triggers convertby.number.ordinal
+                    Set((26,29,49),"1st",asif="first")[ # triggers convertby.asif
+                        Set((26,29,49,(0,5,5)),"first")[ # triggers detect.word
+                            Word((26,29,49,(0,5,5)),"first"),
                         ],
                     ],
                 ],
-                Set((29,38)," paycheck")[ # triggers detect.trailingDelimiter.space
-                    Delimiter((29,30)," "),
-                    Set((30,38),"paycheck")[ # triggers detect.word
-                        Word((30,38),"paycheck"),
+                Set((29,38,49)," paycheck")[ # triggers detect.trailingDelimiter.space
+                    Delimiter((29,30,49)," "),
+                    Set((30,38,49),"paycheck")[ # triggers detect.word
+                        Word((30,38,49),"paycheck"),
                     ],
                 ],
             ],
         ],
-        Delimiter((38,39),"?",type={question:True,sentenceEnd:True}),
+        Delimiter((38,39,49),"?",type={question:True,sentenceEnd:True}),
     ],
-    Set((39,49)," Thnak you",info={sentence:1})[ # triggers detect.trailingDelimiter.space
-        Delimiter((39,40)," "),
-        Set((40,49),"Thnak you")[ # triggers detect.wordSpace
-            Set((40,45),"Thnak")[ # triggers options for mispellings and closest matches
-                AskUser((40,45),"Thnak",options={spell.candidates("Thnak"), custom.Word, custom.Name})[ # if custom word or name is chosen it gets saved into the system
-                    Set((40,45),"Thnak",asif="Thank")[ # triggers convertby.asif
-                        Set((40,45,(0,5)),"Thank")[ # triggers detect.word
-                            Word((40,45,(0,5)),"Thank"),
+    Set((39,49,49)," Thnak you",info={sentence:1})[ # triggers detect.trailingDelimiter.space
+        Delimiter((39,40,49)," "),
+        Set((40,49,49),"Thnak you")[ # triggers detect.wordSpace
+            Set((40,45,49),"Thnak")[ # triggers options for mispellings and closest matches
+                AskUser((40,45,49),"Thnak",options={spell.candidates("Thnak"), custom.Word, custom.Name})[ # if custom word or name is chosen it gets saved into the system
+                    Set((40,45,49),"Thnak",asif="Thank")[ # triggers convertby.asif
+                        Set((40,45,49,(0,5,5)),"Thank")[ # triggers detect.word
+                            Word((40,45,49,(0,5,5)),"Thank"),
                         ],
                     ],
                 ],
             ],
-            Set((45,49)," you")[ # triggers trailingDelimiter.space
-                Delimiter((45,46)," "),
-                Set((46,49),"you")[ # triggers detect.word
-                    Word((46,49),"you"),
+            Set((45,49,49)," you")[ # triggers trailingDelimiter.space
+                Delimiter((45,46,49)," "),
+                Set((46,49,49),"you")[ # triggers detect.word
+                    Word((46,49,49),"you"),
                 ],
             ],
         ],

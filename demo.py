@@ -18,7 +18,7 @@ print(ipa.convert(ipa.get_all(text)[0]))
 print(ipa.get_all(text))
 print(spell.candidates(text))
 ipa.syllable_count
-spell.
+# spell.
 # print(spell.candidates("askin"))
 # print(ipa.get_rhymes("billy"))
 # misspelled = spell.unknown(['something', 'is', 'hapenning', 'here'])

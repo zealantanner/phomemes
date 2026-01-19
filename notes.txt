@@ -2,16 +2,26 @@ input text
 
 how does it pronounce "mr" and "mrs" with eng_to_ipa
 
+when a token has a subspan, that means it should be the final in some cases.
+write functions for getting all the leaf children, as well as all the lowest ones without subspans. that way they can be grouped correctly in some cases.
+"I want $100"
+"(I)( )(want)( )($100)"
+
+
+
+
+possessive:
+it's just an 's, unless the subject ends in s, then it can just be '
+for example:
+david's
+james'
+james's
+Use the regex I made for detecting the apostrophe vs quotation marks
+'I go to jonas' house'
+
 
 give groups of text the option of being bold or italic with parameters
 
-instead of actually working with strings, work with objects that contain each character, instead of
-
-
- 
-Can I have $100 of Jonas' 1st paycheck? Thnak you
-
-test jonas' and jonas's along with in quotation marks
 
 
 Try my program with different books with text.
@@ -30,11 +40,27 @@ add all the info inheritance after adding basic functions
 
 use spellchecker
 
-initialism vs acronym
+
+
+
+
+Have a thing for finding patterns, and another for converting.
+When a pattern is matched, it activates the convertby function
 
 
 
 Can I have one hundred dollars of Jonas' first paycheck? Thank you
+
+group things into groups like "" and () after already tokenizing
+
+For acronyms:
+Each letter should correspond to each word
+
+initialism vs acronym
+
+for acronyms like API, make sure to use the phonemer but make sure it's the letters, a can sound like uh if it's the word.
+just have a parameter for 
+
 
 
 
@@ -82,3 +108,5 @@ Word((46,49),"you"),
 
 
 
+future:
+detect nouns and subjects,
