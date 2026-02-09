@@ -10,7 +10,7 @@ spell = SpellChecker()
 text = "Thnak"
 print(ipa.ipa_list(text))
 # print(ipa.i(text))
- 
+
 # convertedText = p.ipa_list(text)
 # print(ipa.cmu_to_ipa(text))
 # print(ipa.find_stress(text))
