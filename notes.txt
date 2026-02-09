@@ -40,16 +40,29 @@ add all the info inheritance after adding basic functions
 
 use spellchecker
 
+I have ∞ dollars
+
+Nooooooooooooooooooo
+No + ox10+ o
 
 
+1098274j098d079n1809812n3098d1y20n398dh10
+
+REGEX
 
 
 Have a thing for finding patterns, and another for converting.
 When a pattern is matched, it activates the convertby function
 
 
-
+Can I have $100 of Jonas' 1st paycheck? Thnak you
 Can I have one hundred dollars of Jonas' first paycheck? Thank you
+
+
+1stly
+firstly
+12:10 pm
+
 
 group things into groups like "" and () after already tokenizing
 

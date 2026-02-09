@@ -162,6 +162,7 @@ class Reg:
     def num2words(span, text, m):
         # Pattern(re.compile(r"\w+-\w+"), lambda span, m: "dashes between", type="text")
         repl = n2w(m)
+        re.
         search = re.search(reg, text)
         return SetNode(span,m,)
     num2words = Pattern(re.compile(
@@ -970,6 +971,8 @@ Set((0,49,49),"Can I have $100 of Jonas' 1st paycheck? Thnak you")[ # triggers d
                             Set((19,25,49),"Jonas'")[ # triggers detect.name.possessive (the name function chooses a list of common names as well as any other names I feel like adding)
                                 Name((19,25,49),"Jonas'",info={span:(19,24,49),text:"Jonas",},possessive_S=True,possessiveInfo={span:(24,25,49),text:"'"}), # the possessive version of a name (jonas or billy) is pronounced differently. for example, billy('s)->bill-ee(z), jonas(')/jonas('s)->joe-niss(-ehz) #> maybe format this differently
                                 # dont forget the subspan for nameinfo
+                                jonas's
+                                beth's
                                 # possessive sounds different for names like elizabeth. elizabeth('s) -> elizabeth(ss)
                                 # Beth's->Beth(ss) Kathy's->Kathy(z) Thomas's->Thomas(ehz) Janet's->Janet(ss) Jonas'->Jonas(ehz) Eric's->Eric(ss)
                             ],
@@ -1121,8 +1124,9 @@ SetNode((2,18), "I want $1,222.31")[ # triggered currency function
         ],
     ],
 ]
+5 y/o 
 
-print(n2w("34123452")) # thirty-four million, one hundred and twenty-three thousand, four hundred and fifty-two
+print(n2w("$34,123,452")) # thirty-four million, one hundred and twenty-three thousand, four hundred and fifty-two
 print(n2w("3452")) # three thousand, four hundred and fifty-two
 
 
