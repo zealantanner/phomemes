@@ -905,8 +905,30 @@ checklist = "½⅓¼⅕⅙⅐⅛⅑⅒⅔⅖¾⅗⅜⅘⅚⅝⅞↑↓←→≥�
 
 # -----------------------------------------------------------------
 
+timeExample = "is 12:25 pm"
+Set((0,11,11),"is 12:25 pm")[ # classify.time
+    Set("is ")
+    Set("12:25 pm")
+]
+
+# -----------------------------------------------------------------
+
+enclosureExample = 'this (is a "cool) sentence"I think"'
+Set((0,36,36),'this (is a "cool) sentence"I think"')[
+    Set((0,5,36),'this '),
+    Enclosure((5,17,36),'(is a "cool)')
+]
+
+
+enclosureExample2 = 'this (is a "cool) sentence"I think"'
+Set((0,36,36),'I (do ("whatever" I) want whenever I) want')[
+    
+]
+
+# -----------------------------------------------------------------
 #> all info will be inherited from the parent
 #> info will contain everything like which sentence, if it's part of a currency, if it's a number, if it's integer or decimal, word, name
+#> there needs to be 2 options to output: the final, 
 
 # default convertby for word is "word", can be acronym
 justathing = Phonemify("Can I have $100 of Jonas' 1st paycheck? Thnak you")
@@ -937,7 +959,7 @@ Set((0,49,49),"Can I have $100 of Jonas' 1st paycheck? Thnak you")[ # triggers d
         Set((11,15,49),"$100",convertby=currency.dollar,info={})[ # triggers convertby.currency.dollar #> has special handling for subclasses
             Set((12,15,49,(1,4,4)),"100",convertby=num2words.integer)[ # triggers convertby.num2words.integer #> in this case it puts it all in 1 subspan. if it was 123 it would split into ((1)one hundred) and ((2)twenty) ((3)three) but 100 is just ((100)one hundred). Maybe even each one at a time, like for 123 it would split into 100 and 23, do 100, then split 23 into 20,3, but not for 11 12 13, just make the 23 it's own set instead of doing it in the function
                 #> the next set would normally be different because it's a number, so it would be split into more sets, but not since it's 100
-                Set((12,15,49,(1,4,4)),"100",asif="one hundred")[ # triggers convertby.asif
+                Set((12,15,49,(1,4,4)),"100",rewrite="one hundred")[ # triggers convertby.rewrite
                     Set((12,15,49,(1,4,4,(0,11,11))),"one hundred")[ # triggers detect.wordSpace #> add functionality for subSpan
                         Set((12,15,49,(1,4,4,(0,3,11))),"one")[ # triggers detect.word
                             Word((12,15,49,(1,4,4,(0,3,11))),"one"),
@@ -952,7 +974,7 @@ Set((0,49,49),"Can I have $100 of Jonas' 1st paycheck? Thnak you")[ # triggers d
                 ],
             ],
             Delimiter((12,12,49)," "),
-            Set((11,12,49),"$",asif="dollars")[ # triggers convertby.asif
+            Set((11,12,49),"$",rewrite="dollars")[ # triggers convertby.rewrite
                 Set((11,12,49,(0,7,7)),"dollars")[ # triggers detect.word
                     Word((11,12,49,(0,7,7)),"dollars",info={currency:True,currency.dollar:True,plural:True}),
                 ],
@@ -981,7 +1003,7 @@ Set((0,49,49),"Can I have $100 of Jonas' 1st paycheck? Thnak you")[ # triggers d
                     Delimiter((25,26,49)," "),
                 ],
                 Set((26,29,49),"1st",convertby=number.ordinal)[ # triggers convertby.number.ordinal
-                    Set((26,29,49),"1st",asif="first")[ # triggers convertby.asif
+                    Set((26,29,49),"1st",rewrite="first")[ # triggers convertby.rewrite
                         Set((26,29,49,(0,5,5)),"first")[ # triggers detect.word
                             Word((26,29,49,(0,5,5)),"first"),
                         ],
@@ -1001,8 +1023,8 @@ Set((0,49,49),"Can I have $100 of Jonas' 1st paycheck? Thnak you")[ # triggers d
         Delimiter((39,40,49)," "),
         Set((40,49,49),"Thnak you")[ # triggers detect.wordSpace
             Set((40,45,49),"Thnak")[ # triggers options for mispellings and closest matches
-                AskUser((40,45,49),"Thnak",options={spell.candidates("Thnak"), custom.Word, custom.Name})[ # if custom word or name is chosen it gets saved into the system
-                    Set((40,45,49),"Thnak",asif="Thank")[ # triggers convertby.asif
+                AskUser((40,45,49),"Thnak",options={spell.candidates("Thnak"), custom.Word, custom.Name})[ # if custom word or name is chosen it gets saved into the system # if the correction ends up being the same length as the first word then no need to add span maybe
+                    Set((40,45,49),"Thnak",rewrite="Thank")[ # triggers convertby.rewrite
                         Set((40,45,49,(0,5,5)),"Thank")[ # triggers detect.word
                             Word((40,45,49,(0,5,5)),"Thank"),
                         ],

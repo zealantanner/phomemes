@@ -54,3 +54,16 @@ print(ipa.ipa_list("emoji"))
 
 
 print(zigzag_check("wowthatiscool"))
+
+
+
+
+
+
+
+
+
+
+
+
+

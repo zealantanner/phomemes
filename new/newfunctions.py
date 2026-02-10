@@ -131,9 +131,14 @@ print(f"is_normalized(\"NFKD\", \"₎\")) {unicodedata.is_normalized('NFKD', '�
 
 print(f"name(\"ä\")) {unicodedata.name('ä')}")
 print(f"mirrored(\"ä\")) {unicodedata.mirrored('ä')}")
-print(f"numeric(\"ä\")) {unicodedata.numeric('ä')}")
+# print(f"numeric(\"ä\")) {unicodedata.numeric('ä')}")
 print(f"numeric(\"1\")) {unicodedata.numeric('1')}")
 # print(f"numeric(\"⁵\")) {unicodedata.numeric("⁵")}")
 # print(f"numeric(\"⅐\")) {unicodedata.numeric("⅐")}")
 
 
+print(f"normalize(\"NFKC\", \"½⅓¼⅕⅙⅐⅛⅑⅒⅔⅖¾⅗⅜⅘⅚⅝⅞\")) {unicodedata.normalize('NFKC', '½⅓¼⅕⅙⅐⅛⅑⅒⅔⅖¾⅗⅜⅘⅚⅝⅞')}")
+fractions = "½ ⅓ ¼ ⅕ ⅙ ⅐ ⅛ ⅑ ⅒ ⅔ ⅖ ¾ ⅗ ⅜ ⅘ ⅚ ⅝ ⅞"
+print(unicodedata.normalize('NFKC', fractions))
+# for val in fractions:
+#     print(unicodedata.normalize('NFKC', val))

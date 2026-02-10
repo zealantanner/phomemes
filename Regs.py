@@ -121,3 +121,5 @@ start_rules = [
     # multisentencesplitter, # for \n --unfinished
     # customUnidecode, # that doesn't touch symbols like ¢ £ π ∞ ½ --unfinished
 ]
+
+
