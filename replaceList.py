@@ -348,10 +348,10 @@ longReplacePatterns = [
     Pattern("= to equals", r"=", lambda *_: " equals "),
     # ---------------------------------------------------------
     # abbreviations
-    Pattern("24/7", r"(?<!\w)(24/7)(?!\w)", lambda *_: " 24 7 "),
+    Pattern("24/7", r"(?<!\w)(24/7)(?!\w)", lambda *_: " 24 7 "), #> special case, not a fraction
     Pattern("ADHD", r"(?<!\w)(ADHD|Adhd|adhd)(?!\w)", lambda *_: " A|D|H|D "),  # a is pronounced uh
     Pattern("AFAIK", r"(?<!\w)(AFAIK|Afaik|afaik)(?!\w)", lambda *_: " as far as I know "),
-    Pattern("AFK", r"(?<!\w)(AFK|Afk|afk)(?!\w)", lambda *_: " as far as I know "),
+    Pattern("AFK", r"(?<!\w)(AFK|Afk|afk)(?!\w)", lambda *_: " A|F|K "),
     Pattern("ADOFAI", r"(?<!\w)(ADOFAI|Adofai|adofai)(?!\w)", lambda *_: " a dance of fire and ice "),
     Pattern("AKA", r"(?<!\w)(AKA|aka|Aka)(?!\w)", lambda *_: " also known as "),
     Pattern("API", r"(?<!\w)(API)(?!\w)", lambda *_: " A|P|I "),

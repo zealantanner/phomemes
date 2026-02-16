@@ -8,52 +8,51 @@ delimiter: "the" {the} (the) ¿the?
 order of operations:
 
 
-
 - classify
     - invalid_character
         once this is used it doesn't need to run ever again.
 
     - trailing_joiner
         - start
-            " hello"
+            `" hello"`
         - end
-            "hello "
+            `"hello "`
 
     - enclosure
         include edge case for possible 
         - symmetric_pairs
             - parentheses
-                (...)
+                `(...)`
             - brackets
-                [...]
+                `[...]`
             - curly_brackets
-                {...}
+                `{...}`
             - angle_brackets
-                ⟨...⟩
+                `⟨...⟩`
             - less_than_greater_than
-                <...>
+                `<...>`
         - quotation
             - double
-                "...",“...”,«...»
+                `"...",“...”,«...»`
             - single
-                '...',‘...’,‹...›
+                `'...',‘...’,‹...›`
         - inverted_punctuation
             - question
-                ¿...?
+                `¿...?`
             - exclamation
-                ¡...!
+                `¡...!`
         - emphasis
             - asterisk
-                *...*,**...**,***...***
-            - _..._
-            - ~...~
-            - ^...^
+                `*...*,**...**,***...***`
+            - `_..._`
+            - `~...~`
+            - `^...^`
         - code
-            `...`,```...```
+            \`...\`,\`\`\`...\`\`\`
     - email_or_url
-        thing@thing.thing
+        `thing@thing.thing`
     - time
-        12:04 pm
+        `12:04 pm`
     - currency
         - dollars
             - cents
@@ -63,25 +62,25 @@ order of operations:
             - cents
         - yen
     - degrees
-        just degrees would just mean °
+        just degrees would just mean `°`
         - F
-            °F
+            `°F`
         - C
-            °C
+            `°C`
         - K
-            °K
+            `°K`
     - phone_number
     - hashtag
-        #cool
+        `#cool`
         - number
-            #12
+            `#12`
     - number
         - ordinal_number
-            1st 2nd 3rd 4th
+            `1st 2nd 3rd 4th`
             - plural
-                1sts 3rds 5ths
+                `1sts 3rds 5ths`
             - ly
-                3rdly
+                `3rdly`
             - nth????????
         - fraction
         - integer
@@ -89,48 +88,50 @@ order of operations:
         - decimal
 
     - abbreviations
-        "i.e.", "e.g.", "misc.", "etc."
+        `"i.e.", "e.g.", "misc.", "etc."`
     - word_joiner_word
-        "hello there"
+        `"hello there"`
     - word_like
         - names
         - acronym
         - word
-    <!-- - delimiter -->
+     <!-- - delimiter --> 
 
 
 
 - transform
     - currency
         - dollars
-            $12.34
+            `$12.34`
             - cents
-                .34
+                `.34`
         - euros
-            - cents
+            has cents
         - pounds
-            - pence
+            has cents
         - yen
+	        doesn't have cents
+        
     - number
         - commas
-            1,234
+            `1,234`
         - decimal
-            .1234
+            `.1234`
         - fraction
-            12/34
+            `12/34`
         - integer
-            1234
+            `1234`
         - ordinal
-            1234th (can have commas)
+            `1234th` (can have commas)
             - ly
-                1stly
+                `1stly`
             - plural
-                2nds
+                `2nds`
     - word_like
         - acronym
-
+			
         - names
-            zealan
+            `zealan`
 
 
 fat4the
@@ -139,18 +140,11 @@ fat4the
 
 this (is a "cool) sentence" I think"
 
-this (is a "cool) sentence" I think"
-
-
 - Set((0,36,36),`this (is a "cool) sentence"I think"`)
   - Set()
   - Enclosure()
 
-
-
 define sentences afterward, don't make them into sets
-
-
 
 Functions that need to be made
 transform
@@ -193,5 +187,7 @@ brackets	Enclosure
 
 
 
+```
 He whispered ("very quietly.").
-                  end is here ^
+            end is not here^  ^end is here
+```
